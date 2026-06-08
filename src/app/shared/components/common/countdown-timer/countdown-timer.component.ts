@@ -3,14 +3,11 @@ import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-countdown-timer',
-  imports: [
-    CommonModule,
-  ],
+  imports: [CommonModule],
   templateUrl: './countdown-timer.component.html',
-  styles: ``
+  styles: ``,
 })
 export class CountdownTimerComponent {
-
   @Input() targetDate!: Date;
 
   timeLeft = {

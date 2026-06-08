@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { UserMetaCardComponent } from '../../shared/components/user-profile/user-meta-card/user-meta-card.component';
@@ -11,11 +10,9 @@ import { UserAddressCardComponent } from '../../shared/components/user-profile/u
     PageBreadcrumbComponent,
     UserMetaCardComponent,
     UserInfoCardComponent,
-    UserAddressCardComponent
-],
+    UserAddressCardComponent,
+  ],
   templateUrl: './profile.component.html',
-  styles: ``
+  styles: ``,
 })
-export class ProfileComponent {
-
-}
+export class ProfileComponent {}

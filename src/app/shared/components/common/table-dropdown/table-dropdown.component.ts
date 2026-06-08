@@ -1,27 +1,19 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  Input,
-  ElementRef,
-  ViewChild,
-  TemplateRef,
-} from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, TemplateRef } from '@angular/core';
 import { createPopper, Instance } from '@popperjs/core';
-
 
 @Component({
   selector: 'app-table-dropdown',
   imports: [CommonModule],
   templateUrl: './table-dropdown.component.html',
-  styles: ``
+  styles: ``,
 })
 export class TableDropdownComponent {
-
   @Input() dropdownButton: any;
   @Input() dropdownContent: any;
   @ViewChild('buttonRef') buttonRef!: ElementRef<HTMLDivElement>;
   @ViewChild('contentRef') contentRef!: ElementRef<HTMLDivElement>;
-  
+
   isOpen = false;
   private popperInstance: Instance | null = null;
 
@@ -44,7 +36,7 @@ export class TableDropdownComponent {
               },
             },
           ],
-        }
+        },
       );
     }
   }
