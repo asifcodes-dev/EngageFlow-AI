@@ -54,7 +54,7 @@ Requires Node.js 20.x+. Angular CLI is used directly via `ng` (installed locally
 - `shared/components/{form,charts,cards,tables,ecommerce,invoice,header,...}/` — larger reusable building blocks.
 - `shared/components/common/` — cross-cutting widgets (breadcrumb, component-card wrapper, theme toggles, chart tabs).
 
-**Charts** use ApexCharts via `ng-apexcharts`; `apexcharts.min.js` is loaded as a global script in [angular.json](angular.json). amCharts5 is also a dependency (used by PRO map pages). Chart options and series are defined as typed public fields on the component class (see [monthly-sales-chart.component.ts](src/app/shared/components/ecommerce/monthly-sales-chart/monthly-sales-chart.component.ts) as the canonical pattern).
+**Charts** use ApexCharts via `ng-apexcharts`, which lazy-loads ApexCharts itself (`import('apexcharts/client')`) — the `scripts` array in [angular.json](angular.json) is intentionally empty; do not re-add `apexcharts.min.js` there or it ships twice. amCharts5 is also a dependency (used by PRO map pages). Chart options and series are defined as typed public fields on the component class (see [monthly-sales-chart.component.ts](src/app/shared/components/ecommerce/monthly-sales-chart/monthly-sales-chart.component.ts) as the canonical pattern).
 
 **Icons** are inline SVG markup stored as strings and rendered through the `SafeHtmlPipe` ([src/app/shared/pipe/safe-html.pipe.ts](src/app/shared/pipe/safe-html.pipe.ts), which calls `bypassSecurityTrustHtml`). The sidebar nav items are the main example — each `NavItem.icon` is a raw SVG string.
 
