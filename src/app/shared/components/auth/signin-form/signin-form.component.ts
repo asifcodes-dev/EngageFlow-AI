@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
@@ -15,13 +14,12 @@ import { FormsModule } from '@angular/forms';
     ButtonComponent,
     InputFieldComponent,
     RouterModule,
-    FormsModule
-],
+    FormsModule,
+  ],
   templateUrl: './signin-form.component.html',
-  styles: ``
+  styles: ``,
 })
 export class SigninFormComponent {
-
   showPassword = false;
   isChecked = false;
 

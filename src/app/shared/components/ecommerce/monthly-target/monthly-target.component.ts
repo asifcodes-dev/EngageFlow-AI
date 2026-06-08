@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import {
   ApexNonAxisChartSeries,
@@ -14,11 +13,7 @@ import { DropdownItemComponent } from '../../ui/dropdown/dropdown-item/dropdown-
 
 @Component({
   selector: 'app-monthly-target',
-  imports: [
-    NgApexchartsModule,
-    DropdownComponent,
-    DropdownItemComponent
-],
+  imports: [NgApexchartsModule, DropdownComponent, DropdownItemComponent],
   templateUrl: './monthly-target.component.html',
 })
 export class MonthlyTargetComponent {

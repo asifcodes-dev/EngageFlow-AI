@@ -1,23 +1,13 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  Output
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-modal',
-  imports: [
-    CommonModule,
-  ],
+  imports: [CommonModule],
   templateUrl: './modal.component.html',
-  styles: ``
+  styles: ``,
 })
 export class ModalComponent {
-
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
   @Input() className = '';
@@ -50,7 +40,7 @@ export class ModalComponent {
     event.stopPropagation();
   }
 
- @HostListener('document:keydown.escape')
+  @HostListener('document:keydown.escape')
   onEscape() {
     if (this.isOpen) {
       this.close.emit();

@@ -10,22 +10,17 @@ import {
   ApexLegend,
   ApexGrid,
   ApexFill,
-  ApexTooltip
+  ApexTooltip,
 } from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
-
-
 @Component({
   selector: 'app-bar-chart-one',
-  imports: [
-    NgApexchartsModule
-],
+  imports: [NgApexchartsModule],
   templateUrl: './bar-chart-one.component.html',
-  styles: ``
+  styles: ``,
 })
 export class BarChartOneComponent {
-
   public series: ApexAxisChartSeries = [
     {
       name: 'Sales',
@@ -65,8 +60,18 @@ export class BarChartOneComponent {
 
   public xaxis: ApexXAxis = {
     categories: [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ],
     axisBorder: {
       show: false,

@@ -1,4 +1,3 @@
-
 import { Component, Input, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
 import flatpickr from 'flatpickr';
 
@@ -6,10 +5,9 @@ import flatpickr from 'flatpickr';
   selector: 'app-time-picker',
   imports: [],
   templateUrl: './time-picker.component.html',
-  styles: ``
+  styles: ``,
 })
 export class TimePickerComponent {
-
   @Input() id!: string;
   @Input() label: string = 'Time Select Input';
   @Input() placeholder: string = 'Select time';
@@ -25,13 +23,13 @@ export class TimePickerComponent {
     this.flatpickrInstance = flatpickr(this.timeInput.nativeElement, {
       enableTime: true,
       noCalendar: true,
-      dateFormat: 'H:i',   // time format HH:mm
-      time_24hr: false,    // set true for 24hr clock
+      dateFormat: 'H:i', // time format HH:mm
+      time_24hr: false, // set true for 24hr clock
       minuteIncrement: 1,
       defaultDate: this.defaultTime,
       onChange: (selectedDates, dateStr) => {
         this.timeChange.emit(dateStr); // emit "HH:mm"
-      }
+      },
     });
   }
 

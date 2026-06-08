@@ -5,5 +5,4 @@ import { register as registerSwiperElements } from 'swiper/element/bundle';
 
 registerSwiperElements();
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));

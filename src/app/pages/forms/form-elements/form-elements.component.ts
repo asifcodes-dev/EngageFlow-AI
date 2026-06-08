@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { DefaultInputsComponent } from '../../../shared/components/form/form-elements/default-inputs/default-inputs.component';
@@ -25,11 +24,9 @@ import { DropzoneComponent } from '../../../shared/components/form/form-elements
     CheckboxComponentsComponent,
     RadioButtonsComponent,
     ToggleSwitchComponent,
-    DropzoneComponent
-],
+    DropzoneComponent,
+  ],
   templateUrl: './form-elements.component.html',
-  styles: ``
+  styles: ``,
 })
-export class FormElementsComponent {
-
-}
+export class FormElementsComponent {}

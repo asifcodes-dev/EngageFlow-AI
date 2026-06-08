@@ -1,0 +1,14 @@
+# Build output / caches
+dist
+.angular
+coverage
+out-tsc
+
+# Dependencies
+node_modules
+
+# Lockfiles & generated
+package-lock.json
+
+# Static assets
+public
