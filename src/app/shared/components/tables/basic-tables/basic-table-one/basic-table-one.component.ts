@@ -1,17 +1,13 @@
-
 import { Component } from '@angular/core';
 import { BadgeComponent } from '../../../ui/badge/badge.component';
 
 @Component({
   selector: 'app-basic-table-one',
-  imports: [
-    BadgeComponent
-],
+  imports: [BadgeComponent],
   templateUrl: './basic-table-one.component.html',
-  styles: ``
+  styles: ``,
 })
 export class BasicTableOneComponent {
-
   tableData = [
     {
       id: 1,

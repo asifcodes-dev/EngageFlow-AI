@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { LabelComponent } from '../../label/label.component';
 import { InputFieldComponent } from '../../input/input-field.component';
@@ -15,13 +14,12 @@ import { TimePickerComponent } from '../../time-picker/time-picker.component';
     InputFieldComponent,
     SelectComponent,
     DatePickerComponent,
-    TimePickerComponent
-],
+    TimePickerComponent,
+  ],
   templateUrl: './default-inputs.component.html',
-  styles: ``
+  styles: ``,
 })
 export class DefaultInputsComponent {
-
   showPassword = false;
   options = [
     { value: 'marketing', label: 'Marketing' },
