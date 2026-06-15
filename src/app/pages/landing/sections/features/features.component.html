@@ -1,0 +1,28 @@
+<section id="features" class="ef-section scroll-mt-20 bg-gray-50 dark:bg-white/[0.02]">
+  <div class="ef-container">
+    <div class="ef-section-head">
+      <span class="ef-eyebrow">Features</span>
+      <h2 class="ef-heading">Everything you need to sell on Instagram</h2>
+      <p class="ef-subheading">
+        One platform to reply, protect, and convert — so no comment or DM ever goes unanswered
+        again.
+      </p>
+    </div>
+
+    <div class="mt-12 grid gap-5 sm:mt-14 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+      @for (feature of features; track feature.title) {
+        <div
+          class="ef-card p-6 transition hover:border-brand-200 hover:shadow-theme-md dark:hover:border-brand-500/40"
+        >
+          <span class="ef-icon-box h-12 w-12" [innerHTML]="feature.icon | safeHtml"></span>
+          <h3 class="mt-5 text-lg font-semibold text-gray-900 dark:text-white">
+            {{ feature.title }}
+          </h3>
+          <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
+            {{ feature.description }}
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

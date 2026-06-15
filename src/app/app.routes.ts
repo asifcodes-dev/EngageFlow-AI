@@ -18,88 +18,97 @@ import { VideosComponent } from './pages/ui-elements/videos/videos.component';
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { CalenderComponent } from './pages/calender/calender.component';
+import { LandingComponent } from './pages/landing/landing.component';
 
 export const routes: Routes = [
+  // public marketing landing page (no app chrome)
   {
     path: '',
+    component: LandingComponent,
+    pathMatch: 'full',
+    title: 'EngageFlow AI — AI-Powered Instagram DM & Comment Automation',
+  },
+  // authenticated dashboard (sidebar + header shell)
+  {
+    path: 'dashboard',
     component: AppLayoutComponent,
     children: [
       {
         path: '',
         component: EcommerceComponent,
         pathMatch: 'full',
-        title: 'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Dashboard | EngageFlow AI',
       },
       {
         path: 'calendar',
         component: CalenderComponent,
-        title: 'Angular Calender | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Calendar | EngageFlow AI',
       },
       {
         path: 'profile',
         component: ProfileComponent,
-        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Profile | EngageFlow AI',
       },
       {
         path: 'form-elements',
         component: FormElementsComponent,
-        title: 'Angular Form Elements Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Form Elements | EngageFlow AI',
       },
       {
         path: 'basic-tables',
         component: BasicTablesComponent,
-        title: 'Angular Basic Tables Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Basic Tables | EngageFlow AI',
       },
       {
         path: 'blank',
         component: BlankComponent,
-        title: 'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Blank Page | EngageFlow AI',
       },
       // support tickets
       {
         path: 'invoice',
         component: InvoicesComponent,
-        title: 'Angular Invoice Details Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Invoice Details | EngageFlow AI',
       },
       {
         path: 'line-chart',
         component: LineChartComponent,
-        title: 'Angular Line Chart Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Line Chart | EngageFlow AI',
       },
       {
         path: 'bar-chart',
         component: BarChartComponent,
-        title: 'Angular Bar Chart Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Bar Chart | EngageFlow AI',
       },
       {
         path: 'alerts',
         component: AlertsComponent,
-        title: 'Angular Alerts Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Alerts | EngageFlow AI',
       },
       {
         path: 'avatars',
         component: AvatarElementComponent,
-        title: 'Angular Avatars Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Avatars | EngageFlow AI',
       },
       {
         path: 'badge',
         component: BadgesComponent,
-        title: 'Angular Badges Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Badges | EngageFlow AI',
       },
       {
         path: 'buttons',
         component: ButtonsComponent,
-        title: 'Angular Buttons Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Buttons | EngageFlow AI',
       },
       {
         path: 'images',
         component: ImagesComponent,
-        title: 'Angular Images Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Images | EngageFlow AI',
       },
       {
         path: 'videos',
         component: VideosComponent,
-        title: 'Angular Videos Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Videos | EngageFlow AI',
       },
     ],
   },
@@ -107,17 +116,17 @@ export const routes: Routes = [
   {
     path: 'signin',
     component: SignInComponent,
-    title: 'Angular Sign In Dashboard | TailAdmin - Angular Admin Dashboard Template',
+    title: 'Sign In | EngageFlow AI',
   },
   {
     path: 'signup',
     component: SignUpComponent,
-    title: 'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template',
+    title: 'Sign Up | EngageFlow AI',
   },
   // error pages
   {
     path: '**',
     component: NotFoundComponent,
-    title: 'Angular NotFound Dashboard | TailAdmin - Angular Admin Dashboard Template',
+    title: 'Page Not Found | EngageFlow AI',
   },
 ];

@@ -188,6 +188,9 @@ layer(base);
   body {
     @apply relative font-normal font-outfit z-1 bg-gray-50;
   }
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @utility menu-item {
@@ -291,6 +294,59 @@ layer(base);
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #344054;
+}
+
+/* ===== EngageFlow shared UI utilities (mobile-first; reusable across the app) ===== */
+@utility ef-container {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+@utility ef-container-sm {
+  @apply mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8;
+}
+@utility ef-section {
+  @apply py-14 sm:py-20 lg:py-28;
+}
+@utility ef-section-head {
+  @apply mx-auto max-w-2xl text-center;
+}
+@utility ef-eyebrow {
+  @apply text-sm font-semibold text-brand-500;
+}
+@utility ef-heading {
+  @apply mt-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-4xl dark:text-white;
+}
+@utility ef-subheading {
+  @apply mt-4 text-base leading-7 text-gray-600 sm:text-lg dark:text-gray-300;
+}
+@utility ef-card {
+  @apply rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-800;
+}
+@utility ef-icon-box {
+  @apply flex items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400;
+}
+@utility ef-btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-medium transition;
+}
+@utility ef-btn-primary {
+  @apply bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600;
+}
+@utility ef-btn-outline {
+  @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-white/5;
+}
+@utility ef-btn-white {
+  @apply bg-white text-brand-600 shadow-theme-xs hover:bg-brand-50;
+}
+@utility ef-btn-ghost {
+  @apply text-gray-700 hover:text-brand-500 dark:text-gray-300 dark:hover:text-brand-400;
+}
+@utility ef-icon-btn {
+  @apply flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/5;
+}
+@utility ef-nav-link {
+  @apply text-sm font-medium text-gray-600 transition-colors hover:text-brand-500 dark:text-gray-300 dark:hover:text-brand-400;
+}
+@utility ef-footer-link {
+  @apply text-sm text-gray-500 transition hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400;
 }
 
 @layer utilities {
