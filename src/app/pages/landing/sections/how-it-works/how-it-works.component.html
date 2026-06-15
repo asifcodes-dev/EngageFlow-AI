@@ -1,0 +1,33 @@
+<section id="how-it-works" class="ef-section scroll-mt-20">
+  <div class="ef-container">
+    <div class="ef-section-head">
+      <span class="ef-eyebrow">How it works</span>
+      <h2 class="ef-heading">Launch in 3 simple steps</h2>
+      <p class="ef-subheading">
+        Go from sign-up to a fully automated Instagram inbox in minutes — no developers needed.
+      </p>
+    </div>
+
+    <div class="relative mt-12 grid gap-8 sm:mt-14 md:grid-cols-3">
+      <!-- connecting line (desktop) -->
+      <div
+        aria-hidden="true"
+        class="absolute top-7 right-[16.66%] left-[16.66%] hidden border-t-2 border-dashed border-gray-200 md:block dark:border-gray-700"
+      ></div>
+
+      @for (step of steps; track step.number) {
+        <div class="relative text-center">
+          <div
+            class="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-lg font-bold text-white shadow-theme-md"
+          >
+            {{ step.number }}
+          </div>
+          <h3 class="mt-5 text-lg font-semibold text-gray-900 dark:text-white">{{ step.title }}</h3>
+          <p class="mx-auto mt-2 max-w-xs text-sm leading-6 text-gray-600 dark:text-gray-400">
+            {{ step.description }}
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

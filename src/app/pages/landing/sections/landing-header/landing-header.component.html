@@ -1,0 +1,118 @@
+<header
+  class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80"
+>
+  <div class="ef-container flex h-16 items-center justify-between lg:h-18">
+    <!-- Brand -->
+    <a routerLink="/" class="flex items-center gap-2.5" aria-label="EngageFlow AI home">
+      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-white">
+        <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+          <path
+            fill-rule="evenodd"
+            d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.521 1.978.292 3.348 2.024 3.348 3.97v6.019c0 1.946-1.37 3.678-3.348 3.97a48.9 48.9 0 0 1-3.476.384.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.678 3.348-3.97Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </span>
+      <span class="text-lg font-bold text-gray-900 dark:text-white">
+        EngageFlow <span class="text-brand-500">AI</span>
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden items-center gap-8 lg:flex">
+      @for (link of navLinks; track link.fragment) {
+        <a href="#{{ link.fragment }}" class="ef-nav-link">{{ link.label }}</a>
+      }
+    </nav>
+
+    <!-- Right actions -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button
+        type="button"
+        (click)="toggleTheme()"
+        aria-label="Toggle dark mode"
+        class="ef-icon-btn"
+      >
+        @if ((theme$ | async) === 'dark') {
+          <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+            <path
+              d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.243a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z"
+            />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+            <path
+              d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
+            />
+          </svg>
+        }
+      </button>
+
+      <a routerLink="/signin" class="ef-btn ef-btn-ghost hidden sm:inline-flex">Sign In</a>
+      <a routerLink="/signup" class="ef-btn ef-btn-primary hidden sm:inline-flex">Start For Free</a>
+
+      <button
+        type="button"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="mobileMenuOpen()"
+        aria-label="Toggle navigation menu"
+        class="ef-icon-btn lg:hidden"
+      >
+        @if (mobileMenuOpen()) {
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            class="h-6 w-6"
+            aria-hidden="true"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        } @else {
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            class="h-6 w-6"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
+            />
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  @if (mobileMenuOpen()) {
+    <div
+      class="border-t border-gray-200 bg-white px-4 py-4 lg:hidden dark:border-gray-800 dark:bg-gray-900"
+    >
+      <nav class="flex flex-col gap-1">
+        @for (link of navLinks; track link.fragment) {
+          <a
+            href="#{{ link.fragment }}"
+            (click)="closeMobileMenu()"
+            class="rounded-lg px-3 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
+          >
+            {{ link.label }}
+          </a>
+        }
+        <div class="mt-2 flex flex-col gap-2 border-t border-gray-200 pt-3 dark:border-gray-800">
+          <a routerLink="/signin" (click)="closeMobileMenu()" class="ef-btn ef-btn-outline w-full">
+            Sign In
+          </a>
+          <a routerLink="/signup" (click)="closeMobileMenu()" class="ef-btn ef-btn-primary w-full">
+            Start For Free
+          </a>
+        </div>
+      </nav>
+    </div>
+  }
+</header>

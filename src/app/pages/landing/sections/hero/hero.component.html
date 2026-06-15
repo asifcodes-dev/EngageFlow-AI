@@ -1,0 +1,137 @@
+<section class="relative overflow-hidden">
+  <!-- decorative background -->
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+    <div
+      class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-400/20 blur-3xl"
+    ></div>
+    <div
+      class="absolute top-40 right-0 h-72 w-72 rounded-full bg-theme-purple-500/10 blur-3xl"
+    ></div>
+  </div>
+
+  <div
+    class="ef-container py-12 sm:py-16 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-24"
+  >
+    <!-- Copy -->
+    <div class="max-w-xl">
+      <span
+        class="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-600 sm:text-sm dark:border-brand-500/20 dark:bg-brand-500/10 dark:text-brand-400"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
+        Replies in Hindi, Gujarati, Urdu &amp; Hinglish
+      </span>
+
+      <h1
+        class="mt-5 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white"
+      >
+        Turn Instagram comments into a <span class="text-brand-500">24/7 sales team</span>
+      </h1>
+
+      <p class="mt-5 text-base leading-7 text-gray-600 sm:text-lg sm:leading-8 dark:text-gray-300">
+        EngageFlow AI auto-replies to every comment and DM with your own product prices, deletes
+        spam before customers see it, and captures leads — automatically, in your customer's
+        language.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a routerLink="/signup" class="ef-btn ef-btn-primary w-full sm:w-auto">
+          Start For Free
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            class="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+            />
+          </svg>
+        </a>
+        <a href="#how-it-works" class="ef-btn ef-btn-outline w-full sm:w-auto">See how it works</a>
+      </div>
+
+      <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+        Free plan available · No credit card required
+      </p>
+    </div>
+
+    <!-- Product mockup -->
+    <div class="mt-10 lg:mt-0">
+      <div class="ef-card mx-auto max-w-md p-5 shadow-theme-xl">
+        <!-- Post header -->
+        <div class="flex items-center gap-3 border-b border-gray-100 pb-4 dark:border-gray-700">
+          <div class="h-10 w-10 rounded-full bg-brand-500"></div>
+          <div>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">@yourbrand</p>
+            <p class="text-xs text-gray-400">Sneaker drop · 2m</p>
+          </div>
+          <span
+            class="ml-auto inline-flex items-center gap-1 rounded-full bg-success-50 px-2 py-1 text-xs font-medium text-success-600 dark:bg-success-500/15 dark:text-success-500"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> Live
+          </span>
+        </div>
+
+        <!-- Customer comment -->
+        <div class="mt-4 flex items-start gap-3">
+          <div class="h-8 w-8 shrink-0 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+          <div class="rounded-2xl rounded-tl-sm bg-gray-100 px-4 py-2.5 dark:bg-gray-700">
+            <p class="text-sm text-gray-700 dark:text-gray-200">Bhai yeh shoes kitne ke hain? 🔥</p>
+          </div>
+        </div>
+
+        <!-- AI reply -->
+        <div class="mt-3 flex items-start justify-end">
+          <div class="max-w-[85%] rounded-2xl rounded-tr-sm bg-brand-500 px-4 py-2.5 text-white">
+            <p class="text-sm">
+              Hey! 😊 The Air Runner Pro is just ₹2,499. DM us to grab a pair — sizes are selling
+              fast!
+            </p>
+          </div>
+        </div>
+        <div class="mt-2 flex items-center justify-end gap-1.5 text-xs text-gray-400">
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="h-3.5 w-3.5 text-brand-500"
+            aria-hidden="true"
+          >
+            <path
+              d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5Z"
+            />
+          </svg>
+          Replied by AI in 1.2s
+        </div>
+
+        <!-- Spam toast -->
+        <div
+          class="mt-4 flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-900/50"
+        >
+          <span
+            class="flex h-6 w-6 items-center justify-center rounded-full bg-error-50 text-error-500 dark:bg-error-500/15"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              class="h-3.5 w-3.5"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.166L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397M4.772 5.79a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+              />
+            </svg>
+          </span>
+          <p class="text-xs text-gray-500 dark:text-gray-400">1 spam comment auto-deleted</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
