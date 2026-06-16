@@ -19,7 +19,7 @@
         stroke-linejoin="round"
       ></path>
     </svg>
-    Back to dashboard
+    Back to home
   </a>
 </div>
 
@@ -32,13 +32,15 @@
         Sign In
       </h1>
       <p class="text-sm text-gray-500 dark:text-gray-400">
-        Enter your email and password to sign in!
+        Welcome back! Sign in to your EngageFlow AI dashboard.
       </p>
     </div>
 
     <!-- OAuth Buttons -->
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
       <button
+        type="button"
+        (click)="onOAuth('google')"
         class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
       >
         <svg
@@ -65,24 +67,25 @@
             fill="#EB4335"
           />
         </svg>
-        Sign in with Google
+        Google
       </button>
       <button
+        type="button"
+        (click)="onOAuth('instagram')"
         class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
       >
         <svg
-          width="21"
-          class="fill-current"
+          width="20"
           height="20"
-          viewBox="0 0 21 20"
-          fill="none"
+          viewBox="0 0 24 24"
+          fill="#E1306C"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z"
+            d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm4.75-2.5a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5z"
           />
         </svg>
-        Sign in with X
+        Instagram
       </button>
     </div>
 
@@ -102,12 +105,15 @@
         <app-label>Email <span class="text-error-500">*</span></app-label>
         <app-input-field
           type="email"
-          placeholder="info@gmail.com"
-          [value]="email"
+          placeholder="you@business.com"
+          [(value)]="email"
           name="email"
-          class="form-input"
+          [error]="!!emailError"
           required
         />
+        @if (emailError) {
+          <p class="mt-1.5 text-xs text-error-500">{{ emailError }}</p>
+        }
       </div>
 
       <div>
@@ -116,14 +122,16 @@
           <app-input-field
             [type]="showPassword ? 'text' : 'password'"
             placeholder="Enter your password"
-            [value]="password"
+            [(value)]="password"
             name="password"
-            class="form-input"
+            [error]="!!passwordError"
             required
           />
-          <span
+          <button
+            type="button"
             (click)="togglePasswordVisibility()"
-            class="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            class="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-5.5"
           >
             @if (showPassword) {
               <svg
@@ -156,8 +164,11 @@
                 ></path>
               </svg>
             }
-          </span>
+          </button>
         </div>
+        @if (passwordError) {
+          <p class="mt-1.5 text-xs text-error-500">{{ passwordError }}</p>
+        }
       </div>
 
       <div class="flex items-center justify-between">
@@ -172,7 +183,9 @@
         </a>
       </div>
 
-      <app-button className="w-full" size="sm" (btnClick)="onSignIn()"> Sign in </app-button>
+      <app-button className="w-full" size="sm" [disabled]="loading" (btnClick)="onSignIn()">
+        {{ loading ? 'Signing in…' : 'Sign in' }}
+      </app-button>
     </form>
 
     <div class="mt-5">

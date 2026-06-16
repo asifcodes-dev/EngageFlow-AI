@@ -17,8 +17,12 @@ import { ImagesComponent } from './pages/ui-elements/images/images.component';
 import { VideosComponent } from './pages/ui-elements/videos/videos.component';
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
+import { ResetPasswordComponent } from './pages/auth-pages/reset-password/reset-password.component';
 import { CalenderComponent } from './pages/calender/calender.component';
 import { LandingComponent } from './pages/landing/landing.component';
+import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
+import { TermsOfServiceComponent } from './pages/legal/terms-of-service/terms-of-service.component';
+import { RefundPolicyComponent } from './pages/legal/refund-policy/refund-policy.component';
 
 export const routes: Routes = [
   // public marketing landing page (no app chrome)
@@ -112,6 +116,22 @@ export const routes: Routes = [
       },
     ],
   },
+  // public legal pages (no app chrome)
+  {
+    path: 'privacy-policy',
+    component: PrivacyPolicyComponent,
+    title: 'Privacy Policy | EngageFlow AI',
+  },
+  {
+    path: 'terms-of-service',
+    component: TermsOfServiceComponent,
+    title: 'Terms of Service | EngageFlow AI',
+  },
+  {
+    path: 'refund-policy',
+    component: RefundPolicyComponent,
+    title: 'Refund Policy | EngageFlow AI',
+  },
   // auth pages
   {
     path: 'signin',
@@ -122,6 +142,11 @@ export const routes: Routes = [
     path: 'signup',
     component: SignUpComponent,
     title: 'Sign Up | EngageFlow AI',
+  },
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent,
+    title: 'Reset Password | EngageFlow AI',
   },
   // error pages
   {

@@ -3,7 +3,10 @@ import { RouterModule } from '@angular/router';
 
 interface FooterLink {
   label: string;
-  href: string;
+  /** In-page anchor or external URL. */
+  href?: string;
+  /** Internal router path; takes precedence over href when set. */
+  route?: string;
 }
 
 @Component({
@@ -29,8 +32,8 @@ export class LandingFooterComponent {
   ];
 
   readonly legalLinks: FooterLink[] = [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
-    { label: 'Refund Policy', href: '#' },
+    { label: 'Privacy Policy', route: '/privacy-policy' },
+    { label: 'Terms of Service', route: '/terms-of-service' },
+    { label: 'Refund Policy', route: '/refund-policy' },
   ];
 }
