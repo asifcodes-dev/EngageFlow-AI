@@ -374,11 +374,20 @@ layer(base);
 }
 @utility ef-marquee-track {
   @apply flex w-max;
-  animation: ef-marquee var(--ef-marquee-duration, 45s) linear infinite;
+  animation: ef-marquee var(--ef-marquee-duration, 38s) linear infinite;
 }
+/* Viewport clips the track while it auto-scrolls. */
+.ef-marquee-viewport {
+  overflow: hidden;
+}
+/* When the OS asks for reduced motion, stop the auto-scroll but keep the row
+   usable by letting the user swipe through it horizontally. */
 @media (prefers-reduced-motion: reduce) {
   .ef-marquee-track {
     animation: none;
+  }
+  .ef-marquee-viewport {
+    overflow-x: auto;
   }
 }
 /* Long-form legal/content prose — styles raw semantic HTML so pages stay readable */
