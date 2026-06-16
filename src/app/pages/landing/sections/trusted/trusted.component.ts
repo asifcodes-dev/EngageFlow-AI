@@ -10,6 +10,8 @@ interface Profile {
   followers: string;
   following: string;
   bio: string;
+  /** Niche keywords (one per post slot) used to pull on-theme photos. */
+  keywords: string[];
 }
 
 @Component({
@@ -29,6 +31,7 @@ export class TrustedComponent {
       followers: '18.4K',
       following: '512',
       bio: 'Handpicked ethnic wear ✨ COD available · Ships pan-India 🇮🇳',
+      keywords: ['saree', 'fashion', 'dress', 'jewellery', 'textile', 'boutique'],
     },
     {
       handle: 'rahul.fit',
@@ -39,6 +42,7 @@ export class TrustedComponent {
       followers: '47.1K',
       following: '291',
       bio: 'Online coaching 💪 Fat-loss & strength · DM "PLAN"',
+      keywords: ['gym', 'fitness', 'workout', 'dumbbell', 'running', 'muscle'],
     },
     {
       handle: 'aisha.glow',
@@ -49,6 +53,7 @@ export class TrustedComponent {
       followers: '33.8K',
       following: '140',
       bio: 'Clean skincare 🌿 Dermat-approved · Tap to shop',
+      keywords: ['skincare', 'cosmetics', 'spa', 'beauty', 'serum', 'makeup'],
     },
     {
       handle: 'mumbai.kicks',
@@ -59,6 +64,7 @@ export class TrustedComponent {
       followers: '51.1K',
       following: '38',
       bio: 'Sneaker drops 🔥 100% authentic · Limited stock',
+      keywords: ['sneakers', 'shoes', 'streetwear', 'footwear', 'trainers', 'fashion'],
     },
     {
       handle: 'the.book.nook',
@@ -69,6 +75,7 @@ export class TrustedComponent {
       followers: '11.5K',
       following: '203',
       bio: '📚 Indie reads & journals · Gift wrapping available',
+      keywords: ['books', 'bookstore', 'reading', 'library', 'journal', 'coffee'],
     },
     {
       handle: 'desi.decor',
@@ -79,8 +86,41 @@ export class TrustedComponent {
       followers: '22.3K',
       following: '88',
       bio: 'Handmade home decor 🪔 Made in India · DM to order',
+      keywords: ['decor', 'interior', 'candle', 'pottery', 'vase', 'plant'],
     },
   ];
 
-  readonly highlights = [1, 2, 3, 4];
+  // Posts/highlights use real, niche-matched photos from LoremFlickr (keyword + a
+  // `lock` param so they're deterministic). LoremFlickr can intermittently drop a
+  // request, so each <img> falls back to picsum (a very reliable CDN) on error —
+  // that guarantees a real photo always loads and the alt text never shows as
+  // broken. Swap these helpers for the business's actual product shots later.
+  readonly postSlots = [1, 2, 3, 4, 5, 6];
+  readonly highlightSlots = [1, 2, 3, 4];
+
+  postSrc(p: Profile, slot: number): string {
+    return `https://loremflickr.com/300/300/${p.keywords[slot - 1]}?lock=${slot}`;
+  }
+
+  highlightSrc(p: Profile, slot: number): string {
+    return `https://loremflickr.com/120/120/${p.keywords[slot - 1]}?lock=${slot + 20}`;
+  }
+
+  postFallback(p: Profile, slot: number): string {
+    return `https://picsum.photos/seed/${p.handle}-p${slot}/300/300`;
+  }
+
+  highlightFallback(p: Profile, slot: number): string {
+    return `https://picsum.photos/seed/${p.handle}-h${slot}/120/120`;
+  }
+
+  // Swap a broken image to its reliable fallback exactly once (no retry loop).
+  onImgError(event: Event, fallback: string): void {
+    const img = event.target as HTMLImageElement;
+    if (img.dataset['fallbackApplied']) {
+      return;
+    }
+    img.dataset['fallbackApplied'] = 'true';
+    img.src = fallback;
+  }
 }

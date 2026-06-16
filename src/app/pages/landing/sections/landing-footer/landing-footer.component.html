@@ -121,7 +121,11 @@
         <ul class="mt-4 space-y-3">
           @for (link of legalLinks; track link.label) {
             <li>
-              <a [attr.href]="link.href" class="ef-footer-link">{{ link.label }}</a>
+              @if (link.route) {
+                <a [routerLink]="link.route" class="ef-footer-link">{{ link.label }}</a>
+              } @else {
+                <a [attr.href]="link.href" class="ef-footer-link">{{ link.label }}</a>
+              }
             </li>
           }
         </ul>

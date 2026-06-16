@@ -19,7 +19,7 @@
         stroke-linejoin="round"
       ></path>
     </svg>
-    Back to dashboard
+    Back to home
   </a>
 </div>
 
@@ -29,16 +29,18 @@
       <h1
         class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md"
       >
-        Sign Up
+        Create your account
       </h1>
       <p class="text-sm text-gray-500 dark:text-gray-400">
-        Enter your email and password to sign up!
+        Start automating your Instagram replies in minutes — no credit card required.
       </p>
     </div>
 
     <!-- OAuth Buttons -->
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
       <button
+        type="button"
+        (click)="onOAuth('google')"
         class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
       >
         <svg
@@ -65,24 +67,25 @@
             fill="#EB4335"
           />
         </svg>
-        Sign up with Google
+        Google
       </button>
       <button
+        type="button"
+        (click)="onOAuth('instagram')"
         class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
       >
         <svg
-          width="21"
-          class="fill-current"
+          width="20"
           height="20"
-          viewBox="0 0 21 20"
-          fill="none"
+          viewBox="0 0 24 24"
+          fill="#E1306C"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z"
+            d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm4.75-2.5a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5z"
           />
         </svg>
-        Sign up with X
+        Instagram
       </button>
     </div>
 
@@ -96,7 +99,7 @@
       </div>
     </div>
 
-    <form>
+    <form (ngSubmit)="onSignUp()">
       <div class="space-y-5">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <!-- First Name -->
@@ -104,22 +107,30 @@
             <app-label> First Name<span class="text-error-500">*</span> </app-label>
             <app-input-field
               type="text"
-              [value]="fname"
+              [(value)]="fname"
               id="fname"
               name="fname"
               placeholder="Enter your first name"
+              [error]="!!fnameError"
             />
+            @if (fnameError) {
+              <p class="mt-1.5 text-xs text-error-500">{{ fnameError }}</p>
+            }
           </div>
           <!-- Last Name -->
           <div class="sm:col-span-1">
             <app-label> Last Name<span class="text-error-500">*</span> </app-label>
             <app-input-field
               type="text"
-              [value]="lname"
+              [(value)]="lname"
               id="lname"
               name="lname"
               placeholder="Enter your last name"
+              [error]="!!lnameError"
             />
+            @if (lnameError) {
+              <p class="mt-1.5 text-xs text-error-500">{{ lnameError }}</p>
+            }
           </div>
         </div>
         <!-- Email -->
@@ -127,11 +138,15 @@
           <app-label> Email <span class="text-error-500">*</span> </app-label>
           <app-input-field
             type="email"
-            [value]="email"
+            [(value)]="email"
             id="email"
             name="email"
-            placeholder="Enter your email"
+            placeholder="you@business.com"
+            [error]="!!emailError"
           />
+          @if (emailError) {
+            <p class="mt-1.5 text-xs text-error-500">{{ emailError }}</p>
+          }
         </div>
         <!-- Password -->
         <div>
@@ -139,15 +154,16 @@
           <div class="relative">
             <app-input-field
               [type]="showPassword ? 'text' : 'password'"
-              placeholder="Enter your password"
-              [value]="password"
+              placeholder="At least 8 characters"
+              [(value)]="password"
               name="password"
-              class="form-input"
-              required
+              [error]="!!passwordError"
             />
-            <span
+            <button
+              type="button"
               (click)="togglePasswordVisibility()"
-              class="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+              class="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-5.5"
             >
               @if (showPassword) {
                 <svg
@@ -180,25 +196,35 @@
                   ></path>
                 </svg>
               }
-            </span>
+            </button>
           </div>
+          @if (passwordError) {
+            <p class="mt-1.5 text-xs text-error-500">{{ passwordError }}</p>
+          }
         </div>
         <!-- Checkbox -->
-        <div class="flex items-center gap-3">
-          <app-checkbox className="w-5 h-5" [(checked)]="isChecked" />
-          <p class="inline-block font-normal text-gray-500 dark:text-gray-400">
-            By creating an account means you agree to the
-            <span class="text-gray-800 dark:text-white/90"> Terms and Conditions, </span>
-            and our
-            <span class="text-gray-800 dark:text-white"> Privacy Policy </span>
-          </p>
+        <div>
+          <div class="flex items-start gap-3">
+            <app-checkbox className="w-5 h-5" [(checked)]="isChecked" />
+            <p class="inline-block font-normal text-gray-500 dark:text-gray-400">
+              By creating an account you agree to the
+              <span class="text-gray-800 dark:text-white/90"> Terms and Conditions, </span>
+              and our
+              <span class="text-gray-800 dark:text-white"> Privacy Policy </span>
+            </p>
+          </div>
+          @if (termsError) {
+            <p class="mt-1.5 text-xs text-error-500">{{ termsError }}</p>
+          }
         </div>
         <!-- Button -->
         <div>
           <button
-            class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+            type="submit"
+            [disabled]="loading"
+            class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-300"
           >
-            Sign Up
+            {{ loading ? 'Creating account…' : 'Sign Up' }}
           </button>
         </div>
       </div>
@@ -206,9 +232,9 @@
 
     <div class="mt-5">
       <p class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-        Don't have an account?
-        <a routerLink="/signup" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">
-          Sign Up
+        Already have an account?
+        <a routerLink="/signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">
+          Sign In
         </a>
       </p>
     </div>
