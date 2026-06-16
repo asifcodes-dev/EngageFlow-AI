@@ -12,7 +12,10 @@
   </div>
 
   <!-- auto-scrolling marquee (pauses on hover, respects reduced-motion) -->
-  <div class="mt-12 overflow-hidden sm:mt-14" aria-label="Example Instagram business profiles">
+  <div
+    class="ef-marquee-viewport no-scrollbar mt-12 sm:mt-14"
+    aria-label="Example Instagram business profiles"
+  >
     <div class="ef-marquee-track hover:[animation-play-state:paused]">
       @for (p of profiles; track p.handle) {
         <ng-container [ngTemplateOutlet]="card" [ngTemplateOutletContext]="{ $implicit: p }">
