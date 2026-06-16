@@ -3,22 +3,42 @@
     class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0"
   >
     <ng-content></ng-content>
+
+    <!-- Brand / value panel (desktop only) -->
     <div
       class="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid relative"
     >
       <div class="flex items-center justify-center z-1">
         <!-- ===== Common Grid Shape Start ===== -->
         <app-grid-shape />
-        <div class="flex flex-col items-center max-w-xs">
-          <a routerLink="/" class="block mb-4">
-            <img width="231" height="48" src="/images/logo/auth-logo.svg" alt="Logo" />
+        <div class="flex flex-col items-center max-w-sm px-6 text-center">
+          <a routerLink="/" class="flex items-center gap-2.5 mb-6" aria-label="EngageFlow AI home">
+            <span
+              class="flex items-center justify-center text-white rounded-lg h-11 w-11 bg-brand-500"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" aria-hidden="true">
+                <path
+                  fill-rule="evenodd"
+                  d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.521 1.978.292 3.348 2.024 3.348 3.97v6.019c0 1.946-1.37 3.678-3.348 3.97a48.9 48.9 0 0 1-3.476.384.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.678 3.348-3.97Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </span>
+            <span class="text-2xl font-bold text-white">
+              EngageFlow <span class="text-brand-400">AI</span>
+            </span>
           </a>
-          <p class="text-center text-gray-400 dark:text-white/60">
-            Free and Open-Source Tailwind CSS Admin Dashboard Template
+          <p class="text-base font-medium text-white/90">
+            AI-powered Instagram comment &amp; DM automation
+          </p>
+          <p class="mt-2 text-sm text-gray-400 dark:text-white/60">
+            Auto-reply to comments, send DMs, and moderate spam in your customers' language — built
+            for Indian small businesses.
           </p>
         </div>
       </div>
     </div>
+
     <div class="fixed z-50 hidden bottom-6 right-6 sm:block">
       <app-theme-toggle-two />
     </div>

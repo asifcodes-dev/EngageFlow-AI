@@ -1,0 +1,37 @@
+<div class="min-h-screen bg-white dark:bg-gray-900">
+  <app-landing-header />
+
+  <main>
+    <!-- Title hero -->
+    <section class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.02]">
+      <div class="ef-container-sm py-14 sm:py-20">
+        <p class="ef-eyebrow">{{ eyebrow() }}</p>
+        <h1
+          class="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
+        >
+          {{ title() }}
+        </h1>
+        @if (intro()) {
+          <p class="mt-4 text-base leading-7 text-gray-600 sm:text-lg dark:text-gray-300">
+            {{ intro() }}
+          </p>
+        }
+        @if (lastUpdated()) {
+          <p class="mt-5 text-sm text-gray-500 dark:text-gray-400">
+            Last updated:
+            <span class="font-medium text-gray-700 dark:text-gray-300">{{ lastUpdated() }}</span>
+          </p>
+        }
+      </div>
+    </section>
+
+    <!-- Projected content -->
+    <article class="ef-container-sm py-12 sm:py-16">
+      <div class="ef-prose">
+        <ng-content />
+      </div>
+    </article>
+  </main>
+
+  <app-landing-footer />
+</div>

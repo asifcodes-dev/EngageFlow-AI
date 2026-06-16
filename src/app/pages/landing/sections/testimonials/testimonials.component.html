@@ -1,0 +1,45 @@
+<section class="ef-section bg-gray-50 dark:bg-white/[0.02]">
+  <div class="ef-container">
+    <div class="ef-section-head">
+      <span class="ef-eyebrow">Testimonials</span>
+      <h2 class="ef-heading">Loved by creators &amp; small businesses</h2>
+      <p class="ef-subheading">
+        Real results from Instagram sellers who let EngageFlow AI handle the conversations.
+      </p>
+    </div>
+
+    <div class="ef-row mt-12 sm:mt-14 lg:grid lg:grid-cols-3 lg:gap-6">
+      @for (t of testimonials; track t.name) {
+        <figure class="ef-card ef-row-item flex flex-col p-6">
+          <div class="flex gap-0.5 text-warning-400">
+            @for (s of stars; track s) {
+              <svg viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                <path
+                  d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z"
+                />
+              </svg>
+            }
+          </div>
+
+          <blockquote class="mt-4 flex-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
+            "{{ t.quote }}"
+          </blockquote>
+
+          <figcaption class="mt-6 flex items-center gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400"
+            >
+              {{ t.initials }}
+            </span>
+            <span>
+              <span class="block text-sm font-semibold text-gray-900 dark:text-white">
+                {{ t.name }}
+              </span>
+              <span class="block text-xs text-gray-500 dark:text-gray-400">{{ t.role }}</span>
+            </span>
+          </figcaption>
+        </figure>
+      }
+    </div>
+  </div>
+</section>
