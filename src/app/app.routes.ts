@@ -23,6 +23,7 @@ import { LandingComponent } from './pages/landing/landing.component';
 import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
 import { TermsOfServiceComponent } from './pages/legal/terms-of-service/terms-of-service.component';
 import { RefundPolicyComponent } from './pages/legal/refund-policy/refund-policy.component';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   // public marketing landing page (no app chrome)
@@ -36,6 +37,8 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: AppLayoutComponent,
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       {
         path: '',

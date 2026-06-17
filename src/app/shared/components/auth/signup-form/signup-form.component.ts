@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
+import { AuthService } from '../../../services/auth.service';
+import { extractAuthError } from '../signin-form/signin-form.component';
 
 @Component({
   selector: 'app-signup-form',
@@ -22,8 +24,11 @@ export class SignupFormComponent {
 
   submitted = false;
   loading = false;
+  errorMessage = '';
+  infoMessage = '';
 
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   get fnameError(): string {
     if (!this.submitted) return '';
@@ -60,6 +65,8 @@ export class SignupFormComponent {
 
   onSignUp() {
     this.submitted = true;
+    this.errorMessage = '';
+    this.infoMessage = '';
     if (
       this.fnameError ||
       this.lnameError ||
@@ -70,14 +77,32 @@ export class SignupFormComponent {
       return;
     }
 
-    // Frontend-only stub: real account creation is wired in the backend phase.
     this.loading = true;
-    this.router.navigate(['/dashboard']);
+    this.auth
+      .register({
+        firstName: this.fname.trim(),
+        lastName: this.lname.trim(),
+        email: this.email.trim(),
+        password: this.password,
+      })
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.router.navigateByUrl('/dashboard');
+        },
+        error: (err: unknown) => {
+          this.loading = false;
+          this.errorMessage = extractAuthError(
+            err,
+            'Unable to create your account. Please try again.',
+          );
+        },
+      });
   }
 
   onOAuth(provider: 'google' | 'instagram') {
-    // Frontend-only stub for the OAuth providers; backend handles the real flow later.
-    console.log('OAuth sign-up requested:', provider);
-    this.router.navigate(['/dashboard']);
+    // OAuth is not wired yet; the backend social-login flow comes in a later phase.
+    this.errorMessage = '';
+    this.infoMessage = `${provider === 'google' ? 'Google' : 'Instagram'} sign-up is coming soon — please use email and password for now.`;
   }
 }
