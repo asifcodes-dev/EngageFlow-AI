@@ -20,6 +20,7 @@ import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { ResetPasswordComponent } from './pages/auth-pages/reset-password/reset-password.component';
 import { CalenderComponent } from './pages/calender/calender.component';
 import { LandingComponent } from './pages/landing/landing.component';
+import { ProductCatalogComponent } from './pages/dashboard/product-catalog/product-catalog.component';
 import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
 import { TermsOfServiceComponent } from './pages/legal/terms-of-service/terms-of-service.component';
 import { RefundPolicyComponent } from './pages/legal/refund-policy/refund-policy.component';
@@ -45,6 +46,11 @@ export const routes: Routes = [
         component: EcommerceComponent,
         pathMatch: 'full',
         title: 'Dashboard | EngageFlow AI',
+      },
+      {
+        path: 'product-catalog',
+        component: ProductCatalogComponent,
+        title: 'Product Catalog | EngageFlow AI',
       },
       {
         path: 'calendar',
