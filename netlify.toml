@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "dist/ng-tailadmin/browser"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA fallback so deep links (/privacy-policy, /signin, /dashboard) don't 404 on refresh.
+# Kept consistent with public/_redirects.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

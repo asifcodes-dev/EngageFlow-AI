@@ -99,6 +99,23 @@
       </div>
     </div>
 
+    @if (errorMessage) {
+      <div
+        class="p-3 mb-4 text-sm rounded-lg bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400"
+        role="alert"
+      >
+        {{ errorMessage }}
+      </div>
+    }
+    @if (infoMessage) {
+      <div
+        class="p-3 mb-4 text-sm rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
+        role="status"
+      >
+        {{ infoMessage }}
+      </div>
+    }
+
     <form (ngSubmit)="onSignUp()">
       <div class="space-y-5">
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">

@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      # Lint is non-blocking: the TailAdmin template carries many pre-existing
+      # findings, so surface them without failing the pipeline.
+      - name: Lint (non-blocking)
+        run: npm run lint
+        continue-on-error: true
+      - name: Build
+        run: npm run build

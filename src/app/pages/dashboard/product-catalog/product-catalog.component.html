@@ -1,0 +1,228 @@
+<app-page-breadcrumb pageTitle="Product Catalog" />
+
+<!-- Header row -->
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Your products</h2>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Products the AI recommends when an Instagram comment or DM matches their trigger keywords.
+    </p>
+  </div>
+  <app-button size="sm" (btnClick)="openCreate()">+ Add product</app-button>
+</div>
+
+<!-- Catalog card -->
+<div class="ef-card overflow-hidden">
+  @if (products$ | async; as products) {
+    @if (products.length === 0) {
+      <!-- Empty state -->
+      <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+        <span class="ef-icon-box mb-4 h-14 w-14 text-brand-500">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            class="h-7 w-7"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </span>
+        <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">No products yet</h3>
+        <p class="mt-1 max-w-sm text-sm text-gray-500 dark:text-gray-400">
+          Add your first product so the AI can recommend it when customers comment or DM you.
+        </p>
+        <div class="mt-5">
+          <app-button size="sm" (btnClick)="openCreate()">+ Add product</app-button>
+        </div>
+      </div>
+    } @else {
+      <!-- Product table -->
+      <div class="custom-scrollbar overflow-x-auto">
+        <app-table>
+          <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+            <app-table-row>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >
+                Product
+              </app-table-cell>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >
+                Price
+              </app-table-cell>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >
+                Trigger keywords
+              </app-table-cell>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
+              >
+                Actions
+              </app-table-cell>
+            </app-table-row>
+          </app-table-header>
+          <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+            @for (product of products; track product.id) {
+              <app-table-row>
+                <app-table-cell className="px-5 py-4 align-top">
+                  <p class="font-medium text-gray-800 dark:text-white/90">{{ product.name }}</p>
+                  @if (product.description) {
+                    <p
+                      class="mt-0.5 line-clamp-2 max-w-md text-sm text-gray-500 dark:text-gray-400"
+                    >
+                      {{ product.description }}
+                    </p>
+                  }
+                </app-table-cell>
+                <app-table-cell
+                  className="px-5 py-4 align-top whitespace-nowrap text-gray-700 dark:text-gray-300"
+                >
+                  {{ formatPrice(product) }}
+                </app-table-cell>
+                <app-table-cell className="px-5 py-4 align-top">
+                  @if (product.keywords.length) {
+                    <div class="flex max-w-xs flex-wrap gap-1.5">
+                      @for (keyword of product.keywords; track keyword) {
+                        <app-badge color="primary" variant="light" size="sm">{{
+                          keyword
+                        }}</app-badge>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-sm text-gray-400">—</span>
+                  }
+                </app-table-cell>
+                <app-table-cell className="px-5 py-4 align-top">
+                  <div class="flex justify-end gap-2">
+                    <app-button variant="outline" size="sm" (btnClick)="openEdit(product)">
+                      Edit
+                    </app-button>
+                    <button
+                      type="button"
+                      (click)="confirmDelete(product)"
+                      [attr.aria-label]="'Delete ' + product.name"
+                      class="inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-error-600 ring-1 ring-inset ring-error-200 transition hover:bg-error-50 dark:text-error-400 dark:ring-error-500/30 dark:hover:bg-error-500/10"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </app-table-cell>
+              </app-table-row>
+            }
+          </app-table-body>
+        </app-table>
+      </div>
+    }
+  }
+</div>
+
+<!-- Add / Edit modal -->
+<app-modal [isOpen]="isModalOpen" (close)="closeModal()" className="m-4 max-w-[600px] p-6 lg:p-8">
+  <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+    {{ isEditing ? 'Edit product' : 'Add product' }}
+  </h3>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Set the details and the keywords that should trigger an automated reply.
+  </p>
+
+  <form (ngSubmit)="save()" class="mt-6 space-y-5">
+    <div>
+      <app-label>Name <span class="text-error-500">*</span></app-label>
+      <app-input-field
+        type="text"
+        name="name"
+        placeholder="e.g. Handloom Cotton Saree"
+        [(value)]="form.name"
+        [error]="!!nameError"
+      />
+      @if (nameError) {
+        <p class="mt-1.5 text-xs text-error-500">{{ nameError }}</p>
+      }
+    </div>
+
+    <div>
+      <app-label>Description</app-label>
+      <app-text-area
+        placeholder="Short description shown to your customers"
+        [rows]="3"
+        [(value)]="form.description"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <app-label>Price <span class="text-error-500">*</span></app-label>
+        <app-input-field
+          type="text"
+          name="price"
+          placeholder="0.00"
+          [(value)]="form.price"
+          [error]="!!priceError"
+        />
+        @if (priceError) {
+          <p class="mt-1.5 text-xs text-error-500">{{ priceError }}</p>
+        }
+      </div>
+      <div>
+        <app-label>Currency</app-label>
+        <app-select [options]="currencyOptions" [(value)]="form.currency" />
+      </div>
+    </div>
+
+    <div>
+      <app-label>Trigger keywords</app-label>
+      <app-input-field
+        type="text"
+        name="keywords"
+        placeholder="e.g. price, buy, saree"
+        [(value)]="form.keywords"
+        hint="Separate keywords with commas. A matching comment/DM triggers a reply about this product."
+      />
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <app-button variant="outline" size="sm" (btnClick)="closeModal()">Cancel</app-button>
+      <app-button size="sm" [disabled]="saving" (btnClick)="save()">
+        {{ saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add product' }}
+      </app-button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Delete confirmation modal -->
+<app-modal
+  [isOpen]="!!deleteTarget"
+  (close)="cancelDelete()"
+  className="m-4 max-w-[450px] p-6 lg:p-8"
+>
+  @if (deleteTarget) {
+    <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Delete product</h3>
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+      Are you sure you want to delete
+      <span class="font-medium text-gray-800 dark:text-white/90">{{ deleteTarget.name }}</span
+      >? This action can't be undone.
+    </p>
+    <div class="mt-6 flex items-center justify-end gap-3">
+      <app-button variant="outline" size="sm" (btnClick)="cancelDelete()">Cancel</app-button>
+      <button
+        type="button"
+        (click)="deleteConfirmed()"
+        [disabled]="deleting"
+        class="inline-flex items-center justify-center rounded-lg bg-error-500 px-4 py-3 text-sm font-medium text-white transition hover:bg-error-600 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {{ deleting ? 'Deleting…' : 'Delete' }}
+      </button>
+    </div>
+  }
+</app-modal>

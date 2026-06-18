@@ -1,0 +1,5 @@
+# Netlify SPA fallback — let the Angular router handle all client-side routes.
+# Without this, refreshing or directly opening a deep link (e.g. /privacy-policy,
+# /signin, /dashboard) returns a 404 because no such file exists on the server.
+# Kept consistent with the [[redirects]] rule in netlify.toml.
+/*    /index.html   200
