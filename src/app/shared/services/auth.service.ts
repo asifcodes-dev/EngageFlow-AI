@@ -59,8 +59,15 @@ export class AuthService {
   }
 
   register(payload: RegisterPayload): Observable<AuthResponse> {
+    // Backend expects a single `name` field (not firstName/lastName) and rejects
+    // unknown properties, so combine the two before sending.
+    const body = {
+      name: `${payload.firstName} ${payload.lastName}`.trim(),
+      email: payload.email,
+      password: payload.password,
+    };
     return this.http
-      .post<AuthResponse>(`${this.authUrl}/register`, payload)
+      .post<AuthResponse>(`${this.authUrl}/register`, body)
       .pipe(tap((res) => this.handleAuth(res)));
   }
 
