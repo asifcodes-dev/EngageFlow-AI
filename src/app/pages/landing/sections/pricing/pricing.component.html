@@ -6,6 +6,20 @@
       <p class="ef-subheading">Start free. Upgrade when you're ready to scale. Cancel anytime.</p>
     </div>
 
+    @if (notice) {
+      <div
+        class="mx-auto mt-6 max-w-md rounded-lg p-3 text-center text-sm"
+        [ngClass]="
+          noticeType === 'success'
+            ? 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400'
+            : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400'
+        "
+        role="status"
+      >
+        {{ notice }}
+      </div>
+    }
+
     <div
       class="mt-10 grid grid-cols-1 gap-5 sm:mt-14 sm:max-w-md sm:mx-auto lg:max-w-none lg:grid-cols-3 lg:gap-6 lg:items-start"
     >
@@ -42,14 +56,15 @@
             </span>
           </div>
 
-          <a
-            [routerLink]="'/signup'"
-            [queryParams]="{ plan: tier.id }"
-            class="mt-6 block rounded-lg px-5 py-3 text-center text-sm font-medium transition"
+          <button
+            type="button"
+            (click)="onCta(tier)"
+            [disabled]="processingTierId === tier.id"
+            class="mt-6 block w-full rounded-lg px-5 py-3 text-center text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-70"
             [ngClass]="tier.featured ? 'ef-btn-primary' : 'ef-btn-outline'"
           >
-            {{ tier.cta }}
-          </a>
+            {{ processingTierId === tier.id ? 'Processing…' : tier.cta }}
+          </button>
 
           <ul class="mt-8 space-y-3">
             @for (feature of tier.features; track feature) {
