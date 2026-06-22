@@ -56,6 +56,32 @@
               "extractLicenses": true,
               "subresourceIntegrity": true
             },
+            "staging": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "4mb",
+                  "maximumError": "5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "optimization": true,
+              "sourceMap": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "subresourceIntegrity": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.staging.ts"
+                }
+              ]
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -75,6 +101,9 @@
           "configurations": {
             "production": {
               "buildTarget": "ng-tailadmin:build:production"
+            },
+            "staging": {
+              "buildTarget": "ng-tailadmin:build:staging"
             },
             "development": {
               "buildTarget": "ng-tailadmin:build:development"
