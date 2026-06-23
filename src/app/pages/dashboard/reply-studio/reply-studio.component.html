@@ -1,0 +1,129 @@
+<app-page-breadcrumb pageTitle="Reply Studio" />
+
+<app-feature-lock
+  [locked]="!(connected$ | async)"
+  title="Connect Instagram to train your AI"
+  message="Reply Studio shapes the replies sent from your account — connect one to start tuning your voice."
+>
+  <app-page-header
+    title="Reply Studio"
+    subtitle="Teach the AI your brand voice, then test how it replies before it goes live."
+  />
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- Brand voice -->
+    <div class="ef-card p-5 lg:p-6">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Brand voice</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Context the AI uses for every reply.
+      </p>
+
+      <div class="mt-5 space-y-5">
+        <div>
+          <app-label>Business name</app-label>
+          <app-input-field
+            type="text"
+            name="businessName"
+            placeholder="Your brand"
+            [(value)]="businessName"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <app-label>Tone</app-label>
+            <app-select [options]="toneOptions" [(value)]="tone" />
+          </div>
+          <div>
+            <app-label>Reply length</app-label>
+            <app-select [options]="lengthOptions" [(value)]="replyLength" />
+          </div>
+        </div>
+
+        <div>
+          <app-label>Reply languages</app-label>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <app-checkbox
+              label="English"
+              [checked]="languages.english"
+              (checkedChange)="languages.english = $event"
+            />
+            <app-checkbox
+              label="Hindi"
+              [checked]="languages.hindi"
+              (checkedChange)="languages.hindi = $event"
+            />
+            <app-checkbox
+              label="Hinglish"
+              [checked]="languages.hinglish"
+              (checkedChange)="languages.hinglish = $event"
+            />
+            <app-checkbox
+              label="Gujarati"
+              [checked]="languages.gujarati"
+              (checkedChange)="languages.gujarati = $event"
+            />
+          </div>
+          <p class="mt-2 text-xs text-gray-400">
+            The AI also mirrors whatever language the customer used.
+          </p>
+        </div>
+
+        <div>
+          <app-label>Things to avoid</app-label>
+          <app-text-area
+            placeholder="e.g. never promise next-day delivery; don't share competitor names"
+            [rows]="3"
+            [(value)]="avoidNotes"
+          />
+        </div>
+
+        <div class="flex items-center gap-3">
+          <app-button size="sm" (btnClick)="save()">Save voice</app-button>
+          @if (saved) {
+            <span class="text-sm text-success-600 dark:text-success-400">Saved ✓</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Playground -->
+    <div class="ef-card p-5 lg:p-6">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Test playground</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        See a sample reply for any comment.
+      </p>
+
+      <div class="mt-5 space-y-5">
+        <div>
+          <app-label>Sample comment</app-label>
+          <app-text-area
+            placeholder="Type a comment a customer might leave…"
+            [rows]="3"
+            [(value)]="playgroundComment"
+          />
+        </div>
+        <div>
+          <app-label>Link a product (optional)</app-label>
+          @if (productOptions$ | async; as productOptions) {
+            <app-select [options]="productOptions" [(value)]="playgroundProduct" />
+          }
+        </div>
+        <app-button size="sm" [disabled]="generating" (btnClick)="generate()">
+          {{ generating ? 'Generating…' : 'Generate preview' }}
+        </app-button>
+
+        @if (generatedReply) {
+          <div
+            class="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.03]"
+          >
+            <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+              AI reply preview
+            </p>
+            <p class="mt-2 text-sm text-gray-800 dark:text-gray-200">{{ generatedReply }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</app-feature-lock>

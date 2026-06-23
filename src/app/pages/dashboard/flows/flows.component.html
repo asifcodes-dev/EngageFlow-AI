@@ -1,0 +1,187 @@
+<app-page-breadcrumb pageTitle="Flows" />
+
+<app-feature-lock
+  [locked]="!(connected$ | async)"
+  title="Connect Instagram to build flows"
+  message="Flows run from your Instagram account — connect one to create comment, DM, and story automations."
+>
+  <app-page-header
+    title="Automation flows"
+    subtitle="Trigger a reply, DM, or product offer when someone comments or messages you."
+  >
+    <app-button size="sm" (btnClick)="openCreate()">+ New flow</app-button>
+  </app-page-header>
+
+  <div class="ef-card overflow-hidden">
+    @if (flows$ | async; as flows) {
+      @if (flows.length === 0) {
+        <app-empty-state
+          title="No flows yet"
+          description="Create your first automation so EngageFlow replies the moment a customer engages."
+          ctaText="+ New flow"
+          (cta)="openCreate()"
+        />
+      } @else {
+        <div class="custom-scrollbar overflow-x-auto">
+          <app-table>
+            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+              <app-table-row>
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Flow</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Trigger</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Product</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Runs</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Status</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Actions</app-table-cell
+                >
+              </app-table-row>
+            </app-table-header>
+            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+              @for (flow of flows; track flow.id) {
+                <app-table-row>
+                  <app-table-cell className="px-5 py-4 align-top">
+                    <p class="font-medium text-gray-800 dark:text-white/90">{{ flow.name }}</p>
+                    @if (flow.keyword) {
+                      <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                        Keywords: {{ flow.keyword }}
+                      </p>
+                    }
+                    @if (flow.followGate) {
+                      <span class="mt-1 inline-block"
+                        ><app-badge color="warning" variant="light" size="sm"
+                          >Follow gate</app-badge
+                        ></span
+                      >
+                    }
+                  </app-table-cell>
+                  <app-table-cell className="px-5 py-4 align-top">
+                    <app-badge color="info" variant="light" size="sm">{{
+                      triggerLabels[flow.trigger]
+                    }}</app-badge>
+                  </app-table-cell>
+                  <app-table-cell
+                    className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    {{ flow.product || '—' }}
+                  </app-table-cell>
+                  <app-table-cell
+                    className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    {{ flow.runs }}
+                  </app-table-cell>
+                  <app-table-cell className="px-5 py-4 align-top">
+                    <app-badge
+                      [color]="flow.status === 'active' ? 'success' : 'light'"
+                      variant="light"
+                      size="sm"
+                    >
+                      {{ flow.status === 'active' ? 'Active' : 'Paused' }}
+                    </app-badge>
+                  </app-table-cell>
+                  <app-table-cell className="px-5 py-4 align-top">
+                    <div class="flex justify-end gap-2">
+                      <app-button variant="outline" size="sm" (btnClick)="toggle(flow)">
+                        {{ flow.status === 'active' ? 'Pause' : 'Activate' }}
+                      </app-button>
+                      <button
+                        type="button"
+                        (click)="remove(flow)"
+                        [attr.aria-label]="'Delete ' + flow.name"
+                        class="inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-error-600 ring-1 ring-inset ring-error-200 transition hover:bg-error-50 dark:text-error-400 dark:ring-error-500/30 dark:hover:bg-error-500/10"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </app-table-cell>
+                </app-table-row>
+              }
+            </app-table-body>
+          </app-table>
+        </div>
+      }
+    }
+  </div>
+</app-feature-lock>
+
+<!-- Create flow modal -->
+<app-modal [isOpen]="isModalOpen" (close)="closeModal()" className="m-4 max-w-[600px] p-6 lg:p-8">
+  <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">New flow</h3>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Pick a trigger, match keywords, and choose what the AI replies with.
+  </p>
+
+  <form (ngSubmit)="save()" class="mt-6 space-y-5">
+    <div>
+      <app-label>Flow name <span class="text-error-500">*</span></app-label>
+      <app-input-field
+        type="text"
+        name="name"
+        placeholder="e.g. Saree price reply"
+        [(value)]="form.name"
+        [error]="!!nameError"
+      />
+      @if (nameError) {
+        <p class="mt-1.5 text-xs text-error-500">{{ nameError }}</p>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <app-label>Trigger</app-label>
+        <app-select [options]="triggerOptions" [(value)]="form.trigger" />
+      </div>
+      <div>
+        <app-label>Linked product</app-label>
+        @if (productOptions$ | async; as productOptions) {
+          <app-select [options]="productOptions" [(value)]="form.product" />
+        }
+      </div>
+    </div>
+
+    <div>
+      <app-label>Trigger keywords</app-label>
+      <app-input-field
+        type="text"
+        name="keyword"
+        placeholder="e.g. price, kitne, cost"
+        [(value)]="form.keyword"
+        hint="Comma-separated. A matching comment/DM fires this flow."
+      />
+    </div>
+
+    <app-checkbox
+      label="Require the user to follow before replying (Follow gate)"
+      [checked]="form.followGate"
+      (checkedChange)="form.followGate = $event"
+    />
+
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <app-button variant="outline" size="sm" (btnClick)="closeModal()">Cancel</app-button>
+      <app-button size="sm" [disabled]="saving" (btnClick)="save()">
+        {{ saving ? 'Saving…' : 'Create flow' }}
+      </app-button>
+    </div>
+  </form>
+</app-modal>

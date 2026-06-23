@@ -1,0 +1,190 @@
+<app-page-breadcrumb pageTitle="Store" />
+
+@let products = (products$ | async) ?? [];
+
+<app-page-header
+  title="Store"
+  subtitle="Sell digital products — eBooks, courses, templates — straight from your DMs."
+>
+  <app-button size="sm" (btnClick)="openCreate()">+ New product</app-button>
+</app-page-header>
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <app-stat-card [icon]="icons.box" label="Total products" [value]="products.length" />
+  <app-stat-card [icon]="icons.check" label="Active" [value]="activeCount(products)" />
+  <app-stat-card
+    [icon]="icons.rupee"
+    label="Total revenue"
+    [value]="totalRevenue(products)"
+    trend="all time"
+    trendColor="success"
+  />
+</div>
+
+<div class="ef-card mt-6 overflow-hidden">
+  @if (products.length === 0) {
+    <app-empty-state
+      title="No products yet"
+      description="Create a digital product and share its payment link through your automations."
+      ctaText="+ New product"
+      (cta)="openCreate()"
+    />
+  } @else {
+    <div class="custom-scrollbar overflow-x-auto">
+      <app-table>
+        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+          <app-table-row>
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Product</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Type</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Price</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Sales / Revenue</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Status</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Actions</app-table-cell
+            >
+          </app-table-row>
+        </app-table-header>
+        <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+          @for (p of products; track p.id) {
+            <app-table-row>
+              <app-table-cell className="px-5 py-4 align-top">
+                <p class="font-medium text-gray-800 dark:text-white/90">{{ p.title }}</p>
+                <p class="text-xs text-gray-400">{{ p.fileName }}</p>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                <app-badge color="info" variant="light" size="sm">{{
+                  typeLabels[p.type]
+                }}</app-badge>
+              </app-table-cell>
+              <app-table-cell
+                className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                >{{ money(p.price, p.currency) }}</app-table-cell
+              >
+              <app-table-cell
+                className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+              >
+                {{ p.sales }} · {{ money(p.revenue, p.currency) }}
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                <app-badge
+                  [color]="p.status === 'active' ? 'success' : 'light'"
+                  variant="light"
+                  size="sm"
+                >
+                  {{ p.status === 'active' ? 'Active' : 'Draft' }}
+                </app-badge>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                <div class="flex justify-end gap-2">
+                  <app-button variant="outline" size="sm" (btnClick)="toggle(p)">
+                    {{ p.status === 'active' ? 'Unpublish' : 'Publish' }}
+                  </app-button>
+                  <button
+                    type="button"
+                    (click)="remove(p)"
+                    [attr.aria-label]="'Delete ' + p.title"
+                    class="inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-error-600 ring-1 ring-inset ring-error-200 transition hover:bg-error-50 dark:text-error-400 dark:ring-error-500/30 dark:hover:bg-error-500/10"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </app-table-cell>
+            </app-table-row>
+          }
+        </app-table-body>
+      </app-table>
+    </div>
+  }
+</div>
+
+<!-- Create modal -->
+<app-modal [isOpen]="isModalOpen" (close)="closeModal()" className="m-4 max-w-[600px] p-6 lg:p-8">
+  <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">New product</h3>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    Upload a file and set a price — we generate the payment link.
+  </p>
+
+  <form (ngSubmit)="save()" class="mt-6 space-y-5">
+    <div>
+      <app-label>Title <span class="text-error-500">*</span></app-label>
+      <app-input-field
+        type="text"
+        name="title"
+        placeholder="e.g. Instagram Growth eBook"
+        [(value)]="form.title"
+        [error]="!!titleError"
+      />
+      @if (titleError) {
+        <p class="mt-1.5 text-xs text-error-500">{{ titleError }}</p>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div>
+        <app-label>Type</app-label>
+        <app-select [options]="typeOptions" [(value)]="form.type" />
+      </div>
+      <div>
+        <app-label>Price <span class="text-error-500">*</span></app-label>
+        <app-input-field
+          type="text"
+          name="price"
+          placeholder="0"
+          [(value)]="form.price"
+          [error]="!!priceError"
+        />
+        @if (priceError) {
+          <p class="mt-1.5 text-xs text-error-500">{{ priceError }}</p>
+        }
+      </div>
+      <div>
+        <app-label>Currency</app-label>
+        <app-select [options]="currencyOptions" [(value)]="form.currency" />
+      </div>
+    </div>
+
+    <div>
+      <app-label>Product file</app-label>
+      <app-file-input (change)="onFile($event)" />
+      @if (form.fileName) {
+        <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">Selected: {{ form.fileName }}</p>
+      }
+    </div>
+
+    <app-checkbox
+      label="Publish immediately"
+      [checked]="form.active"
+      (checkedChange)="form.active = $event"
+    />
+
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <app-button variant="outline" size="sm" (btnClick)="closeModal()">Cancel</app-button>
+      <app-button size="sm" [disabled]="saving" (btnClick)="save()">
+        {{ saving ? 'Saving…' : 'Create product' }}
+      </app-button>
+    </div>
+  </form>
+</app-modal>
