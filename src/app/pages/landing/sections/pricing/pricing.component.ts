@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../../shared/services/auth.service';
 import { PaymentService } from '../../../../shared/services/payment.service';
 
 interface Tier {
@@ -30,6 +31,7 @@ interface Tier {
 })
 export class PricingComponent {
   private readonly payments = inject(PaymentService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly zone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -97,7 +99,9 @@ export class PricingComponent {
   ];
 
   onCta(tier: Tier): void {
-    if (tier.amount === null) {
+    // Free plan, or anyone not signed in, goes to signup first — paid checkout
+    // requires an authenticated user (the payments API is JWT-guarded).
+    if (tier.amount === null || !this.auth.isAuthenticated()) {
       this.router.navigate(['/signup'], { queryParams: { plan: tier.id } });
       return;
     }
@@ -112,8 +116,7 @@ export class PricingComponent {
 
     try {
       const result = await this.payments.checkout({
-        amount: tier.amount,
-        currency: 'INR',
+        plan: tier.id === 'business' ? 'BUSINESS' : 'PRO',
         name: 'EngageFlow AI',
         description: `${tier.name} plan — monthly`,
       });

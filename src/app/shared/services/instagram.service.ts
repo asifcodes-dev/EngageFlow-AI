@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+
+/** Connection status as reported by the backend (server-truth). */
+export interface InstagramStatus {
+  connected: boolean;
+  username?: string;
+}
 
 /**
  * Kicks off the Instagram account-connect flow. The backend (JWT-guarded
@@ -16,5 +22,14 @@ export class InstagramService {
     return firstValueFrom(
       this.http.get<{ url: string }>(`${environment.apiUrl}/instagram/connect`),
     );
+  }
+
+  /**
+   * Whether a connected Instagram account exists. Backed by a future
+   * `GET /instagram/status` endpoint; until it ships, the call simply fails and
+   * callers treat the user as not connected.
+   */
+  getStatus(): Observable<InstagramStatus> {
+    return this.http.get<InstagramStatus>(`${environment.apiUrl}/instagram/status`);
   }
 }

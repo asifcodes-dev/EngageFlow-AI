@@ -1,0 +1,220 @@
+<app-page-breadcrumb pageTitle="Settings" />
+
+<app-page-header
+  title="Account settings"
+  subtitle="Manage your profile, Instagram connection, and password."
+/>
+
+<!-- Tabs -->
+<div class="mb-6 border-b border-gray-200 dark:border-gray-800">
+  <nav class="-mb-px flex gap-6">
+    @for (tab of tabs; track tab.id) {
+      <button
+        type="button"
+        (click)="setTab(tab.id)"
+        class="border-b-2 px-1 pb-3 text-sm font-medium transition"
+        [class.border-brand-500]="activeTab === tab.id"
+        [class.text-brand-500]="activeTab === tab.id"
+        [class.border-transparent]="activeTab !== tab.id"
+        [class.text-gray-500]="activeTab !== tab.id"
+        [class.hover:text-gray-700]="activeTab !== tab.id"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </nav>
+</div>
+
+@switch (activeTab) {
+  <!-- My details -->
+  @case ('profile') {
+    <div class="ef-card max-w-2xl p-6 lg:p-8">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Personal information</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Used on receipts and important account notifications.
+      </p>
+
+      <form (ngSubmit)="saveProfile()" class="mt-6 space-y-5">
+        <div>
+          <app-label>Full name <span class="text-error-500">*</span></app-label>
+          <app-input-field
+            type="text"
+            name="fullName"
+            placeholder="Your full name"
+            [(value)]="profile.fullName"
+            [error]="!!fullNameError"
+          />
+          @if (fullNameError) {
+            <p class="mt-1.5 text-xs text-error-500">{{ fullNameError }}</p>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <app-label>Date of birth</app-label>
+            <app-input-field type="date" name="dob" [(value)]="profile.dob" />
+          </div>
+          <div>
+            <app-label>Phone number</app-label>
+            <app-input-field
+              type="tel"
+              name="phone"
+              placeholder="e.g. +91 98765 43210"
+              [(value)]="profile.phone"
+              [error]="!!phoneError"
+            />
+            @if (phoneError) {
+              <p class="mt-1.5 text-xs text-error-500">{{ phoneError }}</p>
+            }
+          </div>
+        </div>
+
+        <div>
+          <app-label>Email <span class="text-error-500">*</span></app-label>
+          <app-input-field
+            type="email"
+            name="email"
+            placeholder="you@business.com"
+            [(value)]="profile.email"
+            [error]="!!emailError"
+          />
+          @if (emailError) {
+            <p class="mt-1.5 text-xs text-error-500">{{ emailError }}</p>
+          }
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <app-button size="sm" [disabled]="profileSaving" (btnClick)="saveProfile()">
+            {{ profileSaving ? 'Saving…' : 'Save changes' }}
+          </app-button>
+          @if (profileSaved) {
+            <span class="text-sm text-success-600 dark:text-success-400">Saved ✓</span>
+          }
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Instagram -->
+  @case ('instagram') {
+    <div class="ef-card max-w-2xl p-6 text-center lg:p-10">
+      @if (justConnected) {
+        <div
+          class="mb-6 rounded-lg bg-success-50 p-3 text-sm text-success-700 dark:bg-success-500/10 dark:text-success-400"
+          role="status"
+        >
+          Instagram connected successfully — your tools are now unlocked. 🎉
+        </div>
+      }
+      <span
+        class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl text-white"
+        style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor" class="h-8 w-8" aria-hidden="true">
+          <path
+            d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm4.75-2.5a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5z"
+          />
+        </svg>
+      </span>
+
+      @if (connected$ | async) {
+        <div class="mt-6 inline-flex">
+          <app-badge color="success" variant="light">Connected</app-badge>
+        </div>
+        <h3 class="mt-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+          Instagram is connected
+        </h3>
+        <p class="mx-auto mt-1 max-w-md text-sm text-gray-500 dark:text-gray-400">
+          EngageFlow can automate replies, DMs, and moderation on your account.
+        </p>
+        <div class="mt-6 flex justify-center">
+          <app-button
+            variant="outline"
+            size="sm"
+            [disabled]="igLoading"
+            (btnClick)="connectInstagram()"
+            >Reconnect</app-button
+          >
+        </div>
+      } @else {
+        <h3 class="mt-6 text-lg font-semibold text-gray-800 dark:text-white/90">
+          Connect your Instagram account
+        </h3>
+        <p class="mx-auto mt-1 max-w-md text-sm text-gray-500 dark:text-gray-400">
+          Link the Business/Creator account you want EngageFlow to manage. You'll be redirected to
+          Meta to authorize access.
+        </p>
+        @if (igError) {
+          <div
+            class="mx-auto mt-5 max-w-md rounded-lg bg-error-50 p-3 text-sm text-error-600 dark:bg-error-500/10 dark:text-error-400"
+            role="alert"
+          >
+            {{ igError }}
+          </div>
+        }
+        <div class="mt-6 flex justify-center">
+          <app-button size="sm" [disabled]="igLoading" (btnClick)="connectInstagram()">
+            {{ igLoading ? 'Redirecting…' : 'Connect Instagram' }}
+          </app-button>
+        </div>
+        <p class="mt-4 text-xs text-gray-400">
+          Requires a Business/Creator account linked to a Facebook Page.
+        </p>
+      }
+    </div>
+  }
+
+  <!-- Security -->
+  @case ('security') {
+    <div class="ef-card max-w-2xl p-6 lg:p-8">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Change password</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Use a strong password you don't reuse elsewhere.
+      </p>
+
+      <form (ngSubmit)="saveSecurity()" class="mt-6 space-y-5">
+        <div>
+          <app-label>Current password</app-label>
+          <app-input-field
+            type="password"
+            name="current"
+            placeholder="••••••••"
+            [(value)]="security.current"
+          />
+        </div>
+        <div>
+          <app-label>New password</app-label>
+          <app-input-field
+            type="password"
+            name="next"
+            placeholder="At least 8 characters"
+            [(value)]="security.next"
+            [error]="!!nextError"
+          />
+          @if (nextError) {
+            <p class="mt-1.5 text-xs text-error-500">{{ nextError }}</p>
+          }
+        </div>
+        <div>
+          <app-label>Confirm new password</app-label>
+          <app-input-field
+            type="password"
+            name="confirm"
+            placeholder="Re-enter new password"
+            [(value)]="security.confirm"
+            [error]="!!confirmError"
+          />
+          @if (confirmError) {
+            <p class="mt-1.5 text-xs text-error-500">{{ confirmError }}</p>
+          }
+        </div>
+        <div class="flex items-center gap-3 pt-2">
+          <app-button size="sm" (btnClick)="saveSecurity()">Update password</app-button>
+          @if (securitySaved) {
+            <span class="text-sm text-success-600 dark:text-success-400">Password updated ✓</span>
+          }
+        </div>
+      </form>
+    </div>
+  }
+}

@@ -6,4 +6,5 @@ const API_URL = 'https://engageflow-backend-staging.up.railway.app';
 export const environment = {
   production: false,
   apiUrl: API_URL,
+  previewUnlocked: false,
 };

@@ -1,0 +1,162 @@
+<app-page-breadcrumb pageTitle="Comment Guard" />
+
+<app-feature-lock
+  [locked]="!(connected$ | async)"
+  title="Connect Instagram to moderate comments"
+  message="Comment Guard reads and acts on your post comments — connect an account to switch it on."
+>
+  <app-page-header
+    title="Comment Guard"
+    subtitle="AI screens every comment and hides spam or abuse before it hurts your brand."
+  />
+
+  <!-- KPI tiles -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <app-stat-card
+      [icon]="statIcons.spam"
+      label="Spam blocked"
+      value="312"
+      trend="this month"
+      trendColor="warning"
+    />
+    <app-stat-card
+      [icon]="statIcons.abuse"
+      label="Abuse removed"
+      value="48"
+      trend="this month"
+      trendColor="error"
+    />
+    <app-stat-card
+      [icon]="statIcons.reviewed"
+      label="Comments reviewed"
+      value="3,920"
+      trend="+24%"
+    />
+    <app-stat-card
+      [icon]="statIcons.auto"
+      label="Auto-actions today"
+      value="27"
+      trend="live"
+      trendColor="info"
+    />
+  </div>
+
+  <!-- Settings -->
+  <div class="ef-card mt-6 p-5">
+    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Auto-moderation</h3>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Let the AI act automatically. You can always review actions in the queue below.
+    </p>
+    <div class="mt-4 space-y-3">
+      <app-checkbox
+        label="Auto-hide comments classified as spam"
+        [checked]="autoHideSpam"
+        (checkedChange)="autoHideSpam = $event"
+      />
+      <app-checkbox
+        label="Auto-delete abusive or hateful comments"
+        [checked]="autoDeleteAbuse"
+        (checkedChange)="autoDeleteAbuse = $event"
+      />
+      <app-checkbox
+        label="Notify me when abuse is detected"
+        [checked]="notifyOnAbuse"
+        (checkedChange)="notifyOnAbuse = $event"
+      />
+    </div>
+  </div>
+
+  <!-- Queue -->
+  <div class="ef-card mt-6 overflow-hidden">
+    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Recent comments</h3>
+    </div>
+    <div class="custom-scrollbar overflow-x-auto">
+      <app-table>
+        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+          <app-table-row>
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Comment</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >AI verdict</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Status</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Actions</app-table-cell
+            >
+          </app-table-row>
+        </app-table-header>
+        <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+          @for (c of comments$ | async; track c.id) {
+            <app-table-row>
+              <app-table-cell className="px-5 py-4 align-top">
+                <p class="font-medium text-gray-800 dark:text-white/90">
+                  {{ c.author }} <span class="font-normal text-gray-400">{{ c.handle }}</span>
+                </p>
+                <p class="mt-0.5 max-w-md text-sm text-gray-500 dark:text-gray-400">{{ c.text }}</p>
+                <p class="mt-1 text-xs text-gray-400">{{ c.postedAt }}</p>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                <app-badge [color]="categoryColor(c.category)" variant="light" size="sm">{{
+                  categoryLabels[c.category]
+                }}</app-badge>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                @switch (c.action) {
+                  @case ('kept') {
+                    <app-badge color="success" variant="light" size="sm">Kept</app-badge>
+                  }
+                  @case ('hidden') {
+                    <app-badge color="warning" variant="light" size="sm">Hidden</app-badge>
+                  }
+                  @case ('deleted') {
+                    <app-badge color="error" variant="light" size="sm">Deleted</app-badge>
+                  }
+                  @default {
+                    <app-badge color="light" variant="light" size="sm">Pending</app-badge>
+                  }
+                }
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="setAction(c, 'kept')"
+                    class="rounded-lg px-3 py-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200 transition hover:bg-gray-50 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-white/[0.03]"
+                  >
+                    Keep
+                  </button>
+                  <button
+                    type="button"
+                    (click)="setAction(c, 'hidden')"
+                    class="rounded-lg px-3 py-2 text-xs font-medium text-warning-600 ring-1 ring-inset ring-warning-200 transition hover:bg-warning-50 dark:text-warning-400 dark:ring-warning-500/30 dark:hover:bg-warning-500/10"
+                  >
+                    Hide
+                  </button>
+                  <button
+                    type="button"
+                    (click)="setAction(c, 'deleted')"
+                    class="rounded-lg px-3 py-2 text-xs font-medium text-error-600 ring-1 ring-inset ring-error-200 transition hover:bg-error-50 dark:text-error-400 dark:ring-error-500/30 dark:hover:bg-error-500/10"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </app-table-cell>
+            </app-table-row>
+          }
+        </app-table-body>
+      </app-table>
+    </div>
+  </div>
+</app-feature-lock>
