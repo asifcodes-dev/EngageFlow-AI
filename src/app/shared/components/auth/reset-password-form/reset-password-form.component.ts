@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LabelComponent } from '../../form/label/label.component';
 import { ButtonComponent } from '../../ui/button/button.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-reset-password-form',
@@ -12,10 +13,13 @@ import { InputFieldComponent } from '../../form/input/input-field.component';
   styles: ``,
 })
 export class ResetPasswordFormComponent {
+  private readonly auth = inject(AuthService);
+
   email = '';
   submitted = false;
   loading = false;
   sent = false;
+  error = '';
 
   get emailError(): string {
     if (!this.submitted) return '';
@@ -26,11 +30,21 @@ export class ResetPasswordFormComponent {
 
   onSubmit() {
     this.submitted = true;
-    if (this.emailError) return;
+    if (this.emailError || this.loading) return;
 
-    // Frontend-only stub: the backend phase sends the actual reset email.
     this.loading = true;
-    this.sent = true;
-    this.loading = false;
+    this.error = '';
+    // The backend always responds generically (it won't reveal whether the
+    // email exists), so a success simply means "request accepted".
+    this.auth.forgotPassword(this.email.trim()).subscribe({
+      next: () => {
+        this.loading = false;
+        this.sent = true;
+      },
+      error: () => {
+        this.loading = false;
+        this.error = 'Something went wrong. Please try again in a moment.';
+      },
+    });
   }
 }

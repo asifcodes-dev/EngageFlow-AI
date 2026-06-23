@@ -84,6 +84,25 @@ export class AuthService {
       .pipe(tap((user) => this.currentUserSubject.next(user)));
   }
 
+  /** Request a password-reset link for the given email. */
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.authUrl}/forgot-password`,
+      { email },
+    );
+  }
+
+  /** Set a new password using the token from the reset link. */
+  resetPassword(
+    token: string,
+    password: string,
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.authUrl}/reset-password`,
+      { token, password },
+    );
+  }
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     this.currentUserSubject.next(null);
