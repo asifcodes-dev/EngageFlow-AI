@@ -1,0 +1,133 @@
+<app-page-breadcrumb pageTitle="Sales" />
+
+@let orders = (orders$ | async) ?? [];
+@let rows = filtered(orders);
+
+<app-page-header
+  title="Sales"
+  subtitle="Every digital-product order, payment status, and delivery in one place."
+>
+  <app-button variant="outline" size="sm" (btnClick)="export(rows)">Export CSV</app-button>
+</app-page-header>
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <app-stat-card [icon]="icons.cart" label="Total orders" [value]="orders.length" />
+  <app-stat-card
+    [icon]="icons.clock"
+    label="Pending"
+    [value]="count(orders, 'pending')"
+    trendColor="warning"
+  />
+  <app-stat-card
+    [icon]="icons.check"
+    label="Completed"
+    [value]="count(orders, 'paid')"
+    trendColor="success"
+  />
+  <app-stat-card
+    [icon]="icons.rupee"
+    label="Revenue"
+    [value]="revenue(orders)"
+    trend="paid only"
+    trendColor="success"
+  />
+</div>
+
+<!-- Filters -->
+<div class="ef-card mt-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+  <div class="flex-1">
+    <app-input-field
+      type="text"
+      name="search"
+      placeholder="Search order, customer, email…"
+      [(value)]="search"
+    />
+  </div>
+  <div class="w-full sm:w-48">
+    <app-select [options]="statusOptions" [(value)]="statusFilter" />
+  </div>
+</div>
+
+<div class="ef-card mt-6 overflow-hidden">
+  @if (rows.length === 0) {
+    <app-empty-state
+      title="No orders found"
+      description="Orders from your store appear here. Try clearing the filters."
+    />
+  } @else {
+    <div class="custom-scrollbar overflow-x-auto">
+      <app-table>
+        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+          <app-table-row>
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Order</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Customer</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Amount</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Status</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Delivery</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Created</app-table-cell
+            >
+          </app-table-row>
+        </app-table-header>
+        <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+          @for (o of rows; track o.id) {
+            <app-table-row>
+              <app-table-cell className="px-5 py-4 align-top">
+                <p class="font-medium text-gray-800 dark:text-white/90">{{ o.ref }}</p>
+                <p class="text-xs text-gray-400">{{ o.product }}</p>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                <p class="text-sm text-gray-800 dark:text-white/90">{{ o.customer }}</p>
+                <p class="text-xs text-gray-400">{{ o.email }}</p>
+              </app-table-cell>
+              <app-table-cell
+                className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                >{{ money(o.amount, o.currency) }}</app-table-cell
+              >
+              <app-table-cell className="px-5 py-4 align-top">
+                <app-badge [color]="statusColor(o.status)" variant="light" size="sm">{{
+                  o.status | titlecase
+                }}</app-badge>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 align-top">
+                <app-badge
+                  [color]="o.delivery === 'sent' ? 'success' : 'light'"
+                  variant="light"
+                  size="sm"
+                  >{{ o.delivery | titlecase }}</app-badge
+                >
+              </app-table-cell>
+              <app-table-cell
+                className="px-5 py-4 align-top text-sm text-gray-500 dark:text-gray-400"
+                >{{ o.createdAt }}</app-table-cell
+              >
+            </app-table-row>
+          }
+        </app-table-body>
+      </app-table>
+    </div>
+  }
+</div>

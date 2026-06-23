@@ -3,6 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+/** Subscription plans. The server owns the price for each — the client only sends the id. */
+export type PlanId = 'PRO' | 'BUSINESS';
+export type BillingCycle = 'monthly' | 'yearly';
+
 /** Response from the backend's create-order endpoint. `keyId` is publishable. */
 export interface CreatedOrder {
   orderId: string;
@@ -45,8 +49,8 @@ type RazorpayConstructor = new (options: RazorpayOptions) => RazorpayInstance;
 const CHECKOUT_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
 
 export interface CheckoutParams {
-  amount: number; // major unit (e.g. rupees)
-  currency?: string;
+  plan: PlanId;
+  billingCycle?: BillingCycle;
   name?: string;
   description?: string;
   prefill?: RazorpayOptions['prefill'];
@@ -55,9 +59,11 @@ export interface CheckoutParams {
 /**
  * Single integration point for Razorpay payments. The secret stays on the
  * backend; this only ever uses the publishable key id returned by create-order.
+ * The amount is set server-side from the plan (clients cannot tamper with it),
+ * and both endpoints require an authenticated user (JWT via the interceptor).
  *
  * Backend contract:
- *   POST {apiUrl}/payments/create-order  { amount, currency } -> CreatedOrder
+ *   POST {apiUrl}/payments/create-order  { plan } -> CreatedOrder
  *   POST {apiUrl}/payments/verify        { razorpay_* fields } -> { verified }
  */
 @Injectable({ providedIn: 'root' })
@@ -65,11 +71,11 @@ export class PaymentService {
   private http = inject(HttpClient);
   private scriptPromise: Promise<void> | null = null;
 
-  createOrder(amount: number, currency = 'INR'): Promise<CreatedOrder> {
+  createOrder(plan: PlanId, billingCycle: BillingCycle = 'monthly'): Promise<CreatedOrder> {
     return firstValueFrom(
       this.http.post<CreatedOrder>(`${environment.apiUrl}/payments/create-order`, {
-        amount,
-        currency,
+        plan,
+        billingCycle,
       }),
     );
   }
@@ -87,7 +93,7 @@ export class PaymentService {
    */
   async checkout(params: CheckoutParams): Promise<CheckoutResult> {
     await this.loadCheckoutScript();
-    const order = await this.createOrder(params.amount, params.currency ?? 'INR');
+    const order = await this.createOrder(params.plan, params.billingCycle ?? 'monthly');
     const RazorpayCtor = (window as unknown as { Razorpay: RazorpayConstructor }).Razorpay;
 
     return new Promise<CheckoutResult>((resolve, reject) => {

@@ -1,0 +1,151 @@
+<app-page-breadcrumb pageTitle="Audience" />
+
+<app-feature-lock
+  [locked]="!(connected$ | async)"
+  title="Connect Instagram to see your audience"
+  message="Contacts are built from people who interact with your account — connect one to start collecting them."
+>
+  @let contacts = (contacts$ | async) ?? [];
+  @let rows = filtered(contacts);
+
+  <app-page-header
+    title="Audience"
+    subtitle="Everyone who has engaged with your automations, with their tags and history."
+  >
+    <div class="w-full sm:w-64">
+      <app-input-field
+        type="text"
+        name="search"
+        placeholder="Search name, handle, email…"
+        [(value)]="search"
+      />
+    </div>
+    <app-button variant="outline" size="sm" (btnClick)="export(rows)">Export CSV</app-button>
+  </app-page-header>
+
+  <div class="ef-card overflow-hidden">
+    @if (rows.length === 0) {
+      <app-empty-state
+        title="No contacts found"
+        description="Contacts appear here as people comment and DM you. Try a different search."
+      />
+    } @else {
+      <div class="custom-scrollbar overflow-x-auto">
+        <app-table>
+          <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+            <app-table-row>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Contact</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Email</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Tags</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Last active</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Actions</app-table-cell
+              >
+            </app-table-row>
+          </app-table-header>
+          <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+            @for (c of rows; track c.id) {
+              <app-table-row>
+                <app-table-cell className="px-5 py-4 align-top">
+                  <p class="font-medium text-gray-800 dark:text-white/90">{{ c.name }}</p>
+                  <p class="text-xs text-gray-400">{{ c.handle }}</p>
+                </app-table-cell>
+                <app-table-cell
+                  className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                  >{{ c.email }}</app-table-cell
+                >
+                <app-table-cell className="px-5 py-4 align-top">
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (tag of c.tags; track tag) {
+                      <app-badge color="primary" variant="light" size="sm">{{ tag }}</app-badge>
+                    }
+                  </div>
+                </app-table-cell>
+                <app-table-cell
+                  className="px-5 py-4 align-top text-sm text-gray-500 dark:text-gray-400"
+                  >{{ c.lastActive }}</app-table-cell
+                >
+                <app-table-cell className="px-5 py-4 align-top">
+                  <div class="flex justify-end">
+                    <app-button variant="outline" size="sm" (btnClick)="open(c)">View</app-button>
+                  </div>
+                </app-table-cell>
+              </app-table-row>
+            }
+          </app-table-body>
+        </app-table>
+      </div>
+    }
+  </div>
+</app-feature-lock>
+
+<!-- Contact detail -->
+<app-modal [isOpen]="!!selected" (close)="close()" className="m-4 max-w-[480px] p-6 lg:p-8">
+  @if (selected) {
+    <div class="flex items-center gap-4">
+      <span
+        class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-base font-semibold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
+      >
+        {{ selected.name.charAt(0) }}
+      </span>
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">{{ selected.name }}</h3>
+        <p class="text-sm text-gray-400">{{ selected.handle }}</p>
+      </div>
+    </div>
+
+    <dl class="mt-6 space-y-3 text-sm">
+      <div class="flex justify-between gap-4">
+        <dt class="text-gray-500 dark:text-gray-400">Email</dt>
+        <dd class="font-medium text-gray-800 dark:text-white/90">{{ selected.email }}</dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-gray-500 dark:text-gray-400">Source</dt>
+        <dd class="font-medium text-gray-800 dark:text-white/90">{{ selected.source }}</dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-gray-500 dark:text-gray-400">Last active</dt>
+        <dd class="font-medium text-gray-800 dark:text-white/90">{{ selected.lastActive }}</dd>
+      </div>
+      <div class="flex items-start justify-between gap-4">
+        <dt class="text-gray-500 dark:text-gray-400">Tags</dt>
+        <dd class="flex flex-wrap justify-end gap-1.5">
+          @for (tag of selected.tags; track tag) {
+            <app-badge color="primary" variant="light" size="sm">{{ tag }}</app-badge>
+          }
+        </dd>
+      </div>
+    </dl>
+
+    <div
+      class="mt-6 rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm dark:border-gray-800 dark:bg-white/[0.03]"
+    >
+      <p class="text-xs font-medium uppercase tracking-wide text-gray-400">Last message</p>
+      <p class="mt-1 text-gray-700 dark:text-gray-300">
+        "Hi! Is this still available? Interested 🙌"
+      </p>
+    </div>
+
+    <div class="mt-6 flex justify-end">
+      <app-button variant="outline" size="sm" (btnClick)="close()">Close</app-button>
+    </div>
+  }
+</app-modal>

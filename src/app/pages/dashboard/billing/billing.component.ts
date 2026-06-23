@@ -1,32 +1,20 @@
 import { Component, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { LabelComponent } from '../../../shared/components/form/label/label.component';
-import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
-import { SelectComponent, Option } from '../../../shared/components/form/select/select.component';
-import { PaymentService } from '../../../shared/services/payment.service';
+import { PaymentService, PlanId } from '../../../shared/services/payment.service';
 
 interface PlanPick {
-  id: string;
+  id: PlanId;
   name: string;
-  amount: number;
+  price: string;
 }
 
 type Status = 'idle' | 'processing' | 'success' | 'error';
 
 @Component({
   selector: 'app-billing',
-  imports: [
-    CommonModule,
-    FormsModule,
-    PageBreadcrumbComponent,
-    ButtonComponent,
-    LabelComponent,
-    InputFieldComponent,
-    SelectComponent,
-  ],
+  imports: [CommonModule, PageBreadcrumbComponent, ButtonComponent],
   templateUrl: './billing.component.html',
   styles: ``,
 })
@@ -34,60 +22,36 @@ export class BillingComponent {
   private readonly payments = inject(PaymentService);
   private readonly zone = inject(NgZone);
 
-  amount = '1499';
-  currency = 'INR';
-  submitted = false;
-
   status: Status = 'idle';
   message = '';
   paymentId = '';
+  processingPlan: PlanId | null = null;
 
-  readonly currencyOptions: Option[] = [
-    { value: 'INR', label: 'INR (₹)' },
-    { value: 'USD', label: 'USD ($)' },
-    { value: 'EUR', label: 'EUR (€)' },
-    { value: 'GBP', label: 'GBP (£)' },
-  ];
-
+  // Prices are display-only; the real amount is enforced server-side by plan.
   readonly plans: PlanPick[] = [
-    { id: 'pro', name: 'Pro', amount: 1499 },
-    { id: 'business', name: 'Business', amount: 3999 },
+    { id: 'PRO', name: 'Pro', price: '₹1,499 / month' },
+    { id: 'BUSINESS', name: 'Business', price: '₹3,999 / month' },
   ];
-
-  get amountError(): string {
-    if (!this.submitted) return '';
-    if (!this.amount.trim()) return 'Amount is required.';
-    const value = Number(this.amount);
-    if (!Number.isFinite(value) || value <= 0) return 'Enter a valid amount greater than 0.';
-    return '';
-  }
 
   get processing(): boolean {
     return this.status === 'processing';
   }
 
-  pickPlan(plan: PlanPick): void {
-    this.amount = String(plan.amount);
-    this.currency = 'INR';
-  }
-
-  async pay(): Promise<void> {
-    this.submitted = true;
-    if (this.amountError) return;
-
+  async pay(plan: PlanPick): Promise<void> {
     this.status = 'processing';
+    this.processingPlan = plan.id;
     this.message = '';
     this.paymentId = '';
 
     try {
       const result = await this.payments.checkout({
-        amount: Number(this.amount),
-        currency: this.currency,
+        plan: plan.id,
         name: 'EngageFlow AI',
-        description: `Test payment — ${this.currency} ${this.amount}`,
+        description: `${plan.name} plan — monthly`,
       });
       // Razorpay's callback can fire outside Angular's zone; re-enter so the view updates.
       this.zone.run(() => {
+        this.processingPlan = null;
         if (result.verified) {
           this.status = 'success';
           this.paymentId = result.paymentId;
@@ -99,6 +63,7 @@ export class BillingComponent {
       });
     } catch (error: unknown) {
       this.zone.run(() => {
+        this.processingPlan = null;
         this.status = 'error';
         this.message = error instanceof Error ? error.message : 'Payment failed.';
       });

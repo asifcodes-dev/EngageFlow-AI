@@ -1,17 +1,36 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
-import { SidebarService } from '../../services/sidebar.service';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
-import { combineLatest, Subscription } from 'rxjs';
+import { SidebarService } from '../../services/sidebar.service';
+import { ConnectionStateService } from '../../services/connection-state.service';
 
-type NavItem = {
+interface NavItem {
   name: string;
   icon: string;
-  path?: string;
-  new?: boolean;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
-};
+  path: string;
+  /** Requires a connected Instagram account; shows a lock until then. */
+  locked?: boolean;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const ICON_HOME = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.26 3.25 3.25 4.26 3.25 5.5V9c0 1.24 1.01 2.25 2.25 2.25H9c1.24 0 2.25-1.01 2.25-2.25V5.5C11.25 4.26 10.24 3.25 9 3.25H5.5Zm0 9.5C4.26 12.75 3.25 13.76 3.25 15v3.5c0 1.24 1.01 2.25 2.25 2.25H9c1.24 0 2.25-1.01 2.25-2.25V15c0-1.24-1.01-2.25-2.25-2.25H5.5Zm7.25-7.25C12.75 4.26 13.76 3.25 15 3.25h3.5c1.24 0 2.25 1.01 2.25 2.25V9c0 1.24-1.01 2.25-2.25 2.25H15c-1.24 0-2.25-1.01-2.25-2.25V5.5Zm2.25 7.25c-1.24 0-2.25 1.01-2.25 2.25v3.5c0 1.24 1.01 2.25 2.25 2.25h3.5c1.24 0 2.25-1.01 2.25-2.25V15c0-1.24-1.01-2.25-2.25-2.25H15Z" fill="currentColor"/></svg>`;
+const ICON_FLOWS = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M5 7h6M5 12h14M5 17h9M17 5l3 3-3 3"/></svg>`;
+const ICON_GUARD = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3 4 6v6c0 4.5 3.4 7.6 8 9 4.6-1.4 8-4.5 8-9V6l-8-3Zm-2 9 1.5 1.5L15 10"/></svg>`;
+const ICON_REPLY = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3a9 9 0 1 0 4.5 16.8L21 21l-1.2-4.5A9 9 0 0 0 12 3Zm-3 9h.01M12 12h.01M15 12h.01"/></svg>`;
+const ICON_AUDIENCE = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 8v-1a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>`;
+const ICON_LEADS = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2m1 0a2 2 0 1 1 6 0M9 14l2 2 4-4"/></svg>`;
+const ICON_TAG = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v4.6c0 .5.2 1 .6 1.4l7.4 7.4a2 2 0 0 0 2.8 0l4.6-4.6a2 2 0 0 0 0-2.8L11 5.6c-.4-.4-.9-.6-1.4-.6H5a2 2 0 0 0-2 2Zm4 .5h.01"/></svg>`;
+const ICON_STORE = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="m21 16-9 5-9-5V8l9-5 9 5v8ZM3 8l9 5 9-5M12 13v8"/></svg>`;
+const ICON_CART = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l2.4 12.3a2 2 0 0 0 2 1.7h7.7a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>`;
+const ICON_WALLET = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9m-4 4h.01"/></svg>`;
+const ICON_CHART = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 16v-4m4 4V8m4 8v-6"/></svg>`;
+const ICON_CROWN = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="m3 7 4 4 5-6 5 6 4-4v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z"/></svg>`;
+const ICON_GEAR = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 0 1-4 0v-.1A1.7 1.7 0 0 0 7 19.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 0 1 0-4h.1A1.7 1.7 0 0 0 4.7 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>`;
 
 @Component({
   selector: 'app-sidebar',
@@ -19,118 +38,58 @@ type NavItem = {
   templateUrl: './app-sidebar.component.html',
 })
 export class AppSidebarComponent {
-  // Main nav items
-  navItems: NavItem[] = [
+  private readonly router = inject(Router);
+  private readonly connection = inject(ConnectionStateService);
+  readonly sidebarService = inject(SidebarService);
+
+  readonly isExpanded$ = this.sidebarService.isExpanded$;
+  readonly isMobileOpen$ = this.sidebarService.isMobileOpen$;
+  readonly isHovered$ = this.sidebarService.isHovered$;
+  readonly connected$ = this.connection.connected$;
+
+  readonly groups: NavGroup[] = [
+    { label: 'Main', items: [{ name: 'Overview', icon: ICON_HOME, path: '/dashboard' }] },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.25736 3.25 3.25 4.25736 3.25 5.5V8.99998C3.25 10.2426 4.25736 11.25 5.5 11.25H9C10.2426 11.25 11.25 10.2426 11.25 8.99998V5.5C11.25 4.25736 10.2426 3.25 9 3.25H5.5ZM4.75 5.5C4.75 5.08579 5.08579 4.75 5.5 4.75H9C9.41421 4.75 9.75 5.08579 9.75 5.5V8.99998C9.75 9.41419 9.41421 9.74998 9 9.74998H5.5C5.08579 9.74998 4.75 9.41419 4.75 8.99998V5.5ZM5.5 12.75C4.25736 12.75 3.25 13.7574 3.25 15V18.5C3.25 19.7426 4.25736 20.75 5.5 20.75H9C10.2426 20.75 11.25 19.7427 11.25 18.5V15C11.25 13.7574 10.2426 12.75 9 12.75H5.5ZM4.75 15C4.75 14.5858 5.08579 14.25 5.5 14.25H9C9.41421 14.25 9.75 14.5858 9.75 15V18.5C9.75 18.9142 9.41421 19.25 9 19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5V15ZM12.75 5.5C12.75 4.25736 13.7574 3.25 15 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V8.99998C20.75 10.2426 19.7426 11.25 18.5 11.25H15C13.7574 11.25 12.75 10.2426 12.75 8.99998V5.5ZM15 4.75C14.5858 4.75 14.25 5.08579 14.25 5.5V8.99998C14.25 9.41419 14.5858 9.74998 15 9.74998H18.5C18.9142 9.74998 19.25 9.41419 19.25 8.99998V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H15ZM15 12.75C13.7574 12.75 12.75 13.7574 12.75 15V18.5C12.75 19.7426 13.7574 20.75 15 20.75H18.5C19.7426 20.75 20.75 19.7427 20.75 18.5V15C20.75 13.7574 19.7426 12.75 18.5 12.75H15ZM14.25 15C14.25 14.5858 14.5858 14.25 15 14.25H18.5C18.9142 14.25 19.25 14.5858 19.25 15V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15C14.5858 19.25 14.25 18.9142 14.25 18.5V15Z" fill="currentColor"></path></svg>`,
-      name: 'Dashboard',
-      subItems: [{ name: 'Ecommerce', path: '/dashboard' }],
+      label: 'Engage',
+      items: [
+        { name: 'Flows', icon: ICON_FLOWS, path: '/dashboard/flows', locked: true },
+        { name: 'Comment Guard', icon: ICON_GUARD, path: '/dashboard/comment-guard', locked: true },
+        { name: 'Reply Studio', icon: ICON_REPLY, path: '/dashboard/reply-studio', locked: true },
+        { name: 'Audience', icon: ICON_AUDIENCE, path: '/dashboard/audience', locked: true },
+        { name: 'Leads', icon: ICON_LEADS, path: '/dashboard/leads', locked: true },
+      ],
     },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.5 6V5.5C7.5 3.01472 9.51472 1 12 1C14.4853 1 16.5 3.01472 16.5 5.5V6H18.5C19.7426 6 20.75 7.00736 20.75 8.25V18.5C20.75 20.2949 19.2949 21.75 17.5 21.75H6.5C4.70507 21.75 3.25 20.2949 3.25 18.5V8.25C3.25 7.00736 4.25736 6 5.5 6H7.5ZM9 5.5C9 3.84315 10.3431 2.5 12 2.5C13.6569 2.5 15 3.84315 15 5.5V6H9V5.5ZM7.5 7.5H5.5C5.08579 7.5 4.75 7.83579 4.75 8.25V18.5C4.75 19.4665 5.5335 20.25 6.5 20.25H17.5C18.4665 20.25 19.25 19.4665 19.25 18.5V8.25C19.25 7.83579 18.9142 7.5 18.5 7.5H16.5V9C16.5 9.41421 16.1642 9.75 15.75 9.75C15.3358 9.75 15 9.41421 15 9V7.5H9V9C9 9.41421 8.66421 9.75 8.25 9.75C7.83579 9.75 7.5 9.41421 7.5 9V7.5Z" fill="currentColor"></path></svg>`,
-      name: 'Product Catalog',
-      path: '/dashboard/product-catalog',
+      label: 'Catalog',
+      items: [{ name: 'Product Catalog', icon: ICON_TAG, path: '/dashboard/product-catalog' }],
     },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.5 2.75C4.6005 2.75 2.25 5.1005 2.25 8V16C2.25 18.8995 4.6005 21.25 7.5 21.25H16.5C19.3995 21.25 21.75 18.8995 21.75 16V8C21.75 5.1005 19.3995 2.75 16.5 2.75H7.5ZM3.75 8C3.75 5.92893 5.42893 4.25 7.5 4.25H16.5C18.5711 4.25 20.25 5.92893 20.25 8V16C20.25 18.0711 18.5711 19.75 16.5 19.75H7.5C5.42893 19.75 3.75 18.0711 3.75 16V8ZM12 7.75C9.65279 7.75 7.75 9.65279 7.75 12C7.75 14.3472 9.65279 16.25 12 16.25C14.3472 16.25 16.25 14.3472 16.25 12C16.25 9.65279 14.3472 7.75 12 7.75ZM9.25 12C9.25 10.4812 10.4812 9.25 12 9.25C13.5188 9.25 14.75 10.4812 14.75 12C14.75 13.5188 13.5188 14.75 12 14.75C10.4812 14.75 9.25 13.5188 9.25 12ZM16.75 6.5C16.2806 6.5 15.9 6.88056 15.9 7.35C15.9 7.81944 16.2806 8.2 16.75 8.2C17.2194 8.2 17.6 7.81944 17.6 7.35C17.6 6.88056 17.2194 6.5 16.75 6.5Z" fill="currentColor"></path></svg>`,
-      name: 'Instagram',
-      path: '/dashboard/instagram',
+      label: 'Sell',
+      items: [
+        { name: 'Store', icon: ICON_STORE, path: '/dashboard/store' },
+        { name: 'Sales', icon: ICON_CART, path: '/dashboard/sales' },
+        { name: 'Earnings', icon: ICON_WALLET, path: '/dashboard/earnings' },
+      ],
     },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 5.25C4.25736 5.25 3.25 6.25736 3.25 7.5V16.5C3.25 17.7426 4.25736 18.75 5.5 18.75H18.5C19.7426 18.75 20.75 17.7426 20.75 16.5V7.5C20.75 6.25736 19.7426 5.25 18.5 5.25H5.5ZM4.75 7.5C4.75 7.08579 5.08579 6.75 5.5 6.75H18.5C18.9142 6.75 19.25 7.08579 19.25 7.5V8.75H4.75V7.5ZM4.75 10.25V16.5C4.75 16.9142 5.08579 17.25 5.5 17.25H18.5C18.9142 17.25 19.25 16.9142 19.25 16.5V10.25H4.75ZM6.5 14.5C6.5 14.0858 6.83579 13.75 7.25 13.75H10.25C10.6642 13.75 11 14.0858 11 14.5C11 14.9142 10.6642 15.25 10.25 15.25H7.25C6.83579 15.25 6.5 14.9142 6.5 14.5Z" fill="currentColor"></path></svg>`,
-      name: 'Billing',
-      path: '/dashboard/billing',
+      label: 'Insights',
+      items: [{ name: 'Insights', icon: ICON_CHART, path: '/dashboard/insights' }],
     },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.5C7.30558 3.5 3.5 7.30558 3.5 12C3.5 14.1526 4.3002 16.1184 5.61936 17.616C6.17279 15.3096 8.24852 13.5955 10.7246 13.5955H13.2746C15.7509 13.5955 17.8268 15.31 18.38 17.6167C19.6996 16.119 20.5 14.153 20.5 12C20.5 7.30558 16.6944 3.5 12 3.5ZM17.0246 18.8566V18.8455C17.0246 16.7744 15.3457 15.0955 13.2746 15.0955H10.7246C8.65354 15.0955 6.97461 16.7744 6.97461 18.8455V18.856C8.38223 19.8895 10.1198 20.5 12 20.5C13.8798 20.5 15.6171 19.8898 17.0246 18.8566ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM11.9991 7.25C10.8847 7.25 9.98126 8.15342 9.98126 9.26784C9.98126 10.3823 10.8847 11.2857 11.9991 11.2857C13.1135 11.2857 14.0169 10.3823 14.0169 9.26784C14.0169 8.15342 13.1135 7.25 11.9991 7.25ZM8.48126 9.26784C8.48126 7.32499 10.0563 5.75 11.9991 5.75C13.9419 5.75 15.5169 7.32499 15.5169 9.26784C15.5169 11.2107 13.9419 12.7857 11.9991 12.7857C10.0563 12.7857 8.48126 11.2107 8.48126 9.26784Z" fill="currentColor"></path></svg>`,
-      name: 'User Profile',
-      path: '/dashboard/profile',
+      label: 'Account',
+      items: [
+        { name: 'Membership', icon: ICON_CROWN, path: '/dashboard/membership' },
+        { name: 'Settings', icon: ICON_GEAR, path: '/dashboard/settings' },
+      ],
     },
   ];
-  // Others nav items (none for now — kept so the template binding stays valid)
-  othersItems: NavItem[] = [];
-
-  openSubmenu: string | null | number = null;
-  subMenuHeights: { [key: string]: number } = {};
-  @ViewChildren('subMenu') subMenuRefs!: QueryList<ElementRef>;
-
-  readonly isExpanded$;
-  readonly isMobileOpen$;
-  readonly isHovered$;
-
-  private subscription: Subscription = new Subscription();
-
-  constructor(
-    public sidebarService: SidebarService,
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-  ) {
-    this.isExpanded$ = this.sidebarService.isExpanded$;
-    this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
-    this.isHovered$ = this.sidebarService.isHovered$;
-  }
-
-  ngOnInit() {
-    // Subscribe to router events
-    this.subscription.add(
-      this.router.events.subscribe((event) => {
-        if (event instanceof NavigationEnd) {
-          this.setActiveMenuFromRoute(this.router.url);
-        }
-      }),
-    );
-
-    // Subscribe to combined observables to close submenus when all are false
-    this.subscription.add(
-      combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$]).subscribe(
-        ([isExpanded, isMobileOpen, isHovered]) => {
-          if (!isExpanded && !isMobileOpen && !isHovered) {
-            // this.openSubmenu = null;
-            // this.savedSubMenuHeights = { ...this.subMenuHeights };
-            // this.subMenuHeights = {};
-            this.cdr.detectChanges();
-          } else {
-            // Restore saved heights when reopening
-            // this.subMenuHeights = { ...this.savedSubMenuHeights };
-            // this.cdr.detectChanges();
-          }
-        },
-      ),
-    );
-
-    // Initial load
-    this.setActiveMenuFromRoute(this.router.url);
-  }
-
-  ngOnDestroy() {
-    // Clean up subscriptions
-    this.subscription.unsubscribe();
-  }
 
   isActive(path: string): boolean {
-    return this.router.url === path;
+    const current = this.router.url.split('?')[0];
+    return current === path;
   }
 
-  toggleSubmenu(section: string, index: number) {
-    const key = `${section}-${index}`;
-
-    if (this.openSubmenu === key) {
-      this.openSubmenu = null;
-      this.subMenuHeights[key] = 0;
-    } else {
-      this.openSubmenu = key;
-
-      setTimeout(() => {
-        const el = document.getElementById(key);
-        if (el) {
-          this.subMenuHeights[key] = el.scrollHeight;
-          this.cdr.detectChanges(); // Ensure UI updates
-        }
-      });
-    }
-  }
-
-  onSidebarMouseEnter() {
+  onSidebarMouseEnter(): void {
     this.isExpanded$
       .subscribe((expanded) => {
         if (!expanded) {
@@ -140,36 +99,7 @@ export class AppSidebarComponent {
       .unsubscribe();
   }
 
-  private setActiveMenuFromRoute(currentUrl: string) {
-    const menuGroups = [
-      { items: this.navItems, prefix: 'main' },
-      { items: this.othersItems, prefix: 'others' },
-    ];
-
-    menuGroups.forEach((group) => {
-      group.items.forEach((nav, i) => {
-        if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
-            if (currentUrl === subItem.path) {
-              const key = `${group.prefix}-${i}`;
-              this.openSubmenu = key;
-
-              setTimeout(() => {
-                const el = document.getElementById(key);
-                if (el) {
-                  this.subMenuHeights[key] = el.scrollHeight;
-                  this.cdr.detectChanges(); // Ensure UI updates
-                }
-              });
-            }
-          });
-        }
-      });
-    });
-  }
-
-  onSubmenuClick() {
-    console.log('click submenu');
+  onLinkClick(): void {
     this.isMobileOpen$
       .subscribe((isMobile) => {
         if (isMobile) {

@@ -1,0 +1,133 @@
+<app-page-breadcrumb pageTitle="Membership" />
+
+<app-page-header
+  title="Membership"
+  subtitle="Pick the plan that fits your growth. Upgrade or downgrade anytime."
+/>
+
+<!-- Current plan / trial -->
+<div
+  class="mb-6 flex flex-col gap-3 rounded-2xl border border-brand-100 bg-brand-50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10 sm:flex-row sm:items-center sm:justify-between"
+>
+  <div>
+    <p class="text-sm font-semibold text-gray-800 dark:text-white/90">
+      You're on the {{ currentPlan | titlecase }} plan
+    </p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">Growth trial active — 14 days left.</p>
+  </div>
+  @if (status === 'success') {
+    <span class="text-sm font-medium text-success-600 dark:text-success-400">{{ message }}</span>
+  } @else if (status === 'error') {
+    <span class="text-sm font-medium text-error-600 dark:text-error-400">{{ message }}</span>
+  }
+</div>
+
+<!-- Billing cycle toggle -->
+<div class="mb-8 flex justify-center">
+  <div class="inline-flex items-center rounded-full bg-gray-100 p-1 dark:bg-white/[0.06]">
+    <button
+      type="button"
+      (click)="cycle = 'monthly'"
+      class="rounded-full px-4 py-1.5 text-sm font-medium transition"
+      [class.bg-white]="cycle === 'monthly'"
+      [class.text-gray-800]="cycle === 'monthly'"
+      [class.shadow-theme-xs]="cycle === 'monthly'"
+      [class.dark:bg-gray-800]="cycle === 'monthly'"
+      [class.dark:text-white]="cycle === 'monthly'"
+      [class.text-gray-500]="cycle !== 'monthly'"
+    >
+      Monthly
+    </button>
+    <button
+      type="button"
+      (click)="cycle = 'yearly'"
+      class="rounded-full px-4 py-1.5 text-sm font-medium transition"
+      [class.bg-white]="cycle === 'yearly'"
+      [class.text-gray-800]="cycle === 'yearly'"
+      [class.shadow-theme-xs]="cycle === 'yearly'"
+      [class.dark:bg-gray-800]="cycle === 'yearly'"
+      [class.dark:text-white]="cycle === 'yearly'"
+      [class.text-gray-500]="cycle !== 'yearly'"
+    >
+      Yearly
+      <span
+        class="ml-1 rounded-full bg-success-500/10 px-1.5 py-0.5 text-xs text-success-600 dark:text-success-400"
+        >-28%</span
+      >
+    </button>
+  </div>
+</div>
+
+<!-- Plans -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  @for (plan of plans; track plan.id) {
+    <div
+      class="ef-card relative flex flex-col p-6"
+      [class.ring-2]="plan.recommended"
+      [class.ring-brand-500]="plan.recommended"
+    >
+      @if (plan.recommended) {
+        <span
+          class="absolute -top-3 left-6 rounded-full bg-brand-500 px-3 py-1 text-xs font-medium text-white"
+        >
+          Most popular
+        </span>
+      }
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">{{ plan.name }}</h3>
+      <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ plan.tagline }}</p>
+
+      <div class="mt-4 flex items-end gap-1">
+        <span class="text-title-sm font-bold text-gray-800 dark:text-white/90"
+          >₹{{ perMonth(plan) }}</span
+        >
+        <span class="pb-1 text-sm text-gray-500 dark:text-gray-400">/month</span>
+      </div>
+      @if (cycle === 'yearly' && plan.monthly > 0) {
+        <p class="mt-1 text-xs text-gray-400">Billed ₹{{ totalNow(plan) }} per year</p>
+      }
+
+      <ul class="mt-5 flex-1 space-y-3">
+        @for (feature of plan.features; track feature) {
+          <li class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="mt-0.5 h-4 w-4 shrink-0 text-success-500"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7" />
+            </svg>
+            {{ feature }}
+          </li>
+        }
+      </ul>
+
+      <div class="mt-6">
+        @if (plan.id === currentPlan) {
+          <button
+            type="button"
+            disabled
+            class="w-full cursor-default rounded-lg bg-gray-100 px-4 py-3 text-sm font-medium text-gray-500 dark:bg-white/[0.06] dark:text-gray-400"
+          >
+            Current plan
+          </button>
+        } @else {
+          <app-button
+            [variant]="plan.recommended ? 'primary' : 'outline'"
+            size="sm"
+            className="w-full"
+            [disabled]="processingPlan === plan.id"
+            (btnClick)="choose(plan)"
+          >
+            {{ processingPlan === plan.id ? 'Processing…' : ctaLabel(plan) }}
+          </app-button>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<p class="mt-6 text-center text-xs text-gray-400">
+  Secure payments via Razorpay (test mode). Taxes may apply.
+</p>

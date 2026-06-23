@@ -1,0 +1,53 @@
+<app-page-breadcrumb pageTitle="Insights" />
+
+<app-page-header
+  title="Insights"
+  subtitle="Proof of ROI — what your automations did across replies, leads, and sales."
+>
+  <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/[0.06]">
+    @for (r of ranges; track r.value) {
+      <button
+        type="button"
+        (click)="setRange(r.value)"
+        class="rounded-md px-3 py-1.5 text-sm font-medium transition"
+        [class.bg-white]="range === r.value"
+        [class.text-gray-800]="range === r.value"
+        [class.shadow-theme-xs]="range === r.value"
+        [class.dark:bg-gray-800]="range === r.value"
+        [class.dark:text-white]="range === r.value"
+        [class.text-gray-500]="range !== r.value"
+      >
+        {{ r.label }}
+      </button>
+    }
+  </div>
+</app-page-header>
+
+<!-- Metric cards -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+  <app-stat-card [icon]="icons.dm" label="DMs sent" value="1,284" trend="+18%" />
+  <app-stat-card [icon]="icons.reply" label="Comment replies" value="3,920" trend="+24%" />
+  <app-stat-card [icon]="icons.leads" label="Leads captured" value="168" trend="+12%" />
+  <app-stat-card [icon]="icons.sales" label="Products sold" value="92" trend="+8%" />
+  <app-stat-card
+    [icon]="icons.spam"
+    label="Spam deleted"
+    value="312"
+    trend="auto"
+    trendColor="warning"
+  />
+  <app-stat-card [icon]="icons.followers" label="New followers" value="540" trend="+15%" />
+</div>
+
+<!-- Charts -->
+<div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
+  <app-component-card
+    title="Engagement over time"
+    desc="Replies and DMs handled by your automations."
+  >
+    <app-line-chart-one />
+  </app-component-card>
+  <app-component-card title="Activity by day" desc="Automated actions per day this period.">
+    <app-bar-chart-one />
+  </app-component-card>
+</div>

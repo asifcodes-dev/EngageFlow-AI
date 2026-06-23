@@ -1,0 +1,142 @@
+<app-page-breadcrumb pageTitle="Earnings" />
+
+<app-page-header
+  title="Earnings"
+  subtitle="Your product sales, payout balance, and bank account. A 7% platform fee applies to each sale."
+/>
+
+<!-- KPIs -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  <app-stat-card [icon]="icons.rupee" label="Total sales" [value]="money(48720)" />
+  <app-stat-card
+    [icon]="icons.fee"
+    label="Platform fee (7%)"
+    [value]="money(3410)"
+    trendColor="warning"
+  />
+  <app-stat-card
+    [icon]="icons.wallet"
+    label="Available"
+    [value]="money(31230)"
+    trend="ready"
+    trendColor="success"
+  />
+  <app-stat-card [icon]="icons.clock" label="Pending" [value]="money(4650)" trendColor="warning" />
+  <app-stat-card
+    [icon]="icons.check"
+    label="Paid out"
+    [value]="money(15600)"
+    trendColor="success"
+  />
+</div>
+
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <!-- Payout account -->
+  <div class="ef-card p-5 lg:p-6">
+    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Payout account</h3>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Where we send your weekly payouts (T+2 working days).
+    </p>
+
+    <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <app-label>Bank name</app-label>
+        <app-input-field
+          type="text"
+          name="bankName"
+          placeholder="e.g. HDFC Bank"
+          [(value)]="bankName"
+        />
+      </div>
+      <div>
+        <app-label>IFSC code</app-label>
+        <app-input-field type="text" name="ifsc" placeholder="e.g. HDFC0001234" [(value)]="ifsc" />
+      </div>
+      <div>
+        <app-label>Account number</app-label>
+        <app-input-field
+          type="text"
+          name="accountNumber"
+          placeholder="000012345678"
+          [(value)]="accountNumber"
+        />
+      </div>
+      <div>
+        <app-label>Account holder</app-label>
+        <app-input-field type="text" name="holder" placeholder="Full name" [(value)]="holder" />
+      </div>
+    </div>
+
+    <div class="mt-5 flex items-center gap-3">
+      <app-button size="sm" (btnClick)="saveAccount()">Save account</app-button>
+      @if (saved) {
+        <span class="text-sm text-success-600 dark:text-success-400">Saved ✓</span>
+      }
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="ef-card overflow-hidden">
+    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Payout history</h3>
+    </div>
+    @if ((payouts$ | async) ?? []; as payouts) {
+      @if (payouts.length === 0) {
+        <app-empty-state
+          title="No payouts yet"
+          description="Payouts appear here as your sales are settled."
+        />
+      } @else {
+        <div class="custom-scrollbar overflow-x-auto">
+          <app-table>
+            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+              <app-table-row>
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Date</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Amount</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Status</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Reference</app-table-cell
+                >
+              </app-table-row>
+            </app-table-header>
+            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+              @for (p of payouts; track trackPayout($index, p)) {
+                <app-table-row>
+                  <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                    p.date
+                  }}</app-table-cell>
+                  <app-table-cell
+                    className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90"
+                    >{{ money(p.amount, p.currency) }}</app-table-cell
+                  >
+                  <app-table-cell className="px-5 py-4"
+                    ><app-badge [color]="statusColor(p.status)" variant="light" size="sm">{{
+                      p.status | titlecase
+                    }}</app-badge></app-table-cell
+                  >
+                  <app-table-cell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{
+                    p.reference
+                  }}</app-table-cell>
+                </app-table-row>
+              }
+            </app-table-body>
+          </app-table>
+        </div>
+      }
+    }
+  </div>
+</div>
