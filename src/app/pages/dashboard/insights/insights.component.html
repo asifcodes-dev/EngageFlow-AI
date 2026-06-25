@@ -2,7 +2,7 @@
 
 <app-page-header
   title="Insights"
-  subtitle="Proof of ROI — what your automations did across replies, leads, and sales."
+  subtitle="Proof of ROI — what your automations did across replies, leads, and products."
 >
   <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/[0.06]">
     @for (r of ranges; track r.value) {
@@ -23,31 +23,105 @@
   </div>
 </app-page-header>
 
-<!-- Metric cards -->
+<!-- Metric cards (only metrics we can compute today; DMs/sales/followers land with
+     their features in later phases) -->
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-  <app-stat-card [icon]="icons.dm" label="DMs sent" value="1,284" trend="+18%" />
-  <app-stat-card [icon]="icons.reply" label="Comment replies" value="3,920" trend="+24%" />
-  <app-stat-card [icon]="icons.leads" label="Leads captured" value="168" trend="+12%" />
-  <app-stat-card [icon]="icons.sales" label="Products sold" value="92" trend="+8%" />
+  <app-stat-card
+    [icon]="icons.reply"
+    label="Comment replies"
+    [value]="(totals.commentReplies | number) ?? '0'"
+  />
+  <app-stat-card
+    [icon]="icons.leads"
+    label="Leads captured"
+    [value]="(totals.leadsCaptured | number) ?? '0'"
+  />
   <app-stat-card
     [icon]="icons.spam"
-    label="Spam deleted"
-    value="312"
-    trend="auto"
+    label="Spam removed"
+    [value]="(totals.spamDeleted | number) ?? '0'"
     trendColor="warning"
   />
-  <app-stat-card [icon]="icons.followers" label="New followers" value="540" trend="+15%" />
+  <app-stat-card
+    [icon]="icons.flows"
+    label="Active flows"
+    [value]="(totals.activeFlows | number) ?? '0'"
+  />
+  <app-stat-card
+    [icon]="icons.catalog"
+    label="Products in catalog"
+    [value]="(totals.catalogSize | number) ?? '0'"
+  />
+  <app-stat-card
+    [icon]="icons.actions"
+    label="Automated actions"
+    [value]="(automatedActions | number) ?? '0'"
+  />
 </div>
 
 <!-- Charts -->
 <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
   <app-component-card
     title="Engagement over time"
-    desc="Replies and DMs handled by your automations."
+    desc="Replies and automated actions over this period."
   >
-    <app-line-chart-one />
+    <app-line-chart-one [series]="lineSeries" [categories]="categories" />
   </app-component-card>
-  <app-component-card title="Activity by day" desc="Automated actions per day this period.">
-    <app-bar-chart-one />
+  <app-component-card title="Activity by day" desc="Automated actions per bucket this period.">
+    <app-bar-chart-one [series]="barSeries" [categories]="categories" />
+  </app-component-card>
+</div>
+
+<!-- Top products -->
+<div class="mt-6">
+  <app-component-card
+    title="Top products"
+    desc="Which products your audience asked about most this period."
+  >
+    @if (topProducts.length === 0) {
+      <app-empty-state
+        title="No product interest yet"
+        description="Once customers ask about your products, the most-mentioned ones show up here."
+      />
+    } @else {
+      <div class="custom-scrollbar overflow-x-auto">
+        <app-table>
+          <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+            <app-table-row>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Product</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Leads</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Replies</app-table-cell
+              >
+            </app-table-row>
+          </app-table-header>
+          <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+            @for (p of topProducts; track p.productName) {
+              <app-table-row>
+                <app-table-cell className="px-5 py-4 font-medium text-gray-800 dark:text-white/90">{{
+                  p.productName
+                }}</app-table-cell>
+                <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                  p.leads | number
+                }}</app-table-cell>
+                <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                  p.replies | number
+                }}</app-table-cell>
+              </app-table-row>
+            }
+          </app-table-body>
+        </app-table>
+      </div>
+    }
   </app-component-card>
 </div>

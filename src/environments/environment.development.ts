@@ -8,4 +8,6 @@ export const environment = {
   // Flip to `true` (then restart `npm start`) to preview the Instagram-gated
   // pages unlocked, without a connected account. Locked by default.
   previewUnlocked: false,
+  // Public Google OAuth client id for social login (Phase 10). Empty = disabled.
+  googleClientId: "495688753227-rivnc44ut038uund6mp33tqpc8lpbc4r.apps.googleusercontent.com"
 };

@@ -7,6 +7,8 @@ import { CheckboxComponent } from '../../form/input/checkbox.component';
 import { ButtonComponent } from '../../ui/button/button.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
 import { AuthService } from '../../../services/auth.service';
+import { GoogleIdentityService } from '../../../services/google-identity.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-signin-form',
@@ -36,6 +38,7 @@ export class SigninFormComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
+  private googleAuth = inject(GoogleIdentityService);
 
   get emailError(): string {
     if (!this.submitted) return '';
@@ -78,9 +81,49 @@ export class SigninFormComponent {
   }
 
   onOAuth(provider: 'google' | 'instagram') {
-    // OAuth is not wired yet; the backend social-login flow comes in a later phase.
     this.errorMessage = '';
-    this.infoMessage = `${provider === 'google' ? 'Google' : 'Instagram'} sign-in is coming soon — please use email and password for now.`;
+    this.infoMessage = '';
+
+    // Instagram isn't an app-login identity provider here — it's connected from
+    // the dashboard after sign-in.
+    if (provider === 'instagram') {
+      this.infoMessage =
+        'Instagram sign-in isn’t available — please use email/password or Google.';
+      return;
+    }
+
+    const clientId = environment.googleClientId;
+    if (!clientId) {
+      this.infoMessage =
+        'Google sign-in isn’t configured yet — please use email and password.';
+      return;
+    }
+
+    this.loading = true;
+    this.googleAuth
+      .getCredential(clientId)
+      .then((credential) => {
+        this.auth.loginWithGoogle(credential).subscribe({
+          next: () => {
+            this.loading = false;
+            const returnUrl =
+              this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+            this.router.navigateByUrl(returnUrl);
+          },
+          error: (err: unknown) => {
+            this.loading = false;
+            this.errorMessage = extractAuthError(
+              err,
+              'Google sign-in failed. Please try again.',
+            );
+          },
+        });
+      })
+      .catch((err: unknown) => {
+        this.loading = false;
+        this.errorMessage =
+          err instanceof Error ? err.message : 'Google sign-in failed.';
+      });
   }
 }
 
