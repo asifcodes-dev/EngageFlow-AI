@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { StatCardComponent } from '../../../shared/components/common/stat-card/stat-card.component';
@@ -22,6 +22,7 @@ const ICON_LEADS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
   selector: 'app-overview',
   imports: [CommonModule, RouterModule, PageBreadcrumbComponent, StatCardComponent, SafeHtmlPipe],
   templateUrl: './overview.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverviewComponent {
   private readonly connection = inject(ConnectionStateService);
