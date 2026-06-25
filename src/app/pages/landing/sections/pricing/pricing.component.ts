@@ -18,8 +18,8 @@ interface Tier {
   description: string;
   featured: boolean;
   cta: string;
-  /** Monthly price in rupees, or null for the free plan (which routes to signup). */
-  amount: number | null;
+  /** Monthly price in rupees. */
+  amount: number;
   features: string[];
 }
 
@@ -41,23 +41,6 @@ export class PricingComponent {
   noticeType: 'success' | 'error' | '' = '';
 
   readonly tiers: Tier[] = [
-    {
-      id: 'free',
-      name: 'Free',
-      price: '₹0',
-      period: '/month',
-      description: 'For getting started and testing the waters.',
-      featured: false,
-      cta: 'Start For Free',
-      amount: null,
-      features: [
-        '1 Instagram account',
-        '100 auto-replies / month',
-        '3 product catalog items',
-        'Basic analytics',
-        'Community support',
-      ],
-    },
     {
       id: 'pro',
       name: 'Pro',
@@ -99,9 +82,9 @@ export class PricingComponent {
   ];
 
   onCta(tier: Tier): void {
-    // Free plan, or anyone not signed in, goes to signup first — paid checkout
-    // requires an authenticated user (the payments API is JWT-guarded).
-    if (tier.amount === null || !this.auth.isAuthenticated()) {
+    // Anyone not signed in goes to signup first — paid checkout requires an
+    // authenticated user (the payments API is JWT-guarded).
+    if (!this.auth.isAuthenticated()) {
       this.router.navigate(['/signup'], { queryParams: { plan: tier.id } });
       return;
     }
@@ -109,7 +92,6 @@ export class PricingComponent {
   }
 
   private async startCheckout(tier: Tier): Promise<void> {
-    if (tier.amount === null) return;
     this.processingTierId = tier.id;
     this.notice = '';
     this.noticeType = '';

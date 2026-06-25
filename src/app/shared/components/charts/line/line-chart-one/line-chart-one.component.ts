@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -21,7 +21,8 @@ import {
   styles: ``,
 })
 export class LineChartOneComponent {
-  public series: ApexAxisChartSeries = [
+  // Defaults keep the standalone demo working; callers (Insights) pass real data.
+  @Input() series: ApexAxisChartSeries = [
     {
       name: 'Sales',
       data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
@@ -31,6 +32,13 @@ export class LineChartOneComponent {
       data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
     },
   ];
+
+  /** Override the x-axis labels (no-op when empty so the demo defaults stay). */
+  @Input() set categories(values: string[] | undefined) {
+    if (values && values.length) {
+      this.xaxis = { ...this.xaxis, categories: values };
+    }
+  }
 
   public chart: ApexChart = {
     fontFamily: 'Outfit, sans-serif',

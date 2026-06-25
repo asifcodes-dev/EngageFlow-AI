@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -38,6 +38,7 @@ import { downloadCsv } from '../../../shared/utils/csv.util';
     InputFieldComponent,
   ],
   templateUrl: './audience.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AudienceComponent {
   private readonly connection = inject(ConnectionStateService);

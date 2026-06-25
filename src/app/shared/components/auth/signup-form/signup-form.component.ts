@@ -5,6 +5,8 @@ import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
 import { AuthService } from '../../../services/auth.service';
+import { GoogleIdentityService } from '../../../services/google-identity.service';
+import { environment } from '../../../../../environments/environment';
 import { extractAuthError } from '../signin-form/signin-form.component';
 
 @Component({
@@ -29,6 +31,7 @@ export class SignupFormComponent {
 
   private router = inject(Router);
   private auth = inject(AuthService);
+  private googleAuth = inject(GoogleIdentityService);
 
   get fnameError(): string {
     if (!this.submitted) return '';
@@ -101,8 +104,44 @@ export class SignupFormComponent {
   }
 
   onOAuth(provider: 'google' | 'instagram') {
-    // OAuth is not wired yet; the backend social-login flow comes in a later phase.
     this.errorMessage = '';
-    this.infoMessage = `${provider === 'google' ? 'Google' : 'Instagram'} sign-up is coming soon — please use email and password for now.`;
+    this.infoMessage = '';
+
+    if (provider === 'instagram') {
+      this.infoMessage =
+        'Instagram sign-up isn’t available — please use email/password or Google.';
+      return;
+    }
+
+    const clientId = environment.googleClientId;
+    if (!clientId) {
+      this.infoMessage =
+        'Google sign-up isn’t configured yet — please use email and password.';
+      return;
+    }
+
+    this.loading = true;
+    this.googleAuth
+      .getCredential(clientId)
+      .then((credential) => {
+        this.auth.loginWithGoogle(credential).subscribe({
+          next: () => {
+            this.loading = false;
+            this.router.navigateByUrl('/dashboard');
+          },
+          error: (err: unknown) => {
+            this.loading = false;
+            this.errorMessage = extractAuthError(
+              err,
+              'Google sign-up failed. Please try again.',
+            );
+          },
+        });
+      })
+      .catch((err: unknown) => {
+        this.loading = false;
+        this.errorMessage =
+          err instanceof Error ? err.message : 'Google sign-up failed.';
+      });
   }
 }

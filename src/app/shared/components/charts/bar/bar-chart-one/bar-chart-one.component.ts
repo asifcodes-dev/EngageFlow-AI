@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -21,12 +21,20 @@ import { NgApexchartsModule } from 'ng-apexcharts';
   styles: ``,
 })
 export class BarChartOneComponent {
-  public series: ApexAxisChartSeries = [
+  // Defaults keep the standalone demo working; callers (Insights) pass real data.
+  @Input() series: ApexAxisChartSeries = [
     {
       name: 'Sales',
       data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
     },
   ];
+
+  /** Override the x-axis labels (no-op when empty so the demo defaults stay). */
+  @Input() set categories(values: string[] | undefined) {
+    if (values && values.length) {
+      this.xaxis = { ...this.xaxis, categories: values };
+    }
+  }
 
   public chart: ApexChart = {
     fontFamily: 'Outfit, sans-serif',

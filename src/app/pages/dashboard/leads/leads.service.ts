@@ -1,55 +1,28 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import {
+  AnalyticsService,
+  LeadEntry,
+} from '../../../shared/services/analytics.service';
 
-export interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  goal: string;
-  source: string;
-  capturedAt: string;
-}
+/** A captured lead = a price-inquiry comment surfaced by the automation. */
+export type Lead = LeadEntry;
 
-/** In-memory captured leads (swap for the backend leads API later). */
+/**
+ * Captured leads backed by the backend ({apiUrl}/analytics/leads via
+ * AnalyticsService). Keeps a BehaviorSubject mirror so the page reacts to loads.
+ */
 @Injectable({ providedIn: 'root' })
 export class LeadsService {
-  private readonly subject = new BehaviorSubject<Lead[]>(seed());
-  readonly leads$: Observable<Lead[]> = this.subject.asObservable();
-}
+  private readonly analytics = inject(AnalyticsService);
 
-function seed(): Lead[] {
-  return [
-    {
-      id: crypto.randomUUID(),
-      name: 'Meera Joshi',
-      email: 'meera@example.com',
-      goal: 'Grow my boutique',
-      source: 'eBook DM funnel',
-      capturedAt: 'Today',
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Karan Singh',
-      email: 'karan@example.com',
-      goal: 'Sell online courses',
-      source: 'Story reply → coaching',
-      capturedAt: 'Today',
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Fatima Khan',
-      email: 'fatima@example.com',
-      goal: 'More leads from Instagram',
-      source: 'eBook DM funnel',
-      capturedAt: 'Yesterday',
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Vikram N',
-      email: 'vikram@example.com',
-      goal: 'Automate replies',
-      source: 'Comment flow',
-      capturedAt: '2 days ago',
-    },
-  ];
+  private readonly subject = new BehaviorSubject<Lead[]>([]);
+  readonly leads$: Observable<Lead[]> = this.subject.asObservable();
+
+  /** Fetch leads and push them into `leads$`. */
+  load(): Observable<Lead[]> {
+    return this.analytics
+      .getLeads()
+      .pipe(tap((leads) => this.subject.next(leads)));
+  }
 }

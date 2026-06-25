@@ -5,15 +5,23 @@
   subtitle="Pick the plan that fits your growth. Upgrade or downgrade anytime."
 />
 
-<!-- Current plan / trial -->
+<!-- Current plan -->
 <div
   class="mb-6 flex flex-col gap-3 rounded-2xl border border-brand-100 bg-brand-50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10 sm:flex-row sm:items-center sm:justify-between"
 >
   <div>
-    <p class="text-sm font-semibold text-gray-800 dark:text-white/90">
-      You're on the {{ currentPlan | titlecase }} plan
-    </p>
-    <p class="text-xs text-gray-500 dark:text-gray-400">Growth trial active — 14 days left.</p>
+    @if (currentPlan === 'none') {
+      <p class="text-sm font-semibold text-gray-800 dark:text-white/90">
+        You don't have an active plan yet
+      </p>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        Choose a plan below to unlock automation.
+      </p>
+    } @else {
+      <p class="text-sm font-semibold text-gray-800 dark:text-white/90">
+        You're on the {{ currentPlan | titlecase }} plan
+      </p>
+    }
   </div>
   @if (status === 'success') {
     <span class="text-sm font-medium text-success-600 dark:text-success-400">{{ message }}</span>
@@ -21,6 +29,34 @@
     <span class="text-sm font-medium text-error-600 dark:text-error-400">{{ message }}</span>
   }
 </div>
+
+<!-- Plan usage -->
+@if (usage && usage.tier) {
+  <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    @for (
+      row of [
+        { label: 'Products in catalog', u: usage.products },
+        { label: 'Automation flows', u: usage.flows },
+      ];
+      track row.label
+    ) {
+      <div class="ef-card p-5">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ row.label }}</span>
+          <span class="text-sm font-semibold text-gray-800 dark:text-white/90">{{
+            usageLabel(row.u.used, row.u.limit)
+          }}</span>
+        </div>
+        <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/[0.06]">
+          <div
+            class="h-full rounded-full bg-brand-500 transition-all"
+            [style.width.%]="usagePercent(row.u.used, row.u.limit)"
+          ></div>
+        </div>
+      </div>
+    }
+  </div>
+}
 
 <!-- Billing cycle toggle -->
 <div class="mb-8 flex justify-center">

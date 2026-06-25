@@ -3,11 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+// Mirrors the backend SafeUser the auth endpoints return (login/register/me),
+// so the cached `currentUser$` keeps the real name/role/subscriptionTier.
 export interface AuthUser {
   id: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  name: string | null;
+  role?: string;
+  subscriptionTier?: 'PRO' | 'BUSINESS' | null;
 }
 
 /** The full user the backend returns from GET /auth/me (SafeUser shape). */
@@ -16,7 +19,14 @@ export interface CurrentUser {
   email: string;
   name: string | null;
   role: string;
-  subscriptionTier: 'FREE' | 'PRO' | 'BUSINESS';
+  subscriptionTier: 'PRO' | 'BUSINESS' | null;
+}
+
+/** Plan usage vs limits from GET /auth/usage (`limit: null` = unlimited). */
+export interface PlanUsage {
+  tier: 'PRO' | 'BUSINESS' | null;
+  products: { used: number; limit: number | null };
+  flows: { used: number; limit: number | null };
 }
 
 export interface LoginPayload {
@@ -96,6 +106,18 @@ export class AuthService {
   /** Full backend user (name, role, subscriptionTier) from GET /auth/me. */
   me(): Observable<CurrentUser> {
     return this.http.get<CurrentUser>(`${this.authUrl}/me`);
+  }
+
+  /** Plan usage vs limits (products/flows) from GET /auth/usage. */
+  usage(): Observable<PlanUsage> {
+    return this.http.get<PlanUsage>(`${this.authUrl}/usage`);
+  }
+
+  /** Sign in with a Google ID token credential (Phase 10 social login). */
+  loginWithGoogle(credential: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.authUrl}/google`, { credential })
+      .pipe(tap((res) => this.handleAuth(res)));
   }
 
   /** Request a password-reset link for the given email. */

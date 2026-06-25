@@ -84,7 +84,7 @@
                   <app-table-cell
                     className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
                   >
-                    {{ flow.product || '—' }}
+                    {{ flow.productName || '—' }}
                   </app-table-cell>
                   <app-table-cell
                     className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
@@ -155,9 +155,25 @@
       <div>
         <app-label>Linked product</app-label>
         @if (productOptions$ | async; as productOptions) {
-          <app-select [options]="productOptions" [(value)]="form.product" />
+          <app-select [options]="productOptions" [(value)]="form.productId" />
         }
       </div>
+    </div>
+
+    <div>
+      <app-label>Applies to</app-label>
+      <app-select [options]="scopeOptions" [(value)]="form.scope" />
+      @if (form.scope === 'specific') {
+        <div class="mt-3">
+          <app-input-field
+            type="text"
+            name="postIds"
+            placeholder="e.g. 17891234567890123"
+            [(value)]="form.postIds"
+            hint="Post media IDs, comma/space separated. Tip: keep 'All posts' unless you know the media ID."
+          />
+        </div>
+      }
     </div>
 
     <div>
@@ -167,15 +183,47 @@
         name="keyword"
         placeholder="e.g. price, kitne, cost"
         [(value)]="form.keyword"
-        hint="Comma-separated. A matching comment/DM fires this flow."
+        hint="Comma-separated. A matching comment fires this flow. Leave empty to match any comment."
       />
     </div>
 
+    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+      <div class="flex items-center justify-between gap-3">
+        <app-label>Reply preview</app-label>
+        <app-button variant="outline" size="sm" [disabled]="previewing" (btnClick)="preview()">
+          {{ previewing ? 'Generating…' : 'Preview reply' }}
+        </app-button>
+      </div>
+      @if (previewText) {
+        <p
+          class="mt-2 rounded-lg bg-gray-50 p-3 text-sm text-gray-700 dark:bg-white/[0.03] dark:text-gray-300"
+        >
+          {{ previewText }}
+        </p>
+      } @else {
+        <p class="mt-1 text-xs text-gray-400">
+          See how the AI would reply — quotes the selected product's exact price.
+        </p>
+      }
+    </div>
+
     <app-checkbox
-      label="Require the user to follow before replying (Follow gate)"
+      label="Ask the user to follow before sharing details (Follow gate)"
       [checked]="form.followGate"
       (checkedChange)="form.followGate = $event"
     />
+    @if (form.followGate) {
+      <p class="-mt-2 text-xs text-gray-400">
+        Instagram can't confirm whether someone follows you, so the reply politely asks them to
+        follow first and holds back the price/details — it can't hard-block non-followers.
+      </p>
+    }
+
+    @if (saveError) {
+      <p class="rounded-lg bg-error-50 p-3 text-sm text-error-600 dark:bg-error-500/10 dark:text-error-400">
+        {{ saveError }}
+      </p>
+    }
 
     <div class="flex items-center justify-end gap-3 pt-2">
       <app-button variant="outline" size="sm" (btnClick)="closeModal()">Cancel</app-button>
