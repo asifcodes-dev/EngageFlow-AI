@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -73,7 +74,8 @@ export class ReplyStudioComponent {
   generating = false;
 
   constructor() {
-    this.productService.products$.subscribe((p) => (this.products = p));
+    this.productService.ensureLoaded(); // fetch the catalog so the dropdown populates
+    this.productService.products$.pipe(takeUntilDestroyed()).subscribe((p) => (this.products = p));
   }
 
   save(): void {
@@ -94,6 +96,8 @@ export class ReplyStudioComponent {
         productDescription: product?.description,
         price: product?.price,
         currency: product?.currency,
+        tone: this.tone,
+        replyLength: this.replyLength,
       })
       .subscribe({
         next: (res) => {

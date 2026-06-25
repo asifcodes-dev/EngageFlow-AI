@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
 import { StatCardComponent } from '../../../shared/components/common/stat-card/stat-card.component';
@@ -31,6 +31,7 @@ import { CommentCategory, CommentGuardService, ModeratedComment } from './commen
     CheckboxComponent,
   ],
   templateUrl: './comment-guard.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommentGuardComponent {
   private readonly connection = inject(ConnectionStateService);

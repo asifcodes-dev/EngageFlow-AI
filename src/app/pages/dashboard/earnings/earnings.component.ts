@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -36,6 +36,7 @@ import { EarningsService, Payout, PayoutStatus } from './earnings.service';
     InputFieldComponent,
   ],
   templateUrl: './earnings.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EarningsComponent {
   private readonly earnings = inject(EarningsService);

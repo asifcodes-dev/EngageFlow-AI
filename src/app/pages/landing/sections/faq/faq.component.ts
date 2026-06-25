@@ -40,9 +40,9 @@ export class FaqComponent {
         'Yes, on the Business plan. Upload your file, connect a payment link, and buyers receive a secure, time-limited download automatically after payment.',
     },
     {
-      question: 'Is there really a free plan?',
+      question: 'Can I change or cancel my plan later?',
       answer:
-        'Yes — the Free plan includes 1 Instagram account, 100 auto-replies per month, and 3 catalog items, with no credit card required.',
+        'Yes — you can upgrade, downgrade, or cancel anytime from your dashboard. Changes take effect from your next billing cycle.',
     },
   ];
 

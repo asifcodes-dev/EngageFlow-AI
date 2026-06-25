@@ -7,4 +7,6 @@ export const environment = {
   production: false,
   apiUrl: API_URL,
   previewUnlocked: false,
+  // Public Google OAuth client id for social login (Phase 10). Empty = disabled.
+  googleClientId: "495688753227-rivnc44ut038uund6mp33tqpc8lpbc4r.apps.googleusercontent.com"
 };

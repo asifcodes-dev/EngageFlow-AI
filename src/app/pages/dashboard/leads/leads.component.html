@@ -101,22 +101,17 @@
                   <app-table-cell
                     [isHeader]="true"
                     className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                    >Name</app-table-cell
+                    >Username</app-table-cell
                   >
                   <app-table-cell
                     [isHeader]="true"
                     className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                    >Email</app-table-cell
+                    >Asked about</app-table-cell
                   >
                   <app-table-cell
                     [isHeader]="true"
                     className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                    >Goal</app-table-cell
-                  >
-                  <app-table-cell
-                    [isHeader]="true"
-                    className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                    >Source</app-table-cell
+                    >Comment</app-table-cell
                   >
                   <app-table-cell
                     [isHeader]="true"
@@ -130,23 +125,19 @@
                   <app-table-row>
                     <app-table-cell
                       className="px-5 py-4 font-medium text-gray-800 dark:text-white/90"
-                      >{{ l.name }}</app-table-cell
+                      >{{ l.username ? '@' + l.username : '—' }}</app-table-cell
                     >
                     <app-table-cell
                       className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
-                      >{{ l.email }}</app-table-cell
+                      >{{ l.productName ?? '—' }}</app-table-cell
                     >
                     <app-table-cell
-                      className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
-                      >{{ l.goal }}</app-table-cell
-                    >
-                    <app-table-cell
-                      className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
-                      >{{ l.source }}</app-table-cell
+                      className="max-w-xs truncate px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
+                      >{{ l.text ?? '' }}</app-table-cell
                     >
                     <app-table-cell
                       className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
-                      >{{ l.capturedAt }}</app-table-cell
+                      >{{ l.capturedAt | date: 'medium' }}</app-table-cell
                     >
                   </app-table-row>
                 }

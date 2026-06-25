@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -38,8 +38,9 @@ import { downloadCsv } from '../../../shared/utils/csv.util';
     CheckboxComponent,
   ],
   templateUrl: './leads.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LeadsComponent {
+export class LeadsComponent implements OnInit {
   private readonly connection = inject(ConnectionStateService);
   private readonly leadsService = inject(LeadsService);
 
@@ -52,6 +53,14 @@ export class LeadsComponent {
   collectGoal = true;
   saved = false;
 
+  ngOnInit(): void {
+    this.leadsService.load().subscribe({
+      error: () => {
+        /* keep leads$ empty; the page shows its own empty state */
+      },
+    });
+  }
+
   saveForm(): void {
     this.saved = true;
   }
@@ -59,8 +68,13 @@ export class LeadsComponent {
   export(leads: Lead[]): void {
     downloadCsv(
       'leads.csv',
-      ['Name', 'Email', 'Goal', 'Source', 'Captured'],
-      leads.map((l) => [l.name, l.email, l.goal, l.source, l.capturedAt]),
+      ['Username', 'Asked about', 'Comment', 'Captured'],
+      leads.map((l) => [
+        l.username ?? '',
+        l.productName ?? '',
+        l.text ?? '',
+        l.capturedAt,
+      ]),
     );
   }
 }
