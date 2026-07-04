@@ -44,10 +44,12 @@
   <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
     @let open = (isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async);
     @let connected = (connected$ | async) ?? false;
+    @let isAdmin = (isAdmin$ | async) ?? false;
 
     <nav class="mb-6">
       <div class="flex flex-col gap-4">
         @for (group of groups; track group.label) {
+          @if (!group.adminOnly || isAdmin) {
           <div>
             <h2
               class="mb-3 text-xs uppercase flex leading-[20px] text-gray-400"
@@ -120,6 +122,7 @@
               }
             </ul>
           </div>
+          }
         }
       </div>
     </nav>

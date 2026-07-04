@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './shared/guards/auth.guard';
+import { adminGuard } from './shared/guards/admin.guard';
 
 /**
  * All routes are lazily loaded (`loadComponent`) so the initial bundle stays
@@ -120,6 +121,48 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/dashboard/settings/settings.component').then((m) => m.SettingsComponent),
         title: 'Settings | EngageFlow AI',
+      },
+
+      // Admin (platform owner only — server-enforced via RolesGuard, UI here)
+      {
+        path: 'admin',
+        canActivate: [adminGuard],
+        canActivateChild: [adminGuard],
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./pages/dashboard/admin/subscribers/admin-subscribers.component').then(
+                (m) => m.AdminSubscribersComponent,
+              ),
+            title: 'Admin · Subscribers | EngageFlow AI',
+          },
+          {
+            path: 'usage',
+            loadComponent: () =>
+              import('./pages/dashboard/admin/usage/admin-usage.component').then(
+                (m) => m.AdminUsageComponent,
+              ),
+            title: 'Admin · Account Usage | EngageFlow AI',
+          },
+          {
+            path: 'features',
+            loadComponent: () =>
+              import('./pages/dashboard/admin/features/admin-features.component').then(
+                (m) => m.AdminFeaturesComponent,
+              ),
+            title: 'Admin · Feature Analytics | EngageFlow AI',
+          },
+          {
+            path: 'subscribers/:id',
+            loadComponent: () =>
+              import(
+                './pages/dashboard/admin/subscriber-detail/admin-subscriber-detail.component'
+              ).then((m) => m.AdminSubscriberDetailComponent),
+            title: 'Admin · Subscriber | EngageFlow AI',
+          },
+        ],
       },
 
       // legacy paths → new homes

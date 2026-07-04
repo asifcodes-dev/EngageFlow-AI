@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { map } from 'rxjs';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
 import { SidebarService } from '../../services/sidebar.service';
 import { ConnectionStateService } from '../../services/connection-state.service';
+import { AuthService } from '../../services/auth.service';
 
 interface NavItem {
   name: string;
@@ -16,6 +18,8 @@ interface NavItem {
 interface NavGroup {
   label: string;
   items: NavItem[];
+  /** Rendered only for role=ADMIN (the platform owner). */
+  adminOnly?: boolean;
 }
 
 const ICON_HOME = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.26 3.25 3.25 4.26 3.25 5.5V9c0 1.24 1.01 2.25 2.25 2.25H9c1.24 0 2.25-1.01 2.25-2.25V5.5C11.25 4.26 10.24 3.25 9 3.25H5.5Zm0 9.5C4.26 12.75 3.25 13.76 3.25 15v3.5c0 1.24 1.01 2.25 2.25 2.25H9c1.24 0 2.25-1.01 2.25-2.25V15c0-1.24-1.01-2.25-2.25-2.25H5.5Zm7.25-7.25C12.75 4.26 13.76 3.25 15 3.25h3.5c1.24 0 2.25 1.01 2.25 2.25V9c0 1.24-1.01 2.25-2.25 2.25H15c-1.24 0-2.25-1.01-2.25-2.25V5.5Zm2.25 7.25c-1.24 0-2.25 1.01-2.25 2.25v3.5c0 1.24 1.01 2.25 2.25 2.25h3.5c1.24 0 2.25-1.01 2.25-2.25V15c0-1.24-1.01-2.25-2.25-2.25H15Z" fill="currentColor"/></svg>`;
@@ -31,6 +35,9 @@ const ICON_WALLET = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="non
 const ICON_CHART = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 16v-4m4 4V8m4 8v-6"/></svg>`;
 const ICON_CROWN = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="m3 7 4 4 5-6 5 6 4-4v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z"/></svg>`;
 const ICON_GEAR = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 0 1-4 0v-.1A1.7 1.7 0 0 0 7 19.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 0 1 0-4h.1A1.7 1.7 0 0 0 4.7 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>`;
+const ICON_ADMIN_USERS = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-1a4 4 0 0 0-5-3.87M9 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3 3 0 1 0 0-6M2 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/></svg>`;
+const ICON_ADMIN_PULSE = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l2.5-7 5 14 2.5-7h4"/></svg>`;
+const ICON_ADMIN_BOARD = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 16V9m4 7V6m4 10v-4"/><circle cx="8" cy="7" r="1"/><circle cx="12" cy="4" r="1"/><circle cx="16" cy="10" r="1"/></svg>`;
 
 @Component({
   selector: 'app-sidebar',
@@ -40,12 +47,17 @@ const ICON_GEAR = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none"
 export class AppSidebarComponent {
   private readonly router = inject(Router);
   private readonly connection = inject(ConnectionStateService);
+  private readonly auth = inject(AuthService);
   readonly sidebarService = inject(SidebarService);
 
   readonly isExpanded$ = this.sidebarService.isExpanded$;
   readonly isMobileOpen$ = this.sidebarService.isMobileOpen$;
   readonly isHovered$ = this.sidebarService.isHovered$;
   readonly connected$ = this.connection.connected$;
+  /** The Admin group renders only for the platform owner (role=ADMIN). The
+   *  header's user dropdown rehydrates currentUser$ on every shell load, so
+   *  the role arrives without an extra request. Server enforces regardless. */
+  readonly isAdmin$ = this.auth.currentUser$.pipe(map((u) => u?.role === 'ADMIN'));
 
   readonly groups: NavGroup[] = [
     { label: 'Main', items: [{ name: 'Overview', icon: ICON_HOME, path: '/dashboard' }] },
@@ -80,6 +92,15 @@ export class AppSidebarComponent {
       items: [
         { name: 'Membership', icon: ICON_CROWN, path: '/dashboard/membership' },
         { name: 'Settings', icon: ICON_GEAR, path: '/dashboard/settings' },
+      ],
+    },
+    {
+      label: 'Admin',
+      adminOnly: true,
+      items: [
+        { name: 'Subscribers', icon: ICON_ADMIN_USERS, path: '/dashboard/admin' },
+        { name: 'Account Usage', icon: ICON_ADMIN_PULSE, path: '/dashboard/admin/usage' },
+        { name: 'Feature Analytics', icon: ICON_ADMIN_BOARD, path: '/dashboard/admin/features' },
       ],
     },
   ];
