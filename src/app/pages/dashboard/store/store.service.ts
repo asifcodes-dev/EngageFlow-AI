@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, delay, of, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, catchError, of, tap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export type ProductType = 'ebook' | 'course' | 'template' | 'bundle';
 export type ProductStatus = 'active' | 'draft';
@@ -7,78 +9,109 @@ export type ProductStatus = 'active' | 'draft';
 export interface DigitalProduct {
   id: string;
   title: string;
+  description?: string;
   type: ProductType;
   price: number;
   currency: string;
   fileName: string;
+  coverImageUrl?: string | null;
+  downloadUrl?: string | null;
   status: ProductStatus;
+  categoryId?: string | null;
   sales: number;
   revenue: number;
 }
 
 export type DigitalProductInput = Omit<DigitalProduct, 'id' | 'sales' | 'revenue'>;
 
-/** In-memory digital-product catalog (swap for the backend store API later). */
-@Injectable({ providedIn: 'root' })
-export class StoreService {
-  private readonly subject = new BehaviorSubject<DigitalProduct[]>(seed());
-  readonly products$: Observable<DigitalProduct[]> = this.subject.asObservable();
-
-  create(input: DigitalProductInput): Observable<DigitalProduct> {
-    const product: DigitalProduct = { id: crypto.randomUUID(), sales: 0, revenue: 0, ...input };
-    return of(product).pipe(
-      delay(150),
-      tap((p) => this.subject.next([...this.subject.value, p])),
-    );
-  }
-
-  remove(id: string): void {
-    this.subject.next(this.subject.value.filter((p) => p.id !== id));
-  }
-
-  toggleStatus(id: string): void {
-    this.subject.next(
-      this.subject.value.map((p) =>
-        p.id === id ? { ...p, status: p.status === 'active' ? 'draft' : 'active' } : p,
-      ),
-    );
-  }
+/** The subscriber's public storefront settings. */
+export interface StoreSettings {
+  storeName: string;
+  slug: string;
+  bio: string;
+  logoUrl: string | null;
+  instagram: string | null;
+  whatsapp: string | null;
+  youtube: string | null;
+  twitter: string | null;
+  isActive: boolean;
 }
 
-function seed(): DigitalProduct[] {
-  return [
-    {
-      id: crypto.randomUUID(),
-      title: 'Instagram Growth eBook',
-      type: 'ebook',
-      price: 299,
-      currency: 'INR',
-      fileName: 'ig-growth.pdf',
-      status: 'active',
-      sales: 64,
-      revenue: 19136,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: 'Reels Templates Pack',
-      type: 'template',
-      price: 499,
-      currency: 'INR',
-      fileName: 'reels-pack.zip',
-      status: 'active',
-      sales: 28,
-      revenue: 13972,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: 'Automation Masterclass',
-      type: 'course',
-      price: 1999,
-      currency: 'INR',
-      fileName: 'masterclass.mp4',
-      status: 'draft',
-      sales: 0,
-      revenue: 0,
-    },
-  ];
+export interface StoreCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+/**
+ * Digital-product store backed by the backend (`{apiUrl}/store`) — products,
+ * storefront settings, and categories. `catchError` keeps the product list empty
+ * if the API is down.
+ */
+@Injectable({ providedIn: 'root' })
+export class StoreService {
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiUrl}/store`;
+
+  private readonly subject = new BehaviorSubject<DigitalProduct[]>([]);
+  readonly products$: Observable<DigitalProduct[]> = this.subject.asObservable();
+
+  // ── Products ────────────────────────────────────────────────────
+
+  load(): Observable<DigitalProduct[]> {
+    return this.http.get<DigitalProduct[]>(this.baseUrl).pipe(
+      tap((products) => this.subject.next(products)),
+      catchError(() => {
+        this.subject.next([]);
+        return of([]);
+      }),
+    );
+  }
+
+  create(input: DigitalProductInput): Observable<DigitalProduct> {
+    return this.http
+      .post<DigitalProduct>(this.baseUrl, input)
+      .pipe(tap((created) => this.subject.next([created, ...this.subject.value])));
+  }
+
+  toggleStatus(product: DigitalProduct): Observable<DigitalProduct> {
+    const status: ProductStatus = product.status === 'active' ? 'draft' : 'active';
+    return this.http
+      .patch<DigitalProduct>(`${this.baseUrl}/${product.id}`, { status })
+      .pipe(
+        tap((updated) =>
+          this.subject.next(this.subject.value.map((p) => (p.id === updated.id ? updated : p))),
+        ),
+      );
+  }
+
+  remove(id: string): Observable<void> {
+    return this.http
+      .delete<void>(`${this.baseUrl}/${id}`)
+      .pipe(tap(() => this.subject.next(this.subject.value.filter((p) => p.id !== id))));
+  }
+
+  // ── Storefront settings ─────────────────────────────────────────
+
+  getSettings(): Observable<StoreSettings | null> {
+    return this.http.get<StoreSettings | null>(`${this.baseUrl}/settings`);
+  }
+
+  saveSettings(settings: StoreSettings): Observable<StoreSettings> {
+    return this.http.patch<StoreSettings>(`${this.baseUrl}/settings`, settings);
+  }
+
+  // ── Categories ──────────────────────────────────────────────────
+
+  listCategories(): Observable<StoreCategory[]> {
+    return this.http.get<StoreCategory[]>(`${this.baseUrl}/categories`);
+  }
+
+  createCategory(name: string): Observable<StoreCategory> {
+    return this.http.post<StoreCategory>(`${this.baseUrl}/categories`, { name });
+  }
+
+  removeCategory(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/categories/${id}`);
+  }
 }

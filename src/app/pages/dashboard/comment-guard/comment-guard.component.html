@@ -10,33 +10,33 @@
     subtitle="AI screens every comment and hides spam or abuse before it hurts your brand."
   />
 
-  <!-- KPI tiles -->
+  <!-- KPI tiles (live from /analytics/summary; 0 until events accrue) -->
+  @let t = (summary$ | async)?.totals;
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <app-stat-card
       [icon]="statIcons.spam"
       label="Spam blocked"
-      value="312"
-      trend="this month"
+      [value]="(t?.spamDeleted | number) ?? '0'"
       trendColor="warning"
     />
     <app-stat-card
       [icon]="statIcons.abuse"
       label="Abuse removed"
-      value="48"
-      trend="this month"
+      [value]="(t?.abuseDeleted | number) ?? '0'"
       trendColor="error"
     />
     <app-stat-card
       [icon]="statIcons.reviewed"
       label="Comments reviewed"
-      value="3,920"
-      trend="+24%"
+      [value]="(t?.commentReplies | number) ?? '0'"
     />
     <app-stat-card
       [icon]="statIcons.auto"
-      label="Auto-actions today"
-      value="27"
-      trend="live"
+      label="Auto-actions"
+      [value]="
+        (((t?.spamDeleted ?? 0) + (t?.abuseDeleted ?? 0) + (t?.commentReplies ?? 0)) | number) ??
+          '0'
+      "
       trendColor="info"
     />
   </div>
@@ -90,11 +90,6 @@
               className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
               >Status</app-table-cell
             >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Actions</app-table-cell
-            >
           </app-table-row>
         </app-table-header>
         <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -127,31 +122,6 @@
                     <app-badge color="light" variant="light" size="sm">Pending</app-badge>
                   }
                 }
-              </app-table-cell>
-              <app-table-cell className="px-5 py-4 align-top">
-                <div class="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    (click)="setAction(c, 'kept')"
-                    class="rounded-lg px-3 py-2 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200 transition hover:bg-gray-50 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-white/[0.03]"
-                  >
-                    Keep
-                  </button>
-                  <button
-                    type="button"
-                    (click)="setAction(c, 'hidden')"
-                    class="rounded-lg px-3 py-2 text-xs font-medium text-warning-600 ring-1 ring-inset ring-warning-200 transition hover:bg-warning-50 dark:text-warning-400 dark:ring-warning-500/30 dark:hover:bg-warning-500/10"
-                  >
-                    Hide
-                  </button>
-                  <button
-                    type="button"
-                    (click)="setAction(c, 'deleted')"
-                    class="rounded-lg px-3 py-2 text-xs font-medium text-error-600 ring-1 ring-inset ring-error-200 transition hover:bg-error-50 dark:text-error-400 dark:ring-error-500/30 dark:hover:bg-error-500/10"
-                  >
-                    Delete
-                  </button>
-                </div>
               </app-table-cell>
             </app-table-row>
           }

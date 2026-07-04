@@ -22,17 +22,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     canActivateChild: [authGuard],
     loadComponent: () =>
-      import('./shared/layout/app-layout/app-layout.component').then(
-        (m) => m.AppLayoutComponent,
-      ),
+      import('./shared/layout/app-layout/app-layout.component').then((m) => m.AppLayoutComponent),
     children: [
       {
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./pages/dashboard/overview/overview.component').then(
-            (m) => m.OverviewComponent,
-          ),
+          import('./pages/dashboard/overview/overview.component').then((m) => m.OverviewComponent),
         title: 'Dashboard | EngageFlow AI',
       },
 
@@ -40,9 +36,7 @@ export const routes: Routes = [
       {
         path: 'flows',
         loadComponent: () =>
-          import('./pages/dashboard/flows/flows.component').then(
-            (m) => m.FlowsComponent,
-          ),
+          import('./pages/dashboard/flows/flows.component').then((m) => m.FlowsComponent),
         title: 'Flows | EngageFlow AI',
       },
       {
@@ -64,17 +58,13 @@ export const routes: Routes = [
       {
         path: 'audience',
         loadComponent: () =>
-          import('./pages/dashboard/audience/audience.component').then(
-            (m) => m.AudienceComponent,
-          ),
+          import('./pages/dashboard/audience/audience.component').then((m) => m.AudienceComponent),
         title: 'Audience | EngageFlow AI',
       },
       {
         path: 'leads',
         loadComponent: () =>
-          import('./pages/dashboard/leads/leads.component').then(
-            (m) => m.LeadsComponent,
-          ),
+          import('./pages/dashboard/leads/leads.component').then((m) => m.LeadsComponent),
         title: 'Leads | EngageFlow AI',
       },
 
@@ -92,25 +82,19 @@ export const routes: Routes = [
       {
         path: 'store',
         loadComponent: () =>
-          import('./pages/dashboard/store/store.component').then(
-            (m) => m.StoreComponent,
-          ),
+          import('./pages/dashboard/store/store.component').then((m) => m.StoreComponent),
         title: 'Store | EngageFlow AI',
       },
       {
         path: 'sales',
         loadComponent: () =>
-          import('./pages/dashboard/sales/sales.component').then(
-            (m) => m.SalesComponent,
-          ),
+          import('./pages/dashboard/sales/sales.component').then((m) => m.SalesComponent),
         title: 'Sales | EngageFlow AI',
       },
       {
         path: 'earnings',
         loadComponent: () =>
-          import('./pages/dashboard/earnings/earnings.component').then(
-            (m) => m.EarningsComponent,
-          ),
+          import('./pages/dashboard/earnings/earnings.component').then((m) => m.EarningsComponent),
         title: 'Earnings | EngageFlow AI',
       },
 
@@ -118,9 +102,7 @@ export const routes: Routes = [
       {
         path: 'insights',
         loadComponent: () =>
-          import('./pages/dashboard/insights/insights.component').then(
-            (m) => m.InsightsComponent,
-          ),
+          import('./pages/dashboard/insights/insights.component').then((m) => m.InsightsComponent),
         title: 'Insights | EngageFlow AI',
       },
 
@@ -136,9 +118,7 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () =>
-          import('./pages/dashboard/settings/settings.component').then(
-            (m) => m.SettingsComponent,
-          ),
+          import('./pages/dashboard/settings/settings.component').then((m) => m.SettingsComponent),
         title: 'Settings | EngageFlow AI',
       },
 
@@ -173,21 +153,24 @@ export const routes: Routes = [
       ),
     title: 'Refund Policy | EngageFlow AI',
   },
+  // public storefront (no app chrome; 404 state when the store is inactive)
+  {
+    path: 's/:slug',
+    loadComponent: () =>
+      import('./pages/public-store/public-store.component').then((m) => m.PublicStoreComponent),
+    title: 'Store | EngageFlow AI',
+  },
   // auth pages
   {
     path: 'signin',
     loadComponent: () =>
-      import('./pages/auth-pages/sign-in/sign-in.component').then(
-        (m) => m.SignInComponent,
-      ),
+      import('./pages/auth-pages/sign-in/sign-in.component').then((m) => m.SignInComponent),
     title: 'Sign In | EngageFlow AI',
   },
   {
     path: 'signup',
     loadComponent: () =>
-      import('./pages/auth-pages/sign-up/sign-up.component').then(
-        (m) => m.SignUpComponent,
-      ),
+      import('./pages/auth-pages/sign-up/sign-up.component').then((m) => m.SignUpComponent),
     title: 'Sign Up | EngageFlow AI',
   },
   {
@@ -202,9 +185,7 @@ export const routes: Routes = [
   {
     path: '**',
     loadComponent: () =>
-      import('./pages/other-page/not-found/not-found.component').then(
-        (m) => m.NotFoundComponent,
-      ),
+      import('./pages/other-page/not-found/not-found.component').then((m) => m.NotFoundComponent),
     title: 'Page Not Found | EngageFlow AI',
   },
 ];

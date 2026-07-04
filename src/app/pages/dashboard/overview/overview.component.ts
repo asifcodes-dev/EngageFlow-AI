@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { catchError, of } from 'rxjs';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { StatCardComponent } from '../../../shared/components/common/stat-card/stat-card.component';
 import { SafeHtmlPipe } from '../../../shared/pipe/safe-html.pipe';
 import { ConnectionStateService } from '../../../shared/services/connection-state.service';
+import { AnalyticsService } from '../../../shared/services/analytics.service';
+import { AuthService } from '../../../shared/services/auth.service';
 
 interface ToolCard {
   name: string;
@@ -26,7 +29,13 @@ const ICON_LEADS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 })
 export class OverviewComponent {
   private readonly connection = inject(ConnectionStateService);
+  private readonly analytics = inject(AnalyticsService);
+  private readonly auth = inject(AuthService);
   readonly connected$ = this.connection.connected$;
+  /** Plan/trial state for the banner; null if the call fails. */
+  readonly usage$ = this.auth.usage().pipe(catchError(() => of(null)));
+  /** Live KPI totals (0 until events accrue); resilient to a failed call. */
+  readonly summary$ = this.analytics.getSummary('30d').pipe(catchError(() => of(null)));
 
   readonly icons = {
     dm: ICON_DM,

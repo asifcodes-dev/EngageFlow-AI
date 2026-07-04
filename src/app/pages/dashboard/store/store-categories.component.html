@@ -1,0 +1,55 @@
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="ef-card h-fit p-6">
+    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Add category</h3>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Group products for easy browsing (e.g. eBooks, Templates).
+    </p>
+    <form (ngSubmit)="add()" class="mt-4 space-y-3">
+      <app-label>Category name</app-label>
+      <app-input-field
+        type="text"
+        name="name"
+        placeholder="e.g. Canva Templates"
+        [(value)]="name"
+      />
+      @if (error) {
+        <p class="text-xs text-error-500">{{ error }}</p>
+      }
+      <app-button
+        size="sm"
+        className="w-full"
+        [disabled]="creating || !name.trim()"
+        (btnClick)="add()"
+      >
+        {{ creating ? 'Adding…' : '+ Create category' }}
+      </app-button>
+    </form>
+  </div>
+
+  <div class="ef-card p-6 lg:col-span-2">
+    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Your categories</h3>
+    @if (loading) {
+      <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+    } @else if (categories.length === 0) {
+      <p class="mt-4 text-sm text-gray-400">No categories created yet.</p>
+    } @else {
+      <ul class="mt-4 divide-y divide-gray-100 dark:divide-gray-800">
+        @for (cat of categories; track cat.id) {
+          <li class="flex items-center justify-between py-3">
+            <div>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ cat.name }}</p>
+              <p class="text-xs text-gray-400">/{{ cat.slug }}</p>
+            </div>
+            <button
+              type="button"
+              (click)="remove(cat)"
+              class="text-sm font-medium text-error-600 hover:underline dark:text-error-400"
+            >
+              Delete
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

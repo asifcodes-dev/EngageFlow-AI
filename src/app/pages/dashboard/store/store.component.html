@@ -2,123 +2,148 @@
 
 @let products = (products$ | async) ?? [];
 
-<app-page-header
-  title="Store"
-  subtitle="Sell digital products — eBooks, courses, templates — straight from your DMs."
->
-  <app-button size="sm" (btnClick)="openCreate()">+ New product</app-button>
-</app-page-header>
-
-<!-- KPIs -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-  <app-stat-card [icon]="icons.box" label="Total products" [value]="products.length" />
-  <app-stat-card [icon]="icons.check" label="Active" [value]="activeCount(products)" />
-  <app-stat-card
-    [icon]="icons.rupee"
-    label="Total revenue"
-    [value]="totalRevenue(products)"
-    trend="all time"
-    trendColor="success"
-  />
+<!-- Tabs -->
+<div class="mb-6 border-b border-gray-200 dark:border-gray-800">
+  <nav class="-mb-px flex gap-6">
+    @for (tab of tabs; track tab.id) {
+      <button
+        type="button"
+        (click)="activeTab = tab.id"
+        class="border-b-2 px-1 pb-3 text-sm font-medium transition"
+        [class.border-brand-500]="activeTab === tab.id"
+        [class.text-brand-500]="activeTab === tab.id"
+        [class.border-transparent]="activeTab !== tab.id"
+        [class.text-gray-500]="activeTab !== tab.id"
+      >
+        {{ tab.label }}
+      </button>
+    }
+  </nav>
 </div>
 
-<div class="ef-card mt-6 overflow-hidden">
-  @if (products.length === 0) {
-    <app-empty-state
-      title="No products yet"
-      description="Create a digital product and share its payment link through your automations."
-      ctaText="+ New product"
-      (cta)="openCreate()"
+@if (activeTab === 'products') {
+  <app-page-header
+    title="Store"
+    subtitle="Sell digital products — eBooks, courses, templates — straight from your DMs."
+  >
+    <app-button size="sm" (btnClick)="openCreate()">+ New product</app-button>
+  </app-page-header>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <app-stat-card [icon]="icons.box" label="Total products" [value]="products.length" />
+    <app-stat-card [icon]="icons.check" label="Active" [value]="activeCount(products)" />
+    <app-stat-card
+      [icon]="icons.rupee"
+      label="Total revenue"
+      [value]="totalRevenue(products)"
+      trend="all time"
+      trendColor="success"
     />
-  } @else {
-    <div class="custom-scrollbar overflow-x-auto">
-      <app-table>
-        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
-          <app-table-row>
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Product</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Type</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Price</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Sales / Revenue</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Status</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Actions</app-table-cell
-            >
-          </app-table-row>
-        </app-table-header>
-        <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
-          @for (p of products; track p.id) {
+  </div>
+
+  <div class="ef-card mt-6 overflow-hidden">
+    @if (products.length === 0) {
+      <app-empty-state
+        title="No products yet"
+        description="Create a digital product and share its payment link through your automations."
+        ctaText="+ New product"
+        (cta)="openCreate()"
+      />
+    } @else {
+      <div class="custom-scrollbar overflow-x-auto">
+        <app-table>
+          <app-table-header className="border-b border-gray-100 dark:border-gray-800">
             <app-table-row>
-              <app-table-cell className="px-5 py-4 align-top">
-                <p class="font-medium text-gray-800 dark:text-white/90">{{ p.title }}</p>
-                <p class="text-xs text-gray-400">{{ p.fileName }}</p>
-              </app-table-cell>
-              <app-table-cell className="px-5 py-4 align-top">
-                <app-badge color="info" variant="light" size="sm">{{
-                  typeLabels[p.type]
-                }}</app-badge>
-              </app-table-cell>
               <app-table-cell
-                className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
-                >{{ money(p.price, p.currency) }}</app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Product</app-table-cell
               >
               <app-table-cell
-                className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Type</app-table-cell
               >
-                {{ p.sales }} · {{ money(p.revenue, p.currency) }}
-              </app-table-cell>
-              <app-table-cell className="px-5 py-4 align-top">
-                <app-badge
-                  [color]="p.status === 'active' ? 'success' : 'light'"
-                  variant="light"
-                  size="sm"
-                >
-                  {{ p.status === 'active' ? 'Active' : 'Draft' }}
-                </app-badge>
-              </app-table-cell>
-              <app-table-cell className="px-5 py-4 align-top">
-                <div class="flex justify-end gap-2">
-                  <app-button variant="outline" size="sm" (btnClick)="toggle(p)">
-                    {{ p.status === 'active' ? 'Unpublish' : 'Publish' }}
-                  </app-button>
-                  <button
-                    type="button"
-                    (click)="remove(p)"
-                    [attr.aria-label]="'Delete ' + p.title"
-                    class="inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-error-600 ring-1 ring-inset ring-error-200 transition hover:bg-error-50 dark:text-error-400 dark:ring-error-500/30 dark:hover:bg-error-500/10"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </app-table-cell>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Price</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Sales / Revenue</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Status</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Actions</app-table-cell
+              >
             </app-table-row>
-          }
-        </app-table-body>
-      </app-table>
-    </div>
-  }
-</div>
+          </app-table-header>
+          <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+            @for (p of products; track p.id) {
+              <app-table-row>
+                <app-table-cell className="px-5 py-4 align-top">
+                  <p class="font-medium text-gray-800 dark:text-white/90">{{ p.title }}</p>
+                  <p class="text-xs text-gray-400">{{ p.fileName }}</p>
+                </app-table-cell>
+                <app-table-cell className="px-5 py-4 align-top">
+                  <app-badge color="info" variant="light" size="sm">{{
+                    typeLabels[p.type]
+                  }}</app-badge>
+                </app-table-cell>
+                <app-table-cell
+                  className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                  >{{ money(p.price, p.currency) }}</app-table-cell
+                >
+                <app-table-cell
+                  className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
+                >
+                  {{ p.sales }} · {{ money(p.revenue, p.currency) }}
+                </app-table-cell>
+                <app-table-cell className="px-5 py-4 align-top">
+                  <app-badge
+                    [color]="p.status === 'active' ? 'success' : 'light'"
+                    variant="light"
+                    size="sm"
+                  >
+                    {{ p.status === 'active' ? 'Active' : 'Draft' }}
+                  </app-badge>
+                </app-table-cell>
+                <app-table-cell className="px-5 py-4 align-top">
+                  <div class="flex justify-end gap-2">
+                    <app-button variant="outline" size="sm" (btnClick)="toggle(p)">
+                      {{ p.status === 'active' ? 'Unpublish' : 'Publish' }}
+                    </app-button>
+                    <button
+                      type="button"
+                      (click)="remove(p)"
+                      [attr.aria-label]="'Delete ' + p.title"
+                      class="inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-error-600 ring-1 ring-inset ring-error-200 transition hover:bg-error-50 dark:text-error-400 dark:ring-error-500/30 dark:hover:bg-error-500/10"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </app-table-cell>
+              </app-table-row>
+            }
+          </app-table-body>
+        </app-table>
+      </div>
+    }
+  </div>
+} @else if (activeTab === 'categories') {
+  <app-store-categories />
+} @else if (activeTab === 'settings') {
+  <app-store-settings />
+}
 
 <!-- Create modal -->
 <app-modal [isOpen]="isModalOpen" (close)="closeModal()" className="m-4 max-w-[600px] p-6 lg:p-8">
@@ -172,6 +197,16 @@
       @if (form.fileName) {
         <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">Selected: {{ form.fileName }}</p>
       }
+    </div>
+
+    <div>
+      <app-label>Download link (sent to the buyer after purchase)</app-label>
+      <app-input-field
+        type="text"
+        name="downloadUrl"
+        placeholder="https://…/your-file"
+        [(value)]="form.downloadUrl"
+      />
     </div>
 
     <app-checkbox

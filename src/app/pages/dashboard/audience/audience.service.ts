@@ -1,69 +1,32 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, catchError, of, tap } from 'rxjs';
+import {
+  AnalyticsService,
+  ContactEntry,
+} from '../../../shared/services/analytics.service';
 
-export interface Contact {
-  id: string;
-  name: string;
-  handle: string;
-  email: string;
-  tags: string[];
-  lastActive: string;
-  source: string;
-}
+/** A contact = a person who interacted (derived from automation events). */
+export type Contact = ContactEntry;
 
-/** In-memory contacts (swap for the backend contacts API later). */
+/**
+ * Audience/contacts backed by `GET {apiUrl}/analytics/audience` (distinct people
+ * from interaction events). Empty until events accrue; `catchError` keeps the UI
+ * on an empty list if the endpoint isn't reachable.
+ */
 @Injectable({ providedIn: 'root' })
 export class AudienceService {
-  private readonly subject = new BehaviorSubject<Contact[]>(seed());
-  readonly contacts$: Observable<Contact[]> = this.subject.asObservable();
-}
+  private readonly analytics = inject(AnalyticsService);
 
-function seed(): Contact[] {
-  return [
-    {
-      id: crypto.randomUUID(),
-      name: 'Priya Sharma',
-      handle: '@priya.styles',
-      email: 'priya@example.com',
-      tags: ['buyer', 'saree'],
-      lastActive: '2m ago',
-      source: 'Comment flow',
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Rahul Verma',
-      handle: '@rahulv',
-      email: 'rahul@example.com',
-      tags: ['repeat'],
-      lastActive: '1h ago',
-      source: 'DM flow',
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Sneha Patel',
-      handle: '@sneha.boutique',
-      email: 'sneha@example.com',
-      tags: ['lead'],
-      lastActive: 'Yesterday',
-      source: 'Story reply',
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Aman Gupta',
-      handle: '@aman.gupta',
-      email: 'aman@example.com',
-      tags: ['ebook'],
-      lastActive: '2 days ago',
-      source: 'Lead magnet',
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Divya R',
-      handle: '@divya.r',
-      email: 'divya@example.com',
-      tags: ['coaching', 'vip'],
-      lastActive: '3 days ago',
-      source: 'DM flow',
-    },
-  ];
+  private readonly subject = new BehaviorSubject<Contact[]>([]);
+  readonly contacts$: Observable<Contact[]> = this.subject.asObservable();
+
+  load(): Observable<Contact[]> {
+    return this.analytics.getAudience().pipe(
+      tap((contacts) => this.subject.next(contacts)),
+      catchError(() => {
+        this.subject.next([]);
+        return of([]);
+      }),
+    );
+  }
 }

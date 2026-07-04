@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -38,9 +38,14 @@ import { EarningsService, Payout, PayoutStatus } from './earnings.service';
   templateUrl: './earnings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EarningsComponent {
+export class EarningsComponent implements OnInit {
   private readonly earnings = inject(EarningsService);
+  readonly summary$ = this.earnings.summary$;
   readonly payouts$ = this.earnings.payouts$;
+
+  ngOnInit(): void {
+    this.earnings.load().subscribe({ error: () => undefined });
+  }
 
   // Shared payout (bank) account — persists to backend later.
   bankName = '';

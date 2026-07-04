@@ -1,0 +1,134 @@
+@if (loading) {
+  <div class="ef-card p-6 text-sm text-gray-500 dark:text-gray-400">Loading store settings…</div>
+} @else {
+  <div class="ef-card max-w-2xl p-6 lg:p-8">
+    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Store settings</h3>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Your public storefront where customers browse and buy your products.
+    </p>
+
+    <form (ngSubmit)="save()" class="mt-6 space-y-5">
+      <div>
+        <app-label>Store name <span class="text-error-500">*</span></app-label>
+        <app-input-field
+          type="text"
+          name="storeName"
+          placeholder="My Store"
+          [(value)]="form.storeName"
+          [error]="!!nameError"
+        />
+        @if (nameError) {
+          <p class="mt-1.5 text-xs text-error-500">{{ nameError }}</p>
+        }
+      </div>
+
+      <div>
+        <app-label>Store URL <span class="text-error-500">*</span></app-label>
+        <app-input-field
+          type="text"
+          name="slug"
+          placeholder="my-store"
+          [(value)]="form.slug"
+          [error]="!!slugError"
+        />
+        <p class="mt-1.5 text-xs text-gray-400">
+          Public link: <span class="text-brand-500">{{ publicUrl }}</span>
+        </p>
+        @if (slugError) {
+          <p class="mt-1 text-xs text-error-500">{{ slugError }}</p>
+        }
+      </div>
+
+      <div>
+        <app-label>Description / bio</app-label>
+        <app-text-area
+          [rows]="3"
+          placeholder="Welcome to my digital product store!"
+          [(value)]="form.bio"
+        />
+      </div>
+
+      <div>
+        <app-label>Logo image URL</app-label>
+        <app-input-field
+          type="text"
+          name="logoUrl"
+          placeholder="https://…/logo.png"
+          [(value)]="form.logoUrl"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <app-label>Instagram handle</app-label>
+          <app-input-field
+            type="text"
+            name="instagram"
+            placeholder="yourhandle"
+            [(value)]="form.instagram"
+          />
+        </div>
+        <div>
+          <app-label>WhatsApp number</app-label>
+          <app-input-field
+            type="text"
+            name="whatsapp"
+            placeholder="9198XXXXXXXX"
+            [(value)]="form.whatsapp"
+          />
+        </div>
+        <div>
+          <app-label>YouTube URL</app-label>
+          <app-input-field
+            type="text"
+            name="youtube"
+            placeholder="https://youtube.com/@…"
+            [(value)]="form.youtube"
+          />
+        </div>
+        <div>
+          <app-label>Twitter / X handle</app-label>
+          <app-input-field
+            type="text"
+            name="twitter"
+            placeholder="yourhandle"
+            [(value)]="form.twitter"
+          />
+        </div>
+      </div>
+
+      <label class="flex cursor-pointer items-center gap-3">
+        <input
+          type="checkbox"
+          name="isActive"
+          [(ngModel)]="form.isActive"
+          class="h-4 w-4 rounded border-gray-300 text-brand-500"
+        />
+        <span class="text-sm text-gray-700 dark:text-gray-300">
+          Store is live — public page reachable (off = visitors see a 404)
+        </span>
+      </label>
+
+      @if (error) {
+        <p class="text-sm text-error-600 dark:text-error-400">{{ error }}</p>
+      }
+
+      <div class="flex flex-wrap items-center gap-4 pt-2">
+        <app-button size="sm" [disabled]="saving" (btnClick)="save()">
+          {{ saving ? 'Saving…' : 'Save store' }}
+        </app-button>
+        <a
+          [href]="publicUrl"
+          target="_blank"
+          rel="noopener"
+          class="text-sm font-medium text-brand-500 hover:underline"
+        >
+          View public store ↗
+        </a>
+        @if (saved) {
+          <span class="text-sm text-success-600 dark:text-success-400">Saved ✓</span>
+        }
+      </div>
+    </form>
+  </div>
+}
