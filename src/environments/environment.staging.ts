@@ -1,7 +1,7 @@
 // Single source of truth for the API base URL (no global prefix — the backend has no /api).
-// Staging API is the staging NestJS backend on Railway.
-// TODO: replace with the real staging backend host once it's provisioned.
-const API_URL = 'https://engageflow-backend-staging.up.railway.app';
+// No separate staging server is provisioned — everything runs on one self-hosted
+// VPS. TODO: point at a real staging host if one is ever set up.
+const API_URL = 'https://api.engageflow.khandelwaldeepak.com';
 
 export const environment = {
   production: false,
