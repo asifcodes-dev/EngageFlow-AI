@@ -62,12 +62,12 @@ export class PricingComponent {
     },
     {
       id: 'business',
-      name: 'Business',
+      name: 'Max',
       price: '₹3,999',
       period: '/month',
       description: 'For scaling stores selling digital products.',
       featured: false,
-      cta: 'Choose Business',
+      cta: 'Choose Max',
       amount: 3999,
       features: [
         'Unlimited Instagram accounts',

@@ -103,20 +103,13 @@ export class SignupFormComponent {
       });
   }
 
-  onOAuth(provider: 'google' | 'instagram') {
+  onOAuth() {
     this.errorMessage = '';
     this.infoMessage = '';
 
-    if (provider === 'instagram') {
-      this.infoMessage =
-        'Instagram sign-up isn’t available — please use email/password or Google.';
-      return;
-    }
-
     const clientId = environment.googleClientId;
     if (!clientId) {
-      this.infoMessage =
-        'Google sign-up isn’t configured yet — please use email and password.';
+      this.infoMessage = 'Google sign-up isn’t configured yet — please use email and password.';
       return;
     }
 
@@ -131,17 +124,13 @@ export class SignupFormComponent {
           },
           error: (err: unknown) => {
             this.loading = false;
-            this.errorMessage = extractAuthError(
-              err,
-              'Google sign-up failed. Please try again.',
-            );
+            this.errorMessage = extractAuthError(err, 'Google sign-up failed. Please try again.');
           },
         });
       })
       .catch((err: unknown) => {
         this.loading = false;
-        this.errorMessage =
-          err instanceof Error ? err.message : 'Google sign-up failed.';
+        this.errorMessage = err instanceof Error ? err.message : 'Google sign-up failed.';
       });
   }
 }

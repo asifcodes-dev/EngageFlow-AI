@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -19,6 +19,8 @@ import { SelectComponent, Option } from '../../../shared/components/form/select/
 import { FileInputComponent } from '../../../shared/components/form/input/file-input.component';
 import { CheckboxComponent } from '../../../shared/components/form/input/checkbox.component';
 import { DigitalProduct, ProductType, StoreService } from './store.service';
+import { StoreSettingsComponent } from './store-settings.component';
+import { StoreCategoriesComponent } from './store-categories.component';
 
 interface StoreForm {
   title: string;
@@ -27,6 +29,7 @@ interface StoreForm {
   price: string;
   currency: string;
   fileName: string;
+  downloadUrl: string;
   active: boolean;
 }
 
@@ -52,12 +55,25 @@ interface StoreForm {
     SelectComponent,
     FileInputComponent,
     CheckboxComponent,
+    StoreSettingsComponent,
+    StoreCategoriesComponent,
   ],
   templateUrl: './store.component.html',
 })
-export class StoreComponent {
+export class StoreComponent implements OnInit {
   private readonly store = inject(StoreService);
   readonly products$ = this.store.products$;
+
+  readonly tabs = [
+    { id: 'products', label: 'Products' },
+    { id: 'categories', label: 'Categories' },
+    { id: 'settings', label: 'Store Settings' },
+  ] as const;
+  activeTab: 'products' | 'categories' | 'settings' = 'products';
+
+  ngOnInit(): void {
+    this.store.load().subscribe({ error: () => undefined });
+  }
 
   readonly typeOptions: Option[] = [
     { value: 'ebook', label: 'eBook / PDF' },
@@ -129,6 +145,7 @@ export class StoreComponent {
         price: Number(this.form.price),
         currency: this.form.currency,
         fileName: this.form.fileName || 'file.pdf',
+        downloadUrl: this.form.downloadUrl.trim() || undefined,
         status: this.form.active ? 'active' : 'draft',
       })
       .subscribe(() => {
@@ -138,11 +155,11 @@ export class StoreComponent {
   }
 
   toggle(product: DigitalProduct): void {
-    this.store.toggleStatus(product.id);
+    this.store.toggleStatus(product).subscribe({ error: () => undefined });
   }
 
   remove(product: DigitalProduct): void {
-    this.store.remove(product.id);
+    this.store.remove(product.id).subscribe({ error: () => undefined });
   }
 
   totalRevenue(products: DigitalProduct[]): string {
@@ -160,7 +177,15 @@ export class StoreComponent {
 }
 
 function emptyForm(): StoreForm {
-  return { title: '', type: 'ebook', price: '', currency: 'INR', fileName: '', active: true };
+  return {
+    title: '',
+    type: 'ebook',
+    price: '',
+    currency: 'INR',
+    fileName: '',
+    downloadUrl: '',
+    active: true,
+  };
 }
 
 function formatMoney(amount: number, currency: string): string {

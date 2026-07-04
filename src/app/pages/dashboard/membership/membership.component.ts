@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, NgZone, OnInit, inject } from '@angular/core';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -37,6 +38,12 @@ export class MembershipComponent implements OnInit {
   message = '';
   processingPlan: Plan['id'] | null = null;
 
+  /** Trial state (from /auth/me + /auth/usage). */
+  trialUsed = false;
+  isTrialing = false;
+  trialDaysLeft = 0;
+  startingTrial = false;
+
   readonly plans: Plan[] = [
     {
       id: 'pro',
@@ -55,7 +62,7 @@ export class MembershipComponent implements OnInit {
     },
     {
       id: 'business',
-      name: 'Business',
+      name: 'Max',
       tagline: 'For serious sellers',
       monthly: 3999,
       features: [
@@ -79,6 +86,7 @@ export class MembershipComponent implements OnInit {
             : user.subscriptionTier === 'BUSINESS'
               ? 'business'
               : 'none';
+        this.trialUsed = !!user.trialStartedAt;
       },
       error: () => {
         /* not signed in or backend unreachable — leave as 'none' */
@@ -89,7 +97,11 @@ export class MembershipComponent implements OnInit {
 
   private loadUsage(): void {
     this.auth.usage().subscribe({
-      next: (u) => (this.usage = u),
+      next: (u) => {
+        this.usage = u;
+        this.isTrialing = u.isTrialing;
+        this.trialDaysLeft = u.trialDaysLeft;
+      },
       error: () => (this.usage = null),
     });
   }
@@ -118,6 +130,34 @@ export class MembershipComponent implements OnInit {
   ctaLabel(plan: Plan): string {
     if (plan.id === this.currentPlan) return 'Current plan';
     return this.currentPlan === 'none' ? 'Choose plan' : 'Switch plan';
+  }
+
+  /** Display label for a plan id (the top tier is branded "Max"). */
+  planLabel(id: Plan['id']): string {
+    return id === 'business' ? 'Max' : 'Pro';
+  }
+
+  /** Begin the one-time 7-day free trial. */
+  startTrial(): void {
+    this.startingTrial = true;
+    this.message = '';
+    this.auth.startTrial().subscribe({
+      next: () => {
+        this.startingTrial = false;
+        this.trialUsed = true;
+        this.status = 'success';
+        this.message = 'Your 7-day free trial is active.';
+        this.loadUsage();
+      },
+      error: (err: unknown) => {
+        this.startingTrial = false;
+        this.status = 'error';
+        this.message =
+          err instanceof HttpErrorResponse && typeof err.error?.message === 'string'
+            ? err.error.message
+            : 'Could not start your trial. Please try again.';
+      },
+    });
   }
 
   async choose(plan: Plan): Promise<void> {

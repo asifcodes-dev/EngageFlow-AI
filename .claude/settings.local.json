@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(npm install -D sharp 2>&1)"
+      "PowerShell(npm install -D sharp 2>&1)",
+      "Bash(npx prettier *)",
+      "Bash(npm run *)"
     ]
   }
 }

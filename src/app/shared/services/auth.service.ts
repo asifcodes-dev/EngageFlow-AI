@@ -18,15 +18,35 @@ export interface CurrentUser {
   id: string;
   email: string;
   name: string | null;
+  businessName: string | null;
+  brandTone: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
   role: string;
   subscriptionTier: 'PRO' | 'BUSINESS' | null;
+  trialStartedAt: string | null;
+  trialEndsAt: string | null;
+}
+
+/** Self-editable profile / brand-voice fields (PATCH /auth/profile). */
+export interface ProfileUpdate {
+  name?: string;
+  businessName?: string;
+  brandTone?: string;
+  phone?: string;
+  dateOfBirth?: string;
 }
 
 /** Plan usage vs limits from GET /auth/usage (`limit: null` = unlimited). */
 export interface PlanUsage {
   tier: 'PRO' | 'BUSINESS' | null;
+  /** PRO while on an active trial; the paid tier otherwise; null when locked. */
+  effectiveTier: 'PRO' | 'BUSINESS' | null;
+  isTrialing: boolean;
+  trialDaysLeft: number;
   products: { used: number; limit: number | null };
   flows: { used: number; limit: number | null };
+  ai: { used: number; limit: number | null };
 }
 
 export interface LoginPayload {
@@ -103,14 +123,31 @@ export class AuthService {
       .pipe(tap((user) => this.currentUserSubject.next(user)));
   }
 
-  /** Full backend user (name, role, subscriptionTier) from GET /auth/me. */
+  /** Full backend user (name, role, subscriptionTier, profile) from GET /auth/me. */
   me(): Observable<CurrentUser> {
     return this.http.get<CurrentUser>(`${this.authUrl}/me`);
+  }
+
+  /** Update self-editable profile / brand-voice fields (PATCH /auth/profile). */
+  updateProfile(update: ProfileUpdate): Observable<CurrentUser> {
+    return this.http.patch<CurrentUser>(`${this.authUrl}/profile`, update).pipe(
+      tap((user) =>
+        this.currentUserSubject.next({
+          ...(this.currentUserSubject.value ?? ({} as AuthUser)),
+          ...user,
+        }),
+      ),
+    );
   }
 
   /** Plan usage vs limits (products/flows) from GET /auth/usage. */
   usage(): Observable<PlanUsage> {
     return this.http.get<PlanUsage>(`${this.authUrl}/usage`);
+  }
+
+  /** Start the one-time 7-day free trial (POST /auth/start-trial). */
+  startTrial(): Observable<CurrentUser> {
+    return this.http.post<CurrentUser>(`${this.authUrl}/start-trial`, {});
   }
 
   /** Sign in with a Google ID token credential (Phase 10 social login). */

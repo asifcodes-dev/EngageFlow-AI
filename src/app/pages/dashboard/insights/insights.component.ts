@@ -56,7 +56,9 @@ export class InsightsComponent implements OnInit {
     leadsCaptured: 0,
     sales: 0,
     spamDeleted: 0,
+    abuseDeleted: 0,
     followersGained: 0,
+    contacts: 0,
     activeFlows: 0,
     catalogSize: 0,
   };

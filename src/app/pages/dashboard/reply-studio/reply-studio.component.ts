@@ -14,6 +14,7 @@ import { SelectComponent, Option } from '../../../shared/components/form/select/
 import { CheckboxComponent } from '../../../shared/components/form/input/checkbox.component';
 import { ConnectionStateService } from '../../../shared/services/connection-state.service';
 import { AiService } from '../../../shared/services/ai.service';
+import { AuthService } from '../../../shared/services/auth.service';
 import { ProductService } from '../product-catalog/product.service';
 import { Product } from '../product-catalog/product.model';
 
@@ -38,6 +39,7 @@ export class ReplyStudioComponent {
   private readonly connection = inject(ConnectionStateService);
   private readonly ai = inject(AiService);
   private readonly productService = inject(ProductService);
+  private readonly auth = inject(AuthService);
 
   readonly connected$ = this.connection.connected$;
   readonly productOptions$ = this.productService.products$.pipe(
@@ -59,8 +61,8 @@ export class ReplyStudioComponent {
     { value: 'medium', label: 'Medium (2–3 lines)' },
   ];
 
-  // Brand-voice settings (persist to backend later).
-  businessName = 'Asif Store';
+  // Brand-voice settings (loaded from / saved to the signed-in user's profile).
+  businessName = '';
   tone = 'friendly';
   replyLength = 'short';
   languages = { english: true, hindi: true, hinglish: true, gujarati: false };
@@ -76,10 +78,23 @@ export class ReplyStudioComponent {
   constructor() {
     this.productService.ensureLoaded(); // fetch the catalog so the dropdown populates
     this.productService.products$.pipe(takeUntilDestroyed()).subscribe((p) => (this.products = p));
+    // Load the saved brand voice from the signed-in user's profile.
+    this.auth.me().subscribe({
+      next: (user) => {
+        this.businessName = user.businessName ?? '';
+        if (user.brandTone) this.tone = user.brandTone;
+      },
+      error: () => undefined,
+    });
   }
 
   save(): void {
-    this.saved = true;
+    this.auth
+      .updateProfile({ businessName: this.businessName.trim(), brandTone: this.tone })
+      .subscribe({
+        next: () => (this.saved = true),
+        error: () => (this.saved = false),
+      });
   }
 
   generate(): void {

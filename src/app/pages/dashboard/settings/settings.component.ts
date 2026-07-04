@@ -12,7 +12,6 @@ import { InputFieldComponent } from '../../../shared/components/form/input/input
 import { ConnectionStateService } from '../../../shared/services/connection-state.service';
 import { InstagramService } from '../../../shared/services/instagram.service';
 import { AuthService } from '../../../shared/services/auth.service';
-import { Profile, ProfileService } from './profile.service';
 
 type Tab = 'profile' | 'instagram' | 'security';
 
@@ -20,6 +19,13 @@ interface SecurityForm {
   current: string;
   next: string;
   confirm: string;
+}
+
+interface Profile {
+  fullName: string;
+  dob: string;
+  email: string;
+  phone: string;
 }
 
 @Component({
@@ -38,7 +44,6 @@ interface SecurityForm {
 })
 export class SettingsComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly profileService = inject(ProfileService);
   private readonly instagram = inject(InstagramService);
   private readonly connection = inject(ConnectionStateService);
   private readonly auth = inject(AuthService);
@@ -53,7 +58,7 @@ export class SettingsComponent {
   activeTab: Tab = 'profile';
 
   // ── Profile form ──────────────────────────────────────────────
-  profile: Profile = { ...this.profileService.snapshot };
+  profile: Profile = { fullName: '', dob: '', email: '', phone: '' };
   profileSubmitted = false;
   profileSaving = false;
   profileSaved = false;
@@ -84,18 +89,18 @@ export class SettingsComponent {
       this.igError = 'We could not connect your Instagram account. Please try again.';
     }
 
-    // Prefill from the real signed-in user (GET /auth/me). Name/email come from
-    // the backend; DOB/phone have no backend field yet so they stay local.
+    // Prefill entirely from the real signed-in user (GET /auth/me) — no seed data.
     this.auth.me().subscribe({
       next: (user) => {
         this.profile = {
-          ...this.profile,
-          fullName: user.name ?? this.profile.fullName,
+          fullName: user.name ?? '',
+          dob: user.dateOfBirth ?? '',
           email: user.email,
+          phone: user.phone ?? '',
         };
       },
       error: () => {
-        /* not signed in / offline — keep the seeded values */
+        /* not signed in / offline — leave the empty form */
       },
     });
   }
@@ -127,10 +132,22 @@ export class SettingsComponent {
     this.profileSaved = false;
     if (this.fullNameError || this.emailError || this.phoneError) return;
     this.profileSaving = true;
-    this.profileService.update({ ...this.profile }).subscribe(() => {
-      this.profileSaving = false;
-      this.profileSaved = true;
-    });
+    // Email is not self-editable; persist name/DOB/phone via PATCH /auth/profile.
+    this.auth
+      .updateProfile({
+        name: this.profile.fullName.trim(),
+        dateOfBirth: this.profile.dob,
+        phone: this.profile.phone.trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.profileSaving = false;
+          this.profileSaved = true;
+        },
+        error: () => {
+          this.profileSaving = false;
+        },
+      });
   }
 
   // Security validation

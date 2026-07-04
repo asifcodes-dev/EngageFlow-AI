@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { catchError, of } from 'rxjs';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
 import { StatCardComponent } from '../../../shared/components/common/stat-card/stat-card.component';
@@ -12,7 +13,8 @@ import { TableRowComponent } from '../../../shared/components/ui/table/table-row
 import { TableCellComponent } from '../../../shared/components/ui/table/table-cell.component';
 import { CheckboxComponent } from '../../../shared/components/form/input/checkbox.component';
 import { ConnectionStateService } from '../../../shared/services/connection-state.service';
-import { CommentCategory, CommentGuardService, ModeratedComment } from './comment-guard.service';
+import { AnalyticsService } from '../../../shared/services/analytics.service';
+import { CommentCategory, CommentGuardService } from './comment-guard.service';
 
 @Component({
   selector: 'app-comment-guard',
@@ -33,12 +35,17 @@ import { CommentCategory, CommentGuardService, ModeratedComment } from './commen
   templateUrl: './comment-guard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CommentGuardComponent {
+export class CommentGuardComponent implements OnInit {
   private readonly connection = inject(ConnectionStateService);
   private readonly guard = inject(CommentGuardService);
+  private readonly analytics = inject(AnalyticsService);
 
   readonly connected$ = this.connection.connected$;
   readonly comments$ = this.guard.comments$;
+  /** KPI totals from the real analytics summary (0 until events accrue). */
+  readonly summary$ = this.analytics
+    .getSummary('30d')
+    .pipe(catchError(() => of(null)));
 
   // Auto-moderation settings (local for now; persists to the backend later).
   autoHideSpam = true;
@@ -59,6 +66,10 @@ export class CommentGuardComponent {
     abuse: 'Abuse',
   };
 
+  ngOnInit(): void {
+    this.guard.load().subscribe({ error: () => undefined });
+  }
+
   categoryColor(category: CommentCategory): 'success' | 'info' | 'warning' | 'error' {
     switch (category) {
       case 'genuine':
@@ -70,9 +81,5 @@ export class CommentGuardComponent {
       case 'abuse':
         return 'error';
     }
-  }
-
-  setAction(comment: ModeratedComment, action: 'kept' | 'hidden' | 'deleted'): void {
-    this.guard.setAction(comment.id, action);
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -39,9 +39,13 @@ import { downloadCsv } from '../../../shared/utils/csv.util';
   templateUrl: './sales.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SalesComponent {
+export class SalesComponent implements OnInit {
   private readonly sales = inject(SalesService);
   readonly orders$ = this.sales.orders$;
+
+  ngOnInit(): void {
+    this.sales.load().subscribe({ error: () => undefined });
+  }
 
   search = '';
   statusFilter = 'all';

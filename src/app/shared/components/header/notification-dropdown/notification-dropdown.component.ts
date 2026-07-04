@@ -11,7 +11,8 @@ import { DropdownItemComponent } from '../../ui/dropdown/dropdown-item/dropdown-
 })
 export class NotificationDropdownComponent {
   isOpen = false;
-  notifying = true;
+  // No notifications backend yet → no unread indicator (was hard-coded `true`).
+  notifying = false;
 
   toggleDropdown() {
     this.isOpen = !this.isOpen;

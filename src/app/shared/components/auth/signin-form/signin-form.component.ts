@@ -80,22 +80,13 @@ export class SigninFormComponent {
     });
   }
 
-  onOAuth(provider: 'google' | 'instagram') {
+  onOAuth() {
     this.errorMessage = '';
     this.infoMessage = '';
 
-    // Instagram isn't an app-login identity provider here — it's connected from
-    // the dashboard after sign-in.
-    if (provider === 'instagram') {
-      this.infoMessage =
-        'Instagram sign-in isn’t available — please use email/password or Google.';
-      return;
-    }
-
     const clientId = environment.googleClientId;
     if (!clientId) {
-      this.infoMessage =
-        'Google sign-in isn’t configured yet — please use email and password.';
+      this.infoMessage = 'Google sign-in isn’t configured yet — please use email and password.';
       return;
     }
 
@@ -106,23 +97,18 @@ export class SigninFormComponent {
         this.auth.loginWithGoogle(credential).subscribe({
           next: () => {
             this.loading = false;
-            const returnUrl =
-              this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+            const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
             this.router.navigateByUrl(returnUrl);
           },
           error: (err: unknown) => {
             this.loading = false;
-            this.errorMessage = extractAuthError(
-              err,
-              'Google sign-in failed. Please try again.',
-            );
+            this.errorMessage = extractAuthError(err, 'Google sign-in failed. Please try again.');
           },
         });
       })
       .catch((err: unknown) => {
         this.loading = false;
-        this.errorMessage =
-          err instanceof Error ? err.message : 'Google sign-in failed.';
+        this.errorMessage = err instanceof Error ? err.message : 'Google sign-in failed.';
       });
   }
 }

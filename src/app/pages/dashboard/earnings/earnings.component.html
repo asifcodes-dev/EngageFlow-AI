@@ -5,27 +5,32 @@
   subtitle="Your product sales, payout balance, and bank account. A 7% platform fee applies to each sale."
 />
 
-<!-- KPIs -->
+<!-- KPIs (live from /earnings; 0 until real sales/payouts settle) -->
+@let e = summary$ | async;
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-  <app-stat-card [icon]="icons.rupee" label="Total sales" [value]="money(48720)" />
+  <app-stat-card [icon]="icons.rupee" label="Total sales" [value]="money(e?.totalSales ?? 0)" />
   <app-stat-card
     [icon]="icons.fee"
     label="Platform fee (7%)"
-    [value]="money(3410)"
+    [value]="money(e?.platformFee ?? 0)"
     trendColor="warning"
   />
   <app-stat-card
     [icon]="icons.wallet"
     label="Available"
-    [value]="money(31230)"
-    trend="ready"
+    [value]="money(e?.available ?? 0)"
     trendColor="success"
   />
-  <app-stat-card [icon]="icons.clock" label="Pending" [value]="money(4650)" trendColor="warning" />
+  <app-stat-card
+    [icon]="icons.clock"
+    label="Pending"
+    [value]="money(e?.pending ?? 0)"
+    trendColor="warning"
+  />
   <app-stat-card
     [icon]="icons.check"
     label="Paid out"
-    [value]="money(15600)"
+    [value]="money(e?.paidOut ?? 0)"
     trendColor="success"
   />
 </div>
@@ -117,7 +122,7 @@
               @for (p of payouts; track trackPayout($index, p)) {
                 <app-table-row>
                   <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
-                    p.date
+                    p.date | date: 'mediumDate'
                   }}</app-table-cell>
                   <app-table-cell
                     className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90"

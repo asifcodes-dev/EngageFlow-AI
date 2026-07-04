@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
@@ -40,12 +40,16 @@ import { downloadCsv } from '../../../shared/utils/csv.util';
   templateUrl: './audience.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AudienceComponent {
+export class AudienceComponent implements OnInit {
   private readonly connection = inject(ConnectionStateService);
   private readonly audience = inject(AudienceService);
 
   readonly connected$ = this.connection.connected$;
   readonly contacts$ = this.audience.contacts$;
+
+  ngOnInit(): void {
+    this.audience.load().subscribe({ error: () => undefined });
+  }
 
   search = '';
   selected: Contact | null = null;

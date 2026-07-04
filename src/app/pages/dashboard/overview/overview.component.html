@@ -36,66 +36,80 @@
   </div>
 }
 
-<!-- Trial / plan strip -->
-<div
-  class="mb-6 flex flex-col gap-3 rounded-2xl border border-brand-100 bg-brand-50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10 sm:flex-row sm:items-center sm:justify-between"
->
-  <div class="flex items-center gap-3">
-    <span
-      class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-500 dark:bg-gray-900"
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-        />
-      </svg>
-    </span>
-    <div>
-      <p class="text-sm font-semibold text-gray-800 dark:text-white/90">Growth trial active</p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">
-        14 days left — keep your automations running after it ends.
-      </p>
-    </div>
-  </div>
-  <a
-    routerLink="/dashboard/membership"
-    class="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
+<!-- Trial / plan strip (hidden for users on a paid plan) -->
+@let usage = usage$ | async;
+@if (usage && !(usage.effectiveTier && !usage.isTrialing)) {
+  <div
+    class="mb-6 flex flex-col gap-3 rounded-2xl border border-brand-100 bg-brand-50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10 sm:flex-row sm:items-center sm:justify-between"
   >
-    Upgrade plan
-  </a>
-</div>
+    <div class="flex items-center gap-3">
+      <span
+        class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-500 dark:bg-gray-900"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          class="h-5 w-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
+      </span>
+      <div>
+        @if (usage.isTrialing) {
+          <p class="text-sm font-semibold text-gray-800 dark:text-white/90">Free trial active</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ usage.trialDaysLeft }} day{{ usage.trialDaysLeft === 1 ? '' : 's' }} left — upgrade
+            to keep your tools after it ends.
+          </p>
+        } @else {
+          <p class="text-sm font-semibold text-gray-800 dark:text-white/90">No active plan</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Start your free trial or upgrade to unlock products, flows, and automation.
+          </p>
+        }
+      </div>
+    </div>
+    <a
+      routerLink="/dashboard/membership"
+      class="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
+    >
+      {{ usage.isTrialing ? 'Upgrade plan' : 'See plans' }}
+    </a>
+  </div>
+}
 
-<!-- KPI tiles -->
+<!-- KPI tiles (live from /analytics/summary; 0 until events accrue) -->
+@let t = (summary$ | async)?.totals;
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
   <app-stat-card
     [icon]="icons.dm"
     label="DM Replies"
-    [value]="isConnected ? '1,284' : '0'"
+    [value]="(t?.dmsSent | number) ?? '0'"
     [locked]="!isConnected"
-    trend="+18%"
   />
   <app-stat-card
     [icon]="icons.comment"
     label="Comments Handled"
-    [value]="isConnected ? '3,920' : '0'"
+    [value]="(t?.commentReplies | number) ?? '0'"
     [locked]="!isConnected"
-    trend="+24%"
   />
   <app-stat-card
     [icon]="icons.contacts"
     label="Contacts"
-    [value]="isConnected ? '742' : '0'"
+    [value]="(t?.contacts | number) ?? '0'"
     [locked]="!isConnected"
-    trend="+9%"
   />
   <app-stat-card
     [icon]="icons.leads"
     label="Leads Captured"
-    [value]="isConnected ? '168' : '0'"
+    [value]="(t?.leadsCaptured | number) ?? '0'"
     [locked]="!isConnected"
-    trend="+12%"
   />
 </div>
 
