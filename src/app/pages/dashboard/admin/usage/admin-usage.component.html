@@ -1,0 +1,153 @@
+<app-page-breadcrumb pageTitle="Admin · Account Usage" />
+
+<app-page-header
+  title="Account Usage"
+  subtitle="Daily request/action volume for any subscriber or a single Instagram account."
+>
+  <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/[0.06]">
+    @for (r of ranges; track r.value) {
+      <button
+        type="button"
+        (click)="setRange(r.value)"
+        class="rounded-md px-3 py-1.5 text-sm font-medium transition"
+        [class.bg-white]="range === r.value"
+        [class.text-gray-800]="range === r.value"
+        [class.shadow-theme-xs]="range === r.value"
+        [class.dark:bg-gray-800]="range === r.value"
+        [class.dark:text-white]="range === r.value"
+        [class.text-gray-500]="range !== r.value"
+      >
+        {{ r.label }}
+      </button>
+    }
+  </div>
+</app-page-header>
+
+<!-- Pickers -->
+<div class="ef-card mb-6 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+  <div class="relative">
+    <label
+      for="admin-usage-subscriber"
+      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+    >
+      Subscriber
+    </label>
+    <input
+      id="admin-usage-subscriber"
+      type="text"
+      placeholder="Search by email or name…"
+      [ngModel]="pickerQuery"
+      (ngModelChange)="onPickerInput($event)"
+      class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden dark:border-gray-800 dark:text-white/90"
+    />
+    @if (pickerResults.length > 0) {
+      <ul
+        class="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900"
+      >
+        @for (result of pickerResults; track result.id) {
+          <li>
+            <button
+              type="button"
+              (click)="pickUser(result)"
+              class="block w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-white/5"
+            >
+              <span class="block font-medium text-gray-800 dark:text-white/90">
+                {{ result.name || result.email }}
+              </span>
+              <span class="block text-xs text-gray-500 dark:text-gray-400">{{ result.email }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+  <div>
+    <label
+      for="admin-usage-account"
+      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+    >
+      Instagram account
+    </label>
+    <select
+      id="admin-usage-account"
+      [ngModel]="accountId"
+      (ngModelChange)="setAccount($event)"
+      [disabled]="!selectedUser"
+      class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90"
+    >
+      <option value="">All accounts</option>
+      @for (account of accounts; track account.id) {
+        <option [value]="account.id">{{ '@' + account.username }}</option>
+      }
+    </select>
+  </div>
+</div>
+
+@if (!selectedUser) {
+  <div class="ef-card">
+    <app-empty-state
+      title="Pick a subscriber"
+      description="Search above to see a subscriber's daily usage time-series."
+    />
+  </div>
+} @else {
+  <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <app-component-card
+      title="Requests over time"
+      desc="Daily, UTC — today is the last bucket (from live logs)."
+    >
+      <app-line-chart-one [series]="series" [categories]="categories" />
+    </app-component-card>
+
+    <app-component-card title="By feature" desc="Totals over the selected window.">
+      @if ((usage?.byFeature ?? []).length === 0) {
+        <app-empty-state
+          title="No usage in this window"
+          description="Requests and automation actions will appear here as they happen."
+        />
+      } @else {
+        <div class="custom-scrollbar overflow-x-auto">
+          <app-table>
+            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+              <app-table-row>
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Feature</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Count</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Errors</app-table-cell
+                >
+              </app-table-row>
+            </app-table-header>
+            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+              @for (feature of usage?.byFeature ?? []; track feature.feature) {
+                <app-table-row>
+                  <app-table-cell
+                    className="px-5 py-4 font-mono text-sm text-gray-800 dark:text-white/90"
+                    >{{ feature.feature }}</app-table-cell
+                  >
+                  <app-table-cell
+                    className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
+                    >{{ feature.count | number }}</app-table-cell
+                  >
+                  <app-table-cell
+                    className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
+                    >{{ feature.errorCount | number }}</app-table-cell
+                  >
+                </app-table-row>
+              }
+            </app-table-body>
+          </app-table>
+        </div>
+      }
+    </app-component-card>
+  </div>
+}

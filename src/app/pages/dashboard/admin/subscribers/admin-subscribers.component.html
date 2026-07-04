@@ -1,0 +1,160 @@
+<app-page-breadcrumb pageTitle="Admin · Subscribers" />
+
+<app-page-header
+  title="Subscribers"
+  subtitle="Every account on the platform — plans, usage footprint, and lifetime revenue."
+/>
+
+<!-- Platform KPIs -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  <app-stat-card
+    [icon]="icons.users"
+    label="Total subscribers"
+    [value]="(overview?.totalSubscribers | number) ?? '0'"
+  />
+  <app-stat-card
+    [icon]="icons.trial"
+    label="Active trials"
+    [value]="(overview?.activeTrials | number) ?? '0'"
+    trendColor="info"
+  />
+  <app-stat-card
+    [icon]="icons.paying"
+    label="Paying"
+    [value]="(overview?.payingSubscribers | number) ?? '0'"
+    trendColor="success"
+  />
+  <app-stat-card
+    [icon]="icons.revenue"
+    label="Revenue (30d)"
+    [value]="overview?.revenue30dPaise ?? 0 | inrPaise"
+  />
+  <app-stat-card
+    [icon]="icons.requests"
+    label="Requests today"
+    [value]="(overview?.requestsToday | number) ?? '0'"
+    hint="UTC day"
+  />
+</div>
+
+<!-- Subscribers table -->
+<div class="ef-card mt-6 overflow-hidden">
+  <div
+    class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800"
+  >
+    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">All subscribers</h3>
+    <input
+      type="text"
+      placeholder="Search email or name…"
+      [ngModel]="search"
+      (ngModelChange)="onSearchInput($event)"
+      class="h-10 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden sm:w-72 dark:border-gray-800 dark:text-white/90"
+    />
+  </div>
+
+  @if (rows.length === 0 && !loading) {
+    <app-empty-state
+      title="No subscribers found"
+      description="Try a different search, or wait for your first signups."
+    />
+  } @else {
+    <div class="custom-scrollbar overflow-x-auto">
+      <app-table>
+        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+          <app-table-row>
+            <app-table-cell
+              [isHeader]="true"
+              className="cursor-pointer px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              (click)="setSort('email')"
+              >Subscriber {{ sort === 'email' ? (dir === 'asc' ? '↑' : '↓') : '' }}</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Plan</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >IG accounts</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Flows</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Products</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Revenue</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >GMV</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="cursor-pointer px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              (click)="setSort('createdAt')"
+              >Joined {{ sort === 'createdAt' ? (dir === 'asc' ? '↑' : '↓') : '' }}</app-table-cell
+            >
+          </app-table-row>
+        </app-table-header>
+        <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+          @for (row of rows; track row.id) {
+            <app-table-row>
+              <app-table-cell className="px-5 py-4">
+                <a
+                  [routerLink]="['/dashboard/admin/subscribers', row.id]"
+                  class="block hover:text-brand-500"
+                >
+                  <span class="block font-medium text-gray-800 dark:text-white/90">
+                    {{ row.name || '—' }}
+                  </span>
+                  <span class="block text-sm text-gray-500 dark:text-gray-400">{{ row.email }}</span>
+                </a>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4">
+                @let badge = tierBadge(row);
+                <app-badge [color]="badge.color" variant="light" size="sm">{{
+                  badge.label
+                }}</app-badge>
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                row.igAccounts
+              }}</app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                row.flows
+              }}</app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                row.products
+              }}</app-table-cell>
+              <app-table-cell
+                className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90"
+                >{{ row.revenuePaise | inrPaise }}</app-table-cell
+              >
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                row.gmvPaise | inrPaise
+              }}</app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{
+                row.createdAt | date: 'mediumDate'
+              }}</app-table-cell>
+            </app-table-row>
+          }
+        </app-table-body>
+      </app-table>
+    </div>
+    <app-admin-pagination
+      [page]="page"
+      [pageSize]="pageSize"
+      [total]="total"
+      (pageChange)="setPage($event)"
+    />
+  }
+</div>

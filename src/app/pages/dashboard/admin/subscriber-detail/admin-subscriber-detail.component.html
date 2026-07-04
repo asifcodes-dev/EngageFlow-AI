@@ -1,0 +1,314 @@
+<app-page-breadcrumb pageTitle="Admin · Subscriber" />
+
+@if (notFound) {
+  <div class="ef-card">
+    <app-empty-state
+      title="This subscriber no longer exists"
+      description="They may have been deleted. Head back to the subscriber list."
+    />
+    <div class="pb-6 text-center">
+      <a
+        routerLink="/dashboard/admin"
+        class="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
+      >
+        ← Back to subscribers
+      </a>
+    </div>
+  </div>
+} @else if (detail) {
+  <!-- Profile + plan -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <app-component-card title="Profile" desc="Account identity.">
+      <dl class="space-y-3 px-1 text-sm">
+        <div class="flex justify-between gap-4">
+          <dt class="text-gray-500 dark:text-gray-400">Name</dt>
+          <dd class="font-medium text-gray-800 dark:text-white/90">{{ detail.name || '—' }}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-gray-500 dark:text-gray-400">Email</dt>
+          <dd class="font-medium text-gray-800 dark:text-white/90">{{ detail.email }}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-gray-500 dark:text-gray-400">Business</dt>
+          <dd class="font-medium text-gray-800 dark:text-white/90">
+            {{ detail.businessName || '—' }}
+          </dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-gray-500 dark:text-gray-400">Phone</dt>
+          <dd class="font-medium text-gray-800 dark:text-white/90">{{ detail.phone || '—' }}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-gray-500 dark:text-gray-400">Joined</dt>
+          <dd class="font-medium text-gray-800 dark:text-white/90">
+            {{ detail.createdAt | date: 'mediumDate' }}
+          </dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-gray-500 dark:text-gray-400">Plan</dt>
+          <dd>
+            @let badge = planBadge();
+            <app-badge [color]="badge.color" variant="light" size="sm">{{ badge.label }}</app-badge>
+          </dd>
+        </div>
+      </dl>
+      <div class="mt-5 px-1">
+        <a
+          [routerLink]="['/dashboard/admin/usage']"
+          [queryParams]="{ userId: detail.id }"
+          class="text-sm font-medium text-brand-500 hover:text-brand-600"
+        >
+          View usage →
+        </a>
+      </div>
+    </app-component-card>
+
+    <app-component-card title="Plan usage" desc="Live meters vs the effective plan limits.">
+      <div class="space-y-4 px-1">
+        @for (
+          meter of [
+            { label: 'Products', value: detail.usage.products },
+            { label: 'Flows', value: detail.usage.flows },
+            { label: 'AI ops (this month)', value: detail.usage.ai },
+            { label: 'IG accounts', value: detail.usage.accounts },
+          ];
+          track meter.label
+        ) {
+          <div>
+            <div class="mb-1 flex justify-between text-sm">
+              <span class="text-gray-500 dark:text-gray-400">{{ meter.label }}</span>
+              <span class="font-medium text-gray-800 dark:text-white/90">
+                {{ meterLabel(meter.value) }}
+              </span>
+            </div>
+            <div class="h-2 rounded-full bg-gray-100 dark:bg-white/[0.06]">
+              <div
+                class="h-2 rounded-full bg-brand-500 transition-all"
+                [style.width.%]="meterPercent(meter.value)"
+              ></div>
+            </div>
+          </div>
+        }
+      </div>
+    </app-component-card>
+
+    <div class="flex flex-col gap-4">
+      <app-stat-card
+        [icon]="icons.revenue"
+        label="Lifetime revenue"
+        [value]="detail.revenuePaise | inrPaise"
+      />
+      <app-stat-card
+        [icon]="icons.gmv"
+        label="Storefront GMV"
+        [value]="detail.gmvPaise | inrPaise"
+      />
+    </div>
+  </div>
+
+  <!-- IG accounts + payments -->
+  <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <app-component-card title="Instagram accounts" desc="Connected workspaces.">
+      @if (detail.igAccounts.length === 0) {
+        <app-empty-state title="No accounts connected" description="" />
+      } @else {
+        <div class="custom-scrollbar overflow-x-auto">
+          <app-table>
+            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+              <app-table-row>
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Username</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Connected</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Token expires</app-table-cell
+                >
+              </app-table-row>
+            </app-table-header>
+            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+              @for (account of detail.igAccounts; track account.id) {
+                <app-table-row>
+                  <app-table-cell
+                    className="px-5 py-4 font-medium text-gray-800 dark:text-white/90"
+                    >{{ '@' + account.username }}</app-table-cell
+                  >
+                  <app-table-cell
+                    className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
+                    >{{ account.connectedAt | date: 'mediumDate' }}</app-table-cell
+                  >
+                  <app-table-cell
+                    className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
+                  >
+                    {{ account.tokenExpiresAt ? (account.tokenExpiresAt | date: 'mediumDate') : '—' }}
+                  </app-table-cell>
+                </app-table-row>
+              }
+            </app-table-body>
+          </app-table>
+        </div>
+      }
+    </app-component-card>
+
+    <app-component-card title="Recent payments" desc="Latest 10 subscription payments.">
+      @if (detail.recentPayments.length === 0) {
+        <app-empty-state title="No payments yet" description="" />
+      } @else {
+        <div class="custom-scrollbar overflow-x-auto">
+          <app-table>
+            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+              <app-table-row>
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Amount</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Plan</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Status</app-table-cell
+                >
+                <app-table-cell
+                  [isHeader]="true"
+                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >Date</app-table-cell
+                >
+              </app-table-row>
+            </app-table-header>
+            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+              @for (payment of detail.recentPayments; track payment.id) {
+                <app-table-row>
+                  <app-table-cell
+                    className="px-5 py-4 font-medium text-gray-800 dark:text-white/90"
+                    >{{ payment.amountPaise | inrPaise }}</app-table-cell
+                  >
+                  <app-table-cell
+                    className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
+                    >{{ payment.tier ?? '—' }}</app-table-cell
+                  >
+                  <app-table-cell className="px-5 py-4">
+                    <app-badge [color]="paymentColor(payment.status)" variant="light" size="sm">{{
+                      payment.status
+                    }}</app-badge>
+                  </app-table-cell>
+                  <app-table-cell
+                    className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
+                    >{{ payment.createdAt | date: 'medium' }}</app-table-cell
+                  >
+                </app-table-row>
+              }
+            </app-table-body>
+          </app-table>
+        </div>
+      }
+    </app-component-card>
+  </div>
+
+  <!-- Recent activity log -->
+  <div class="ef-card mt-6 overflow-hidden">
+    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Recent activity</h3>
+      <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+        Chronological API requests and automation actions (UTC).
+      </p>
+    </div>
+    @if (logs.length === 0) {
+      <app-empty-state
+        title="No activity recorded yet"
+        description="Requests appear here as this subscriber uses the app."
+      />
+    } @else {
+      <div class="custom-scrollbar overflow-x-auto">
+        <app-table>
+          <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+            <app-table-row>
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >When</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Feature</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Action</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Account</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Status</app-table-cell
+              >
+              <app-table-cell
+                [isHeader]="true"
+                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                >Duration</app-table-cell
+              >
+            </app-table-row>
+          </app-table-header>
+          <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+            @for (log of logs; track log.id) {
+              <app-table-row>
+                <app-table-cell
+                  className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
+                  >{{ log.createdAt | date: 'MMM d, HH:mm:ss' }}</app-table-cell
+                >
+                <app-table-cell
+                  className="px-5 py-4 font-mono text-sm text-gray-800 dark:text-white/90"
+                  >{{ log.feature }}</app-table-cell
+                >
+                <app-table-cell
+                  className="px-5 py-4 font-mono text-xs text-gray-500 dark:text-gray-400"
+                  >{{ log.method }} {{ log.route }}</app-table-cell
+                >
+                <app-table-cell
+                  className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
+                >
+                  {{ log.accountUsername ? '@' + log.accountUsername : '—' }}
+                </app-table-cell>
+                <app-table-cell className="px-5 py-4">
+                  <app-badge
+                    [color]="log.status < 400 ? 'success' : 'error'"
+                    variant="light"
+                    size="sm"
+                    >{{ log.status }}</app-badge
+                  >
+                </app-table-cell>
+                <app-table-cell
+                  className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
+                  >{{ log.durationMs }} ms</app-table-cell
+                >
+              </app-table-row>
+            }
+          </app-table-body>
+        </app-table>
+      </div>
+      <app-admin-pagination
+        [page]="logsPage"
+        [pageSize]="logsPageSize"
+        [total]="logsTotal"
+        (pageChange)="setLogsPage($event)"
+      />
+    }
+  </div>
+}

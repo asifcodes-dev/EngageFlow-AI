@@ -1,0 +1,118 @@
+<app-page-breadcrumb pageTitle="Admin · Feature Analytics" />
+
+<app-page-header
+  title="Feature Analytics"
+  subtitle="Which features and endpoints get used the most across the platform."
+>
+  <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/[0.06]">
+    @for (r of ranges; track r.value) {
+      <button
+        type="button"
+        (click)="setRange(r.value)"
+        class="rounded-md px-3 py-1.5 text-sm font-medium transition"
+        [class.bg-white]="range === r.value"
+        [class.text-gray-800]="range === r.value"
+        [class.shadow-theme-xs]="range === r.value"
+        [class.dark:bg-gray-800]="range === r.value"
+        [class.dark:text-white]="range === r.value"
+        [class.text-gray-500]="range !== r.value"
+      >
+        {{ r.label }}
+      </button>
+    }
+  </div>
+</app-page-header>
+
+@if (accountId) {
+  <div class="mb-4">
+    <button
+      type="button"
+      (click)="clearAccountFilter()"
+      class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1.5 text-sm font-medium text-brand-600 hover:bg-brand-100 dark:bg-brand-500/10 dark:text-brand-400"
+    >
+      Filtered to one account · click to clear ✕
+    </button>
+  </div>
+}
+
+@if ((board?.items ?? []).length === 0 && !loading) {
+  <div class="ef-card">
+    <app-empty-state
+      title="No usage recorded yet"
+      description="Feature analytics fill in as subscribers use the app and automations run."
+    />
+  </div>
+} @else {
+  <app-component-card title="Top features" desc="By total uses over the window (daily, UTC).">
+    <app-bar-chart-one [series]="series" [categories]="categories" />
+  </app-component-card>
+
+  <div class="ef-card mt-6 overflow-hidden">
+    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Full leaderboard</h3>
+    </div>
+    <div class="custom-scrollbar overflow-x-auto">
+      <app-table>
+        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+          <app-table-row>
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Feature</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Uses</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Errors</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Error rate</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Avg duration</app-table-cell
+            >
+            <app-table-cell
+              [isHeader]="true"
+              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              >Unique users</app-table-cell
+            >
+          </app-table-row>
+        </app-table-header>
+        <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
+          @for (item of board?.items ?? []; track item.feature) {
+            <app-table-row>
+              <app-table-cell
+                className="px-5 py-4 font-mono text-sm text-gray-800 dark:text-white/90"
+                >{{ item.feature }}</app-table-cell
+              >
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                item.count | number
+              }}</app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                item.errorCount | number
+              }}</app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                item.errorRate | percent: '1.0-1'
+              }}</app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                {{ item.avgDurationMs !== null ? (item.avgDurationMs | number) + ' ms' : '—' }}
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                item.uniqueUsers | number
+              }}</app-table-cell>
+            </app-table-row>
+          }
+        </app-table-body>
+      </app-table>
+    </div>
+  </div>
+}
