@@ -14,7 +14,9 @@ export interface AnalyticsSummary {
     leadsCaptured: number;
     sales: number;
     spamDeleted: number;
+    abuseDeleted: number;
     followersGained: number;
+    contacts: number;
     // Live counts that back the trackable cards shown in place of the
     // not-yet-possible DMs/sales/followers metrics.
     activeFlows: number;
@@ -44,6 +46,28 @@ export interface LeadEntry {
   capturedAt: string;
 }
 
+/** A moderated/handled comment for the Comment Guard activity feed. */
+export interface ModeratedCommentEntry {
+  id: string;
+  author: string;
+  handle: string;
+  text: string;
+  category: 'genuine' | 'inquiry' | 'spam' | 'abuse';
+  action: 'kept' | 'hidden' | 'deleted' | 'pending';
+  postedAt: string;
+}
+
+/** A contact for the Audience page (derived from interaction events). */
+export interface ContactEntry {
+  id: string;
+  name: string;
+  handle: string;
+  email: string;
+  tags: string[];
+  lastActive: string;
+  source: string;
+}
+
 /**
  * Reads the subscriber's automation metrics from the backend (JWT attached by
  * the auth interceptor).
@@ -51,6 +75,8 @@ export interface LeadEntry {
  *   GET {apiUrl}/analytics/summary?range=today|7d|30d  -> AnalyticsSummary
  *   GET {apiUrl}/analytics/products?range=today|7d|30d -> TopProduct[]
  *   GET {apiUrl}/analytics/leads                       -> LeadEntry[]
+ *   GET {apiUrl}/analytics/moderation                  -> ModeratedCommentEntry[]
+ *   GET {apiUrl}/analytics/audience                    -> ContactEntry[]
  */
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
@@ -71,5 +97,13 @@ export class AnalyticsService {
 
   getLeads(): Observable<LeadEntry[]> {
     return this.http.get<LeadEntry[]>(`${this.baseUrl}/leads`);
+  }
+
+  getModeration(): Observable<ModeratedCommentEntry[]> {
+    return this.http.get<ModeratedCommentEntry[]>(`${this.baseUrl}/moderation`);
+  }
+
+  getAudience(): Observable<ContactEntry[]> {
+    return this.http.get<ContactEntry[]>(`${this.baseUrl}/audience`);
   }
 }

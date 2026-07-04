@@ -1,85 +1,33 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable, catchError, of, tap } from 'rxjs';
+import {
+  AnalyticsService,
+  ModeratedCommentEntry,
+} from '../../../shared/services/analytics.service';
 
 export type CommentCategory = 'genuine' | 'inquiry' | 'spam' | 'abuse';
 export type CommentAction = 'kept' | 'hidden' | 'deleted' | 'pending';
+export type ModeratedComment = ModeratedCommentEntry;
 
-export interface ModeratedComment {
-  id: string;
-  author: string;
-  handle: string;
-  text: string;
-  category: CommentCategory;
-  action: CommentAction;
-  postedAt: string;
-}
-
-/** In-memory moderation queue (swap for the backend moderation API later). */
+/**
+ * Comment Guard activity feed backed by `GET {apiUrl}/analytics/moderation` — a
+ * read-only record of what the automation already did (delete spam/abuse, keep
+ * genuine/inquiry). Empty until the automation runs; `catchError` → empty list.
+ */
 @Injectable({ providedIn: 'root' })
 export class CommentGuardService {
-  private readonly subject = new BehaviorSubject<ModeratedComment[]>(seed());
+  private readonly analytics = inject(AnalyticsService);
+
+  private readonly subject = new BehaviorSubject<ModeratedComment[]>([]);
   readonly comments$: Observable<ModeratedComment[]> = this.subject.asObservable();
 
-  setAction(id: string, action: CommentAction): void {
-    this.subject.next(this.subject.value.map((c) => (c.id === id ? { ...c, action } : c)));
+  load(): Observable<ModeratedComment[]> {
+    return this.analytics.getModeration().pipe(
+      tap((comments) => this.subject.next(comments)),
+      catchError(() => {
+        this.subject.next([]);
+        return of([]);
+      }),
+    );
   }
-}
-
-function seed(): ModeratedComment[] {
-  return [
-    {
-      id: crypto.randomUUID(),
-      author: 'Priya Sharma',
-      handle: '@priya.styles',
-      text: 'Bhai yeh saree kitne ki hai? 😍',
-      category: 'inquiry',
-      action: 'kept',
-      postedAt: '2m ago',
-    },
-    {
-      id: crypto.randomUUID(),
-      author: 'Crypto Deals',
-      handle: '@get_rich_fast',
-      text: 'Make ₹50,000/day! Link in bio 🚀💰',
-      category: 'spam',
-      action: 'deleted',
-      postedAt: '8m ago',
-    },
-    {
-      id: crypto.randomUUID(),
-      author: 'Anonymous',
-      handle: '@hater_99',
-      text: 'Your products are trash, worst seller ever',
-      category: 'abuse',
-      action: 'hidden',
-      postedAt: '12m ago',
-    },
-    {
-      id: crypto.randomUUID(),
-      author: 'Rahul Verma',
-      handle: '@rahulv',
-      text: 'Loved my order, thank you so much! ❤️',
-      category: 'genuine',
-      action: 'kept',
-      postedAt: '20m ago',
-    },
-    {
-      id: crypto.randomUUID(),
-      author: 'Sneha',
-      handle: '@sneha.boutique',
-      text: 'Do you ship to Pune? And COD available?',
-      category: 'inquiry',
-      action: 'pending',
-      postedAt: '35m ago',
-    },
-    {
-      id: crypto.randomUUID(),
-      author: 'FollowBot',
-      handle: '@free_followers_now',
-      text: 'Get 10k followers instantly 👉 cheapsmm.xyz',
-      category: 'spam',
-      action: 'deleted',
-      postedAt: '1h ago',
-    },
-  ];
 }

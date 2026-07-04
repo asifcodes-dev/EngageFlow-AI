@@ -1,6 +1,6 @@
 // Single source of truth for the API base URL (no global prefix — the backend has no /api).
-// Production API is the Railway-hosted NestJS backend.
-const API_URL = 'https://engageflow-backend-production.up.railway.app';
+// Production API is the self-hosted NestJS backend on the VPS.
+const API_URL = 'https://api.engageflow.khandelwaldeepak.com';
 
 export const environment = {
   production: true,

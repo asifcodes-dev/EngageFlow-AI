@@ -10,33 +10,52 @@
   class="mb-6 flex flex-col gap-3 rounded-2xl border border-brand-100 bg-brand-50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10 sm:flex-row sm:items-center sm:justify-between"
 >
   <div>
-    @if (currentPlan === 'none') {
+    @if (currentPlan !== 'none') {
       <p class="text-sm font-semibold text-gray-800 dark:text-white/90">
-        You don't have an active plan yet
+        You're on the {{ planLabel(currentPlan) }} plan
+      </p>
+    } @else if (isTrialing) {
+      <p class="text-sm font-semibold text-gray-800 dark:text-white/90">Free trial active</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        {{ trialDaysLeft }} day{{ trialDaysLeft === 1 ? '' : 's' }} left — pick a plan to continue
+        after it ends.
+      </p>
+    } @else if (!trialUsed) {
+      <p class="text-sm font-semibold text-gray-800 dark:text-white/90">
+        Try EngageFlow free for 7 days
       </p>
       <p class="text-xs text-gray-500 dark:text-gray-400">
-        Choose a plan below to unlock automation.
+        No card required — test automations with 1 Instagram account.
       </p>
     } @else {
-      <p class="text-sm font-semibold text-gray-800 dark:text-white/90">
-        You're on the {{ currentPlan | titlecase }} plan
+      <p class="text-sm font-semibold text-gray-800 dark:text-white/90">Your trial has ended</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        Choose a plan below to unlock everything again.
       </p>
     }
   </div>
-  @if (status === 'success') {
-    <span class="text-sm font-medium text-success-600 dark:text-success-400">{{ message }}</span>
-  } @else if (status === 'error') {
-    <span class="text-sm font-medium text-error-600 dark:text-error-400">{{ message }}</span>
-  }
+  <div class="flex items-center gap-3">
+    @if (currentPlan === 'none' && !isTrialing && !trialUsed) {
+      <app-button size="sm" [disabled]="startingTrial" (btnClick)="startTrial()">
+        {{ startingTrial ? 'Starting…' : 'Start 7-day free trial' }}
+      </app-button>
+    }
+    @if (status === 'success') {
+      <span class="text-sm font-medium text-success-600 dark:text-success-400">{{ message }}</span>
+    } @else if (status === 'error') {
+      <span class="text-sm font-medium text-error-600 dark:text-error-400">{{ message }}</span>
+    }
+  </div>
 </div>
 
 <!-- Plan usage -->
-@if (usage && usage.tier) {
-  <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+@if (usage && usage.effectiveTier) {
+  <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
     @for (
       row of [
         { label: 'Products in catalog', u: usage.products },
         { label: 'Automation flows', u: usage.flows },
+        { label: 'AI actions this month', u: usage.ai },
       ];
       track row.label
     ) {
