@@ -1,7 +1,7 @@
-<app-page-breadcrumb pageTitle="Admin · Subscriber" />
+<app-page-breadcrumb pageTitle="Admin / Subscriber 360°" tone="violet" />
 
 @if (notFound) {
-  <div class="ef-card">
+  <div class="au-panel">
     <app-empty-state
       title="This subscriber no longer exists"
       description="They may have been deleted. Head back to the subscriber list."
@@ -16,213 +16,432 @@
     </div>
   </div>
 } @else if (detail) {
-  <!-- Profile + plan -->
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <app-component-card title="Profile" desc="Account identity.">
-      <dl class="space-y-3 px-1 text-sm">
-        <div class="flex justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Name</dt>
-          <dd class="font-medium text-gray-800 dark:text-white/90">{{ detail.name || '—' }}</dd>
+  <!-- ── Profile hero (gradient) ─────────────────────────────────── -->
+  <div
+    class="lift relative overflow-hidden rounded-2xl p-[22px] text-white sm:px-6 sm:py-[22px]"
+    style="
+      background: linear-gradient(120deg, #2470c8, #16467f);
+      box-shadow: 0 14px 34px -18px rgba(26, 93, 171, 0.6);
+    "
+  >
+    <span
+      aria-hidden="true"
+      class="au-blob"
+      style="
+        width: 280px;
+        height: 280px;
+        background: rgba(255, 255, 255, 0.08);
+        top: -140px;
+        right: -60px;
+        filter: blur(50px);
+      "
+    ></span>
+
+    <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4.5">
+      <span
+        class="grid h-16 w-16 shrink-0 place-items-center rounded-[20px] border-2 border-white/40 bg-white/15 text-2xl font-extrabold"
+        >{{ initials }}</span
+      >
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <span class="text-[22px] font-extrabold tracking-tight">{{
+            detail.name || 'Unnamed'
+          }}</span>
+          <span
+            class="au-pill"
+            [ngClass]="
+              planBadge().color === 'success'
+                ? 'bg-white text-brand-700 uppercase tracking-[0.04em]'
+                : 'au-pill-grey'
+            "
+          >
+            {{ planBadge().label }}
+          </span>
+          <span
+            class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+            [ngClass]="statusPill.cls"
+          >
+            <span class="au-ring-dot h-1.75 w-1.75 rounded-full bg-[#7fd1a2]"></span
+            >{{ statusPill.label }}
+          </span>
         </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Email</dt>
-          <dd class="font-medium text-gray-800 dark:text-white/90">{{ detail.email }}</dd>
+        <div class="mt-1.5 truncate text-[13px] text-white/80">
+          {{ detail.email }}
+          @if (handle) {
+            · &#64;{{ handle }}
+          }
+          · Member since
+          {{ detail.createdAt | date: 'd MMM y' }}
         </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Business</dt>
-          <dd class="font-medium text-gray-800 dark:text-white/90">
-            {{ detail.businessName || '—' }}
-          </dd>
-        </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Phone</dt>
-          <dd class="font-medium text-gray-800 dark:text-white/90">{{ detail.phone || '—' }}</dd>
-        </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Joined</dt>
-          <dd class="font-medium text-gray-800 dark:text-white/90">
-            {{ detail.createdAt | date: 'mediumDate' }}
-          </dd>
-        </div>
-        <div class="flex justify-between gap-4">
-          <dt class="text-gray-500 dark:text-gray-400">Plan</dt>
-          <dd>
-            @let badge = planBadge();
-            <app-badge [color]="badge.color" variant="light" size="sm">{{ badge.label }}</app-badge>
-          </dd>
-        </div>
-      </dl>
-      <div class="mt-5 px-1">
-        <a
-          [routerLink]="['/dashboard/admin/usage']"
-          [queryParams]="{ userId: detail.id }"
-          class="text-sm font-medium text-brand-500 hover:text-brand-600"
+      </div>
+
+      <!-- Actions (pending admin-action endpoints + audit logging) -->
+      <div class="flex shrink-0 gap-2">
+        <button
+          type="button"
+          disabled
+          title="Impersonation ships with the admin-actions API (audit-logged)."
+          class="inline-flex cursor-not-allowed items-center gap-1.5 rounded-[10px] bg-white/90 px-3.5 py-2.25 text-[12.5px] font-semibold text-brand-600 opacity-90"
         >
-          View usage →
-        </a>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M17 2v6M14 5h6" />
+            <path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6" />
+          </svg>
+          Impersonate
+        </button>
+        <button
+          type="button"
+          disabled
+          title="Messaging ships with the admin-actions API."
+          class="inline-flex cursor-not-allowed items-center gap-1.5 rounded-[10px] border border-white/30 bg-white/15 px-3.5 py-2.25 text-[12.5px] font-semibold text-white"
+        >
+          Message
+        </button>
+        <button
+          type="button"
+          disabled
+          aria-label="More actions"
+          title="Account actions ship with the admin-actions API (audit-logged)."
+          class="grid h-[38px] w-[38px] cursor-not-allowed place-items-center rounded-[10px] border border-white/40 bg-white/24 font-bold text-white"
+        >
+          <span aria-hidden="true">⋯</span>
+        </button>
       </div>
-    </app-component-card>
+    </div>
 
-    <app-component-card title="Plan usage" desc="Live meters vs the effective plan limits.">
-      <div class="space-y-4 px-1">
-        @for (
-          meter of [
-            { label: 'Products', value: detail.usage.products },
-            { label: 'Flows', value: detail.usage.flows },
-            { label: 'AI ops (this month)', value: detail.usage.ai },
-            { label: 'IG accounts', value: detail.usage.accounts },
-          ];
-          track meter.label
-        ) {
-          <div>
-            <div class="mb-1 flex justify-between text-sm">
-              <span class="text-gray-500 dark:text-gray-400">{{ meter.label }}</span>
-              <span class="font-medium text-gray-800 dark:text-white/90">
-                {{ meterLabel(meter.value) }}
-              </span>
-            </div>
-            <div class="h-2 rounded-full bg-gray-100 dark:bg-white/[0.06]">
-              <div
-                class="h-2 rounded-full bg-brand-500 transition-all"
-                [style.width.%]="meterPercent(meter.value)"
-              ></div>
-            </div>
-          </div>
-        }
+    <!-- Stat strip -->
+    <div class="relative mt-4.5 flex flex-wrap gap-6 sm:gap-7.5">
+      <div>
+        <div class="text-xl font-extrabold">{{ detail.revenuePaise | inrPaise }}</div>
+        <div class="text-[10px] tracking-[0.05em] text-white/70 uppercase">Lifetime value</div>
       </div>
-    </app-component-card>
-
-    <div class="flex flex-col gap-4">
-      <app-stat-card
-        [icon]="icons.revenue"
-        label="Lifetime revenue"
-        [value]="detail.revenuePaise | inrPaise"
-      />
-      <app-stat-card
-        [icon]="icons.gmv"
-        label="Storefront GMV"
-        [value]="detail.gmvPaise | inrPaise"
-      />
+      <div class="border-l border-white/20 pl-6 sm:pl-7.5">
+        <div class="text-xl font-extrabold">{{ mrrPaise | inrPaise }}</div>
+        <div class="text-[10px] tracking-[0.05em] text-white/70 uppercase">MRR</div>
+      </div>
+      <div class="border-l border-white/20 pl-6 sm:pl-7.5">
+        <div class="text-xl font-extrabold">{{ requests30d | number }}</div>
+        <div class="text-[10px] tracking-[0.05em] text-white/70 uppercase">AI actions (cycle)</div>
+      </div>
+      <div class="border-l border-white/20 pl-6 sm:pl-7.5">
+        <div class="text-xl font-extrabold">{{ monthsActive }}</div>
+        <div class="text-[10px] tracking-[0.05em] text-white/70 uppercase">Months active</div>
+      </div>
     </div>
   </div>
 
-  <!-- IG accounts + payments -->
-  <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-    <app-component-card title="Instagram accounts" desc="Connected workspaces.">
-      @if (detail.igAccounts.length === 0) {
-        <app-empty-state title="No accounts connected" description="" />
-      } @else {
-        <div class="custom-scrollbar overflow-x-auto">
-          <app-table>
-            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
-              <app-table-row>
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Username</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Connected</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Token expires</app-table-cell
-                >
-              </app-table-row>
-            </app-table-header>
-            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
-              @for (account of detail.igAccounts; track account.id) {
-                <app-table-row>
-                  <app-table-cell
-                    className="px-5 py-4 font-medium text-gray-800 dark:text-white/90"
-                    >{{ '@' + account.username }}</app-table-cell
-                  >
-                  <app-table-cell
-                    className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
-                    >{{ account.connectedAt | date: 'mediumDate' }}</app-table-cell
-                  >
-                  <app-table-cell
-                    className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
-                  >
-                    {{ account.tokenExpiresAt ? (account.tokenExpiresAt | date: 'mediumDate') : '—' }}
-                  </app-table-cell>
-                </app-table-row>
-              }
-            </app-table-body>
-          </app-table>
+  <!-- ── Account details · Instagram ─────────────────────────────── -->
+  <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="au-card px-5 py-[18px]">
+      <div class="mb-3 flex items-center gap-2.5">
+        <span class="au-chip au-chip-blue h-7.5 w-7.5 rounded-[9px]">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+        </span>
+        <span class="text-[15px] font-bold text-gray-800 dark:text-white/90">Account details</span>
+      </div>
+      <dl class="text-[13px]">
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Full name</dt>
+          <dd class="au-detail-v">{{ detail.name || '—' }}</dd>
         </div>
-      }
-    </app-component-card>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Email</dt>
+          <dd class="au-detail-v">{{ detail.email }}</dd>
+        </div>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Phone</dt>
+          <dd class="au-detail-v">{{ detail.phone || '—' }}</dd>
+        </div>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Business</dt>
+          <dd class="au-detail-v">{{ detail.businessName || '—' }}</dd>
+        </div>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Role</dt>
+          <dd class="au-detail-v">{{ detail.role }}</dd>
+        </div>
+        <div class="au-detail-row border-0">
+          <dt class="au-detail-k">Signup source</dt>
+          <dd class="au-detail-v text-gray-400">Not tracked</dd>
+        </div>
+      </dl>
+    </div>
 
-    <app-component-card title="Recent payments" desc="Latest 10 subscription payments.">
-      @if (detail.recentPayments.length === 0) {
-        <app-empty-state title="No payments yet" description="" />
+    <div class="au-card px-5 py-[18px]">
+      <div class="mb-3 flex items-center gap-2.5">
+        <span
+          class="grid h-7.5 w-7.5 place-items-center rounded-[9px]"
+          style="background: linear-gradient(135deg, #feda75, #d62976 55%, #962fbf)"
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#fff"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="2" y="2" width="20" height="20" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.5" cy="6.5" r="1" />
+          </svg>
+        </span>
+        <span class="text-[15px] font-bold text-gray-800 dark:text-white/90"
+          >Instagram connection</span
+        >
+        @if (handle) {
+          <span
+            class="ml-auto inline-flex items-center gap-1.5 rounded-full bg-au-success-bg px-2.25 py-1 text-[11px] font-semibold text-au-success-fg"
+          >
+            <span class="au-ring-dot h-1.5 w-1.5 rounded-full bg-au-success-fg"></span>Live
+          </span>
+        }
+      </div>
+      @if (handle) {
+        <dl class="text-[13px]">
+          <div class="au-detail-row">
+            <dt class="au-detail-k">Handle</dt>
+            <dd class="au-detail-v">&#64;{{ handle }}</dd>
+          </div>
+          <div class="au-detail-row">
+            <dt class="au-detail-k">Accounts connected</dt>
+            <dd class="au-detail-v">{{ detail.igAccounts.length }}</dd>
+          </div>
+          <div class="au-detail-row">
+            <dt class="au-detail-k">Connected on</dt>
+            <dd class="au-detail-v">{{ detail.igAccounts[0].connectedAt | date: 'd MMM y' }}</dd>
+          </div>
+          <div class="au-detail-row">
+            <dt class="au-detail-k">Token expires</dt>
+            <dd class="au-detail-v">
+              {{
+                detail.igAccounts[0].tokenExpiresAt
+                  ? (detail.igAccounts[0].tokenExpiresAt | date: 'd MMM y')
+                  : 'Long-lived'
+              }}
+            </dd>
+          </div>
+          <div class="au-detail-row border-0">
+            <dt class="au-detail-k">Followers · type</dt>
+            <dd class="au-detail-v text-gray-400">Not tracked</dd>
+          </div>
+        </dl>
       } @else {
-        <div class="custom-scrollbar overflow-x-auto">
-          <app-table>
-            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
-              <app-table-row>
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Amount</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Plan</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Status</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Date</app-table-cell
-                >
-              </app-table-row>
-            </app-table-header>
-            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
-              @for (payment of detail.recentPayments; track payment.id) {
-                <app-table-row>
-                  <app-table-cell
-                    className="px-5 py-4 font-medium text-gray-800 dark:text-white/90"
-                    >{{ payment.amountPaise | inrPaise }}</app-table-cell
-                  >
-                  <app-table-cell
-                    className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
-                    >{{ payment.tier ?? '—' }}</app-table-cell
-                  >
-                  <app-table-cell className="px-5 py-4">
-                    <app-badge [color]="paymentColor(payment.status)" variant="light" size="sm">{{
-                      payment.status
-                    }}</app-badge>
-                  </app-table-cell>
-                  <app-table-cell
-                    className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
-                    >{{ payment.createdAt | date: 'medium' }}</app-table-cell
-                  >
-                </app-table-row>
-              }
-            </app-table-body>
-          </app-table>
-        </div>
+        <p class="py-6 text-center text-[13px] text-gray-400">No Instagram account connected.</p>
       }
-    </app-component-card>
+    </div>
   </div>
 
-  <!-- Recent activity log -->
-  <div class="ef-card mt-6 overflow-hidden">
-    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
-      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Recent activity</h3>
-      <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
-        Chronological API requests and automation actions (UTC).
-      </p>
+  <!-- ── Subscription · AI config ────────────────────────────────── -->
+  <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="au-card px-5 py-[18px]">
+      <div class="mb-3 flex items-center gap-2.5">
+        <span class="au-chip au-chip-green h-7.5 w-7.5 rounded-[9px]">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+          </svg>
+        </span>
+        <span class="text-[15px] font-bold text-gray-800 dark:text-white/90"
+          >Subscription &amp; billing</span
+        >
+      </div>
+      <dl class="text-[13px]">
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Plan</dt>
+          <dd class="au-detail-v">
+            {{
+              detail.tier
+                ? (detail.tier | titlecase) + ' · ' + (mrrPaise | inrPaise) + '/mo'
+                : detail.access.isTrialing
+                  ? 'Trial'
+                  : 'No plan'
+            }}
+          </dd>
+        </div>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Status</dt>
+          <dd class="au-detail-v" [class.text-au-success-fg]="!!detail.tier">
+            {{
+              detail.tier
+                ? 'Active · paid'
+                : detail.access.isTrialing
+                  ? detail.access.trialDaysLeft + ' days left'
+                  : 'Inactive'
+            }}
+          </dd>
+        </div>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Lifetime GMV</dt>
+          <dd class="au-detail-v">{{ detail.gmvPaise | inrPaise }}</dd>
+        </div>
+        <div class="au-detail-row border-0">
+          <dt class="au-detail-k">Payment method</dt>
+          <dd class="au-detail-v text-gray-400">Not tracked</dd>
+        </div>
+      </dl>
+      @if (detail.recentPayments.length) {
+        <div class="mt-3 border-t border-(--au-line) pt-3">
+          <div class="mb-1.5 text-[10px] font-bold tracking-[0.1em] text-gray-400 uppercase">
+            Recent payments
+          </div>
+          @for (p of detail.recentPayments.slice(0, 3); track p.id) {
+            <div class="flex items-center justify-between py-1 text-[12.5px]">
+              <span class="text-gray-500">{{ p.createdAt | date: 'd MMM y' }}</span>
+              <span class="font-semibold text-gray-800 dark:text-white/90">{{
+                p.amountPaise | inrPaise
+              }}</span>
+              <app-badge [color]="paymentColor(p.status)" variant="light" size="sm">{{
+                p.status | titlecase
+              }}</app-badge>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="au-card px-5 py-[18px]">
+      <div class="mb-3 flex items-center gap-2.5">
+        <span class="au-chip au-chip-purple h-7.5 w-7.5 rounded-[9px]">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6 7 18.2l1.9-5.8L4 8.8h6.1z" />
+          </svg>
+        </span>
+        <span class="text-[15px] font-bold text-gray-800 dark:text-white/90"
+          >AI voice &amp; config</span
+        >
+      </div>
+      <dl class="text-[13px]">
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Active flows</dt>
+          <dd class="au-detail-v">{{ detail.usage.flows.used | number }} running</dd>
+        </div>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Catalog items</dt>
+          <dd class="au-detail-v">{{ detail.usage.products.used | number }} products</dd>
+        </div>
+        <div class="au-detail-row">
+          <dt class="au-detail-k">Reply tone</dt>
+          <dd class="au-detail-v text-gray-400">Not tracked</dd>
+        </div>
+        <div class="au-detail-row border-0">
+          <dt class="au-detail-k">Languages · avg response</dt>
+          <dd class="au-detail-v text-gray-400">Not tracked</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- ── Usage vs plan limits ────────────────────────────────────── -->
+  <div class="au-card mt-4 px-5 py-[18px]">
+    <div class="mb-4 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="au-chip au-chip-blue h-7.5 w-7.5 rounded-[9px]">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 12h4l3 8 4-16 3 8h4" />
+          </svg>
+        </span>
+        <span class="text-[15px] font-bold text-gray-800 dark:text-white/90"
+          >Usage vs plan limits · this cycle</span
+        >
+      </div>
+      <span class="text-[11px] font-semibold text-gray-500">Resets monthly</span>
+    </div>
+    <div class="grid grid-cols-2 gap-x-7 gap-y-3.5">
+      @for (
+        m of [
+          { label: 'AI actions', meter: detail.usage.ai, fill: 'au-bar-fill-grad' },
+          { label: 'Automation flows', meter: detail.usage.flows, fill: 'au-bar-fill-grad' },
+          { label: 'IG accounts', meter: detail.usage.accounts, fill: 'au-bar-fill-green' },
+          { label: 'Catalog items', meter: detail.usage.products, fill: 'au-bar-fill-green' },
+        ];
+        track m.label
+      ) {
+        <div>
+          <div class="mb-1.5 flex justify-between text-[12.5px]">
+            <span class="font-semibold text-gray-700 dark:text-gray-300">{{ m.label }}</span>
+            <span class="text-gray-500">{{ meterLabel(m.meter) }}</span>
+          </div>
+          <div class="au-bar-track h-1.75!">
+            <div
+              class="transition-all"
+              [ngClass]="m.fill"
+              [style.width.%]="meterPercent(m.meter)"
+            ></div>
+          </div>
+        </div>
+      }
+    </div>
+    <p class="mt-4 border-t border-(--au-line) pt-3 text-[11px] text-gray-400">
+      Health score, CSAT, latency &amp; support metrics from the reference aren't tracked by the
+      backend yet — shown as “Not tracked” rather than estimated.
+    </p>
+  </div>
+
+  <!-- ── Activity timeline (real API/automation logs) ────────────── -->
+  <div class="au-panel mt-4 overflow-hidden">
+    <div class="flex items-center justify-between border-b border-(--au-line) px-5 py-4">
+      <div>
+        <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Activity timeline</h3>
+        <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+          Chronological API requests and automation actions (UTC).
+        </p>
+      </div>
+      <span
+        class="inline-flex items-center gap-1.5 rounded-full bg-au-success-bg px-2.25 py-1 text-[11px] font-semibold text-au-success-fg"
+      >
+        <span class="au-ring-dot h-1.5 w-1.5 rounded-full bg-au-success-fg"></span>Live
+      </span>
     </div>
     @if (logs.length === 0) {
       <app-empty-state
@@ -269,10 +488,9 @@
           <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
             @for (log of logs; track log.id) {
               <app-table-row>
-                <app-table-cell
-                  className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
-                  >{{ log.createdAt | date: 'MMM d, HH:mm:ss' }}</app-table-cell
-                >
+                <app-table-cell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{
+                  log.createdAt | date: 'MMM d, HH:mm:ss'
+                }}</app-table-cell>
                 <app-table-cell
                   className="px-5 py-4 font-mono text-sm text-gray-800 dark:text-white/90"
                   >{{ log.feature }}</app-table-cell
@@ -281,11 +499,9 @@
                   className="px-5 py-4 font-mono text-xs text-gray-500 dark:text-gray-400"
                   >{{ log.method }} {{ log.route }}</app-table-cell
                 >
-                <app-table-cell
-                  className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
-                >
-                  {{ log.accountUsername ? '@' + log.accountUsername : '—' }}
-                </app-table-cell>
+                <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                  log.accountUsername ? '@' + log.accountUsername : '—'
+                }}</app-table-cell>
                 <app-table-cell className="px-5 py-4">
                   <app-badge
                     [color]="log.status < 400 ? 'success' : 'error'"
@@ -294,8 +510,7 @@
                     >{{ log.status }}</app-badge
                   >
                 </app-table-cell>
-                <app-table-cell
-                  className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
+                <app-table-cell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400"
                   >{{ log.durationMs }} ms</app-table-cell
                 >
               </app-table-row>

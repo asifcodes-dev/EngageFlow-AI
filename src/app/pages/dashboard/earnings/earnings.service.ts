@@ -44,9 +44,7 @@ export class EarningsService {
 
   private readonly subject = new BehaviorSubject<EarningsSummary>(EMPTY);
   readonly summary$: Observable<EarningsSummary> = this.subject.asObservable();
-  readonly payouts$: Observable<Payout[]> = this.summary$.pipe(
-    map((s) => s.payouts),
-  );
+  readonly payouts$: Observable<Payout[]> = this.summary$.pipe(map((s) => s.payouts));
 
   load(): Observable<EarningsSummary> {
     return this.http.get<EarningsSummary>(this.baseUrl).pipe(

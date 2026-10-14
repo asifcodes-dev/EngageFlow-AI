@@ -43,9 +43,7 @@ export class CommentGuardComponent implements OnInit {
   readonly connected$ = this.connection.connected$;
   readonly comments$ = this.guard.comments$;
   /** KPI totals from the real analytics summary (0 until events accrue). */
-  readonly summary$ = this.analytics
-    .getSummary('30d')
-    .pipe(catchError(() => of(null)));
+  readonly summary$ = this.analytics.getSummary('30d').pipe(catchError(() => of(null)));
 
   // Auto-moderation settings (local for now; persists to the backend later).
   autoHideSpam = true;

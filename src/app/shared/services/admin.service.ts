@@ -154,10 +154,7 @@ export class AdminService {
       .set('sort', options.sort ?? 'createdAt')
       .set('dir', options.dir ?? 'desc');
     if (options.search?.trim()) params = params.set('search', options.search.trim());
-    return this.http.get<Paginated<AdminSubscriberRow>>(
-      `${this.baseUrl}/subscribers`,
-      { params },
-    );
+    return this.http.get<Paginated<AdminSubscriberRow>>(`${this.baseUrl}/subscribers`, { params });
   }
 
   getSubscriberDetail(id: string): Observable<AdminSubscriberDetail> {
@@ -165,9 +162,7 @@ export class AdminService {
   }
 
   getSubscriberAccounts(id: string): Observable<AdminIgAccount[]> {
-    return this.http.get<AdminIgAccount[]>(
-      `${this.baseUrl}/subscribers/${id}/accounts`,
-    );
+    return this.http.get<AdminIgAccount[]>(`${this.baseUrl}/subscribers/${id}/accounts`);
   }
 
   getSubscriberUsage(
@@ -177,10 +172,7 @@ export class AdminService {
   ): Observable<AdminUsageSeries> {
     let params = new HttpParams().set('range', range);
     if (accountId) params = params.set('accountId', accountId);
-    return this.http.get<AdminUsageSeries>(
-      `${this.baseUrl}/subscribers/${id}/usage`,
-      { params },
-    );
+    return this.http.get<AdminUsageSeries>(`${this.baseUrl}/subscribers/${id}/usage`, { params });
   }
 
   getSubscriberLogs(
@@ -189,16 +181,12 @@ export class AdminService {
     pageSize = 20,
   ): Observable<Paginated<AdminUsageLogRow>> {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);
-    return this.http.get<Paginated<AdminUsageLogRow>>(
-      `${this.baseUrl}/subscribers/${id}/logs`,
-      { params },
-    );
+    return this.http.get<Paginated<AdminUsageLogRow>>(`${this.baseUrl}/subscribers/${id}/logs`, {
+      params,
+    });
   }
 
-  getFeatureBoard(
-    range: AdminRange,
-    accountId?: string,
-  ): Observable<AdminFeatureBoard> {
+  getFeatureBoard(range: AdminRange, accountId?: string): Observable<AdminFeatureBoard> {
     let params = new HttpParams().set('range', range);
     if (accountId) params = params.set('accountId', accountId);
     return this.http.get<AdminFeatureBoard>(`${this.baseUrl}/features`, { params });

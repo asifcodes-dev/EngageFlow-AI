@@ -1,4 +1,4 @@
-<app-page-breadcrumb pageTitle="Admin · Subscribers" />
+<app-page-breadcrumb pageTitle="Admin / Subscribers" tone="violet" />
 
 <app-page-header
   title="Subscribers"
@@ -6,31 +6,34 @@
 />
 
 <!-- Platform KPIs -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+<div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
   <app-stat-card
     [icon]="icons.users"
-    label="Total subscribers"
+    chipColor="blue"
+    label="Total subs"
     [value]="(overview?.totalSubscribers | number) ?? '0'"
   />
   <app-stat-card
     [icon]="icons.trial"
+    chipColor="yellow"
     label="Active trials"
     [value]="(overview?.activeTrials | number) ?? '0'"
-    trendColor="info"
   />
   <app-stat-card
     [icon]="icons.paying"
+    chipColor="green"
     label="Paying"
     [value]="(overview?.payingSubscribers | number) ?? '0'"
-    trendColor="success"
   />
   <app-stat-card
-    [icon]="icons.revenue"
     label="Revenue (30d)"
     [value]="overview?.revenue30dPaise ?? 0 | inrPaise"
+    [highlight]="true"
+    tag="live"
   />
   <app-stat-card
     [icon]="icons.requests"
+    chipColor="purple"
     label="Requests today"
     [value]="(overview?.requestsToday | number) ?? '0'"
     hint="UTC day"
@@ -38,21 +41,49 @@
 </div>
 
 <!-- Subscribers table -->
-<div class="ef-card mt-6 overflow-hidden">
+<div class="au-panel mt-6 overflow-hidden">
   <div
     class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800"
   >
     <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">All subscribers</h3>
-    <input
-      type="text"
-      placeholder="Search email or name…"
-      [ngModel]="search"
-      (ngModelChange)="onSearchInput($event)"
-      class="h-10 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden sm:w-72 dark:border-gray-800 dark:text-white/90"
-    />
+    <div class="flex items-center gap-2">
+      <div class="relative w-full sm:w-auto">
+        <svg
+          class="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-[#9aa1ab]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+        <input
+          type="text"
+          placeholder="Search email or name…"
+          [ngModel]="search"
+          (ngModelChange)="onSearchInput($event)"
+          class="h-9 w-full rounded-[10px] border border-gray-200 bg-transparent pr-3 pl-10 text-sm text-gray-800 placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden sm:w-[230px] dark:border-gray-800 dark:text-white/90"
+        />
+      </div>
+      <select
+        [ngModel]="planFilter"
+        (ngModelChange)="onPlanFilter($event)"
+        class="h-9 rounded-[10px] border border-[#e3e6eb] bg-transparent px-2.5 text-sm text-gray-700 focus:border-brand-300 focus:outline-hidden dark:border-gray-800 dark:text-gray-300"
+      >
+        <option value="all">All plans</option>
+        <option value="Pro">Pro</option>
+        <option value="Max">Max</option>
+        <option value="Trial">Trial</option>
+        <option value="Locked">Locked</option>
+      </select>
+    </div>
   </div>
 
-  @if (rows.length === 0 && !loading) {
+  @if (displayRows.length === 0 && !loading) {
     <app-empty-state
       title="No subscribers found"
       description="Try a different search, or wait for your first signups."
@@ -60,65 +91,77 @@
   } @else {
     <div class="custom-scrollbar overflow-x-auto">
       <app-table>
-        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+        <app-table-header
+          className="border-b border-gray-100 bg-[#f9fafc] dark:border-gray-800 dark:bg-white/[0.03]"
+        >
           <app-table-row>
             <app-table-cell
               [isHeader]="true"
-              className="cursor-pointer px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="cursor-pointer px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               (click)="setSort('email')"
               >Subscriber {{ sort === 'email' ? (dir === 'asc' ? '↑' : '↓') : '' }}</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               >Plan</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               >IG accounts</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               >Flows</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               >Products</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               >Revenue</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               >GMV</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="cursor-pointer px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="cursor-pointer px-5 py-[11px] text-left text-[10px] font-bold tracking-[0.07em] text-[#8894a8] uppercase"
               (click)="setSort('createdAt')"
               >Joined {{ sort === 'createdAt' ? (dir === 'asc' ? '↑' : '↓') : '' }}</app-table-cell
             >
+            <app-table-cell [isHeader]="true" className="px-5 py-[11px]"></app-table-cell>
           </app-table-row>
         </app-table-header>
         <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
-          @for (row of rows; track row.id) {
+          @for (row of displayRows; track row.id) {
             <app-table-row>
               <app-table-cell className="px-5 py-4">
-                <a
-                  [routerLink]="['/dashboard/admin/subscribers', row.id]"
-                  class="block hover:text-brand-500"
-                >
-                  <span class="block font-medium text-gray-800 dark:text-white/90">
-                    {{ row.name || '—' }}
-                  </span>
-                  <span class="block text-sm text-gray-500 dark:text-gray-400">{{ row.email }}</span>
-                </a>
+                <div class="flex items-center gap-2.5">
+                  <span
+                    class="grid h-[34px] w-[34px] flex-shrink-0 place-items-center rounded-[10px] bg-gradient-to-br from-[#e8f0fb] to-[#d6e6fa] text-xs font-bold text-[#1a5dab]"
+                    aria-hidden="true"
+                    >{{ initials(row) }}</span
+                  >
+                  <a
+                    [routerLink]="['/dashboard/admin/subscribers', row.id]"
+                    class="block min-w-0 hover:text-brand-500"
+                  >
+                    <span class="block font-medium text-gray-800 dark:text-white/90">
+                      {{ row.name || '—' }}
+                    </span>
+                    <span class="block text-sm text-gray-500 dark:text-gray-400">{{
+                      row.email
+                    }}</span>
+                  </a>
+                </div>
               </app-table-cell>
               <app-table-cell className="px-5 py-4">
                 @let badge = tierBadge(row);
@@ -145,6 +188,13 @@
               <app-table-cell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{
                 row.createdAt | date: 'mediumDate'
               }}</app-table-cell>
+              <app-table-cell className="px-5 py-4 text-right whitespace-nowrap">
+                <a
+                  [routerLink]="['/dashboard/admin/subscribers', row.id]"
+                  class="text-xs font-semibold text-[#1a5dab]"
+                  >View →</a
+                >
+              </app-table-cell>
             </app-table-row>
           }
         </app-table-body>

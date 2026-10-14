@@ -2,13 +2,12 @@ import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LabelComponent } from '../../form/label/label.component';
-import { ButtonComponent } from '../../ui/button/button.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-reset-password-form',
-  imports: [LabelComponent, ButtonComponent, InputFieldComponent, RouterModule, FormsModule],
+  imports: [LabelComponent, InputFieldComponent, RouterModule, FormsModule],
   templateUrl: './reset-password-form.component.html',
   styles: ``,
 })

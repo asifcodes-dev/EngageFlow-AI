@@ -1,182 +1,231 @@
-<section class="relative overflow-hidden">
-  <!-- dotted grid + glow backgrounds -->
-  <div
+<section
+  class="relative overflow-hidden bg-[linear-gradient(165deg,#eaf1fb_0%,#f4f8fd_50%,#e7f0fb_100%)] dark:bg-none dark:bg-gray-900"
+>
+  <!-- floating blur blob (top-right) -->
+  <span
     aria-hidden="true"
-    class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--color-gray-200)_1px,transparent_1px)] opacity-50 [background-size:22px_22px] dark:bg-[radial-gradient(var(--color-gray-800)_1px,transparent_1px)]"
-  ></div>
-  <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
-    <div
-      class="absolute -top-16 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-400/20 blur-3xl"
-    ></div>
-    <div
-      class="absolute top-32 right-10 h-64 w-64 rounded-full bg-theme-purple-500/10 blur-3xl"
-    ></div>
-  </div>
+    class="au-blob h-[220px] w-[220px] top-[-110px] right-[-40px] lg:h-[340px] lg:w-[340px] lg:top-[-150px] lg:right-[-60px]"
+    style="background: rgba(26, 93, 171, 0.12); filter: blur(60px)"
+  ></span>
 
-  <div class="ef-container relative py-16 sm:py-20 lg:py-28">
-    <!-- floating accent cards (lg+) -->
-    <div class="ef-float-card top-28 left-0 xl:left-10">
+  <div
+    class="ef-container relative flex flex-col items-center gap-8 py-9 sm:py-10 md:flex-row md:gap-7 lg:gap-11 lg:py-[60px]"
+  >
+    <!-- LEFT column -->
+    <div class="w-full text-center md:flex-1 md:text-left">
+      <!-- live badge -->
       <span
-        class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400"
+        appReveal
+        style="--i: 0"
+        class="inline-flex items-center gap-2 rounded-full border border-[#dbe6f6] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#1a5dab] shadow-[0_4px_12px_-6px_rgba(26,93,171,.3)] dark:border-gray-700 dark:bg-gray-800 dark:text-brand-400"
       >
-        <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
-          <path
-            fill-rule="evenodd"
-            d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.521 1.978.292 3.348 2.024 3.348 3.97v6.019c0 1.946-1.37 3.678-3.348 3.97a48.9 48.9 0 0 1-3.476.384.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.678 3.348-3.97Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </span>
-      <span>
-        <span class="block text-[10px] font-semibold tracking-wide text-gray-400 uppercase">
-          New reply
-        </span>
-        <span class="block text-sm font-medium text-gray-900 dark:text-white">Sent in 1.2s</span>
-      </span>
-    </div>
-
-    <div class="ef-float-card top-20 right-0 xl:right-12">
-      <span
-        class="flex h-9 w-9 items-center justify-center rounded-lg bg-theme-purple-500/10 text-theme-purple-500"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          class="h-5 w-5"
+        <span
           aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-          />
-        </svg>
-      </span>
-      <span>
-        <span class="block text-[10px] font-semibold tracking-wide text-gray-400 uppercase">
-          Auto-DM
-        </span>
-        <span class="block text-sm font-medium text-gray-900 dark:text-white"
-          >Check your inbox</span
-        >
-      </span>
-    </div>
-
-    <div class="ef-float-card bottom-8 left-2 xl:left-20">
-      <span
-        class="flex h-9 w-9 items-center justify-center rounded-lg bg-error-50 text-error-500 dark:bg-error-500/15"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          class="h-5 w-5"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
-          />
-        </svg>
-      </span>
-      <span>
-        <span class="block text-[10px] font-semibold tracking-wide text-gray-400 uppercase">
-          Security
-        </span>
-        <span class="block text-sm font-medium text-gray-900 dark:text-white">Spam blocked</span>
-      </span>
-    </div>
-
-    <div class="ef-float-card right-2 bottom-10 xl:right-24">
-      <span
-        class="flex h-9 w-9 items-center justify-center rounded-lg bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          class="h-5 w-5"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
-          />
-        </svg>
-      </span>
-      <span>
-        <span class="block text-[10px] font-semibold tracking-wide text-gray-400 uppercase">
-          CRM sync
-        </span>
-        <span class="block text-sm font-medium text-gray-900 dark:text-white">Lead captured</span>
-      </span>
-    </div>
-
-    <!-- hero copy -->
-    <div class="mx-auto max-w-3xl text-center">
-      <span
-        class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-sm font-medium text-gray-700 shadow-theme-xs dark:border-gray-800 dark:bg-gray-800 dark:text-gray-300"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          class="h-4 w-4 text-brand-500"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-          />
-        </svg>
-        Built on Meta's official Graph API
+          class="au-ring-dot h-[7px] w-[7px] rounded-full bg-[#2d7a4f]"
+        ></span>
+        AI-Powered Instagram Growth Automation
       </span>
 
+      <!-- headline -->
       <h1
-        class="mt-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl dark:text-white"
+        appReveal
+        style="--i: 1"
+        class="mx-auto mt-4.5 max-w-[520px] text-[28px] leading-[1.1] font-extrabold tracking-[-0.03em] text-gray-900 md:mx-0 md:text-[34px] md:leading-[1.08] lg:mt-[18px] lg:text-[48px] lg:leading-[1.06] dark:text-white"
       >
-        AI-Powered Instagram <span class="ef-gradient-text">Growth Automation</span>
+        Turn every comment into a <span class="ef-gradient-text">24/7 sales team</span>
       </h1>
 
+      <!-- subtext -->
       <p
-        class="mx-auto mt-6 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8 dark:text-gray-300"
+        appReveal
+        style="--i: 2"
+        class="mx-auto mt-4.5 max-w-[470px] text-sm leading-relaxed text-[#4b5563] md:mx-0 lg:mt-[18px] lg:text-base dark:text-gray-300"
       >
-        Auto-reply to comments, manage DMs, capture leads, and remove spam — in your customer's
-        language. The all-in-one Instagram growth tool with built-in AI moderation.
+        Auto-reply to comments &amp; DMs, moderate spam, capture leads and sell digital products —
+        in Hindi, English &amp; more. Grow your Instagram without lifting a finger.
       </p>
 
-      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a routerLink="/signup" class="ef-btn ef-btn-primary w-full sm:w-auto">
-          Get Started
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            class="h-4 w-4"
-            aria-hidden="true"
+      <!-- DM preview card (mobile in-flow: after subtext, before CTAs) -->
+      <div appReveal style="--i: 3" class="mx-auto mt-6 w-full max-w-80 text-left md:hidden">
+        <div
+          class="au-float-y lift rounded-[20px] border border-[#eef1f6] bg-white p-[18px] shadow-[0_24px_50px_-24px_rgba(20,40,80,.4)] dark:border-gray-700 dark:bg-gray-800"
+        >
+          <!-- header -->
+          <div
+            class="flex items-center gap-2.25 border-b border-[#f0f2f5] pb-3 dark:border-gray-700"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-            />
-          </svg>
-        </a>
-        <a href="#how-it-works" class="ef-btn ef-btn-outline w-full sm:w-auto">See how it works</a>
+            <span
+              aria-hidden="true"
+              class="h-8 w-8 rounded-full"
+              style="background: linear-gradient(135deg, #feda75, #d62976 55%, #962fbf)"
+            ></span>
+            <div class="text-left">
+              <div class="text-[13px] font-bold text-gray-900 dark:text-white">@mark.creates</div>
+              <div class="text-[11px] text-gray-500 dark:text-gray-400">New comment · now</div>
+            </div>
+            <span
+              class="ml-auto rounded-full bg-[#e8f8ef] px-2.25 py-[3px] text-[10px] font-semibold text-[#2d7a4f]"
+            >
+              AI replied
+            </span>
+          </div>
+
+          <!-- follower comment -->
+          <div class="mt-3 flex gap-2.25">
+            <span
+              class="grid h-6.5 w-6.5 place-items-center rounded-full bg-[#e8f0fb] text-[10px] font-bold text-[#1a5dab] dark:bg-brand-500/15"
+              >PS</span
+            >
+            <div
+              class="rounded-xl bg-[#f6f8fc] px-3 py-2.25 text-[12.5px] text-gray-900 dark:bg-gray-900 dark:text-gray-200"
+            >
+              Price kya hai? 😍
+            </div>
+          </div>
+
+          <!-- AI reply -->
+          <div class="mt-2.5 flex flex-row-reverse gap-2.25">
+            <span
+              class="grid h-6.5 w-6.5 place-items-center rounded-full text-[9px] font-bold text-white"
+              style="background: linear-gradient(135deg, #2470c8, #16467f)"
+              >AI</span
+            >
+            <div
+              class="max-w-[230px] rounded-xl px-3 py-2.25 text-[12.5px] text-white"
+              style="background: linear-gradient(135deg, #2470c8, #16467f)"
+            >
+              Reels Growth Guide sirf ₹499 mein! DM check karein 📩
+            </div>
+          </div>
+
+          <!-- lead captured status -->
+          <div
+            class="mt-3.5 flex items-center gap-2 rounded-[10px] bg-[#f6f8fc] px-3 py-2.25 dark:bg-gray-900"
+          >
+            <span
+              aria-hidden="true"
+              class="au-ring-dot h-[7px] w-[7px] rounded-full bg-[#2d7a4f]"
+            ></span>
+            <span class="text-[11.5px] font-semibold text-[#374151] dark:text-gray-300">
+              Lead captured · sent to CRM
+            </span>
+          </div>
+        </div>
       </div>
 
-      <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-        Set up in minutes · Cancel anytime
-      </p>
+      <!-- CTAs -->
+      <div
+        appReveal
+        style="--i: 4"
+        class="mt-6 flex flex-col gap-3 sm:flex-row sm:gap-3.5 lg:mt-6.5"
+      >
+        <a
+          routerLink="/signup"
+          class="grad-btn w-full justify-center rounded-xl px-6.5 py-3.25 text-[15px] font-semibold text-white sm:w-auto"
+        >
+          Start free — no card
+        </a>
+        <button
+          type="button"
+          class="lift inline-flex w-full items-center justify-center rounded-xl border border-[#ccdcf1] bg-white px-6 py-3.25 text-[15px] font-semibold text-[#1a5dab] sm:w-auto dark:border-gray-700 dark:bg-gray-800 dark:text-brand-400"
+        >
+          Watch demo
+        </button>
+      </div>
+
+      <!-- stat cards (all three on every breakpoint; smaller on tablet/mobile) -->
+      <div class="mt-7 flex justify-center gap-2 md:justify-start lg:mt-[30px] lg:gap-[22px]">
+        @for (stat of stats; track stat.label; let i = $index) {
+          <div
+            appReveal
+            [style.--i]="5 + i"
+            class="lift min-w-0 flex-1 rounded-xl border border-[#eef1f6] bg-white px-2.5 py-2 shadow-[0_6px_16px_-12px_rgba(20,40,80,.3)] lg:flex-none lg:px-4 lg:py-2.5 dark:border-gray-700 dark:bg-gray-800"
+          >
+            <div
+              appCountUp
+              [attr.data-count]="stat.count"
+              class="text-base font-extrabold text-gray-900 lg:text-xl dark:text-white"
+            >
+              {{ stat.value }}
+            </div>
+            <div
+              class="text-[9.5px] whitespace-nowrap text-gray-500 lg:text-[11px] dark:text-gray-400"
+            >
+              {{ stat.label }}
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- RIGHT column: floating DM preview (tablet/desktop) -->
+    <div
+      appReveal
+      style="--i: 2"
+      class="hidden w-full md:block md:w-62.5 md:flex-none lg:w-93"
+    >
+      <div
+        class="au-float-y lift rounded-[20px] border border-[#eef1f6] bg-white p-[18px] shadow-[0_24px_50px_-24px_rgba(20,40,80,.4)] dark:border-gray-700 dark:bg-gray-800"
+      >
+        <!-- header -->
+        <div class="flex items-center gap-2.25 border-b border-[#f0f2f5] pb-3 dark:border-gray-700">
+          <span
+            aria-hidden="true"
+            class="h-8 w-8 rounded-full"
+            style="background: linear-gradient(135deg, #feda75, #d62976 55%, #962fbf)"
+          ></span>
+          <div class="text-left">
+            <div class="text-[13px] font-bold text-gray-900 dark:text-white">@mark.creates</div>
+            <div class="text-[11px] text-gray-500 dark:text-gray-400">New comment · now</div>
+          </div>
+          <span
+            class="ml-auto rounded-full bg-[#e8f8ef] px-2.25 py-[3px] text-[10px] font-semibold text-[#2d7a4f]"
+          >
+            AI replied
+          </span>
+        </div>
+
+        <!-- follower comment -->
+        <div class="mt-3 flex gap-2.25">
+          <span
+            class="grid h-6.5 w-6.5 place-items-center rounded-full bg-[#e8f0fb] text-[10px] font-bold text-[#1a5dab] dark:bg-brand-500/15"
+            >PS</span
+          >
+          <div
+            class="rounded-xl bg-[#f6f8fc] px-3 py-2.25 text-[12.5px] text-gray-900 dark:bg-gray-900 dark:text-gray-200"
+          >
+            Price kya hai? 😍
+          </div>
+        </div>
+
+        <!-- AI reply -->
+        <div class="mt-2.5 flex flex-row-reverse gap-2.25">
+          <span
+            class="grid h-6.5 w-6.5 place-items-center rounded-full text-[9px] font-bold text-white"
+            style="background: linear-gradient(135deg, #2470c8, #16467f)"
+            >AI</span
+          >
+          <div
+            class="max-w-[230px] rounded-xl px-3 py-2.25 text-[12.5px] text-white"
+            style="background: linear-gradient(135deg, #2470c8, #16467f)"
+          >
+            Reels Growth Guide sirf ₹499 mein! DM check karein 📩
+          </div>
+        </div>
+
+        <!-- lead captured status -->
+        <div
+          class="mt-3.5 flex items-center gap-2 rounded-[10px] bg-[#f6f8fc] px-3 py-2.25 dark:bg-gray-900"
+        >
+          <span
+            aria-hidden="true"
+            class="au-ring-dot h-[7px] w-[7px] rounded-full bg-[#2d7a4f]"
+          ></span>
+          <span class="text-[11.5px] font-semibold text-[#374151] dark:text-gray-300">
+            Lead captured · sent to CRM
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </section>

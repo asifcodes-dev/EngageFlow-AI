@@ -1,11 +1,17 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
+
+type FeatureId = 'comment' | 'moderation' | 'dm' | 'lead' | 'story' | 'live' | 'sell' | 'analytics';
 
 interface Feature {
-  kind: 'comment' | 'moderation' | 'story' | 'live' | 'dm' | 'follow' | 'lead' | 'ai';
+  id: FeatureId;
+  /** Mini-mockup header background (exact gradient / hex from the reference). */
+  headerBg: string;
   tag: string;
-  tagColor: string;
+  tagBg: string;
+  tagFg: string;
   title: string;
   desc: string;
   action: string;
@@ -13,76 +19,91 @@ interface Feature {
 
 @Component({
   selector: 'app-landing-features',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, RevealDirective],
   templateUrl: './features.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeaturesComponent {
   readonly features: Feature[] = [
     {
-      kind: 'comment',
+      id: 'comment',
+      headerBg: 'linear-gradient(160deg,#eef2fb,#dde8f8)',
       tag: 'Engagement',
-      tagColor: 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400',
+      tagBg: '#e8f0fb',
+      tagFg: '#1a5dab',
       title: 'Comment Automation',
-      desc: 'Auto-reply to comments and send instant DMs that turn followers into customers.',
+      desc: 'Auto-reply to comments and send instant DMs to turn followers into customers.',
       action: 'Automate comments',
     },
     {
-      kind: 'moderation',
+      id: 'moderation',
+      headerBg: 'linear-gradient(160deg,#eaf7f0,#d6f0e2)',
       tag: 'Automation',
-      tagColor: 'bg-theme-purple-500/10 text-theme-purple-500',
+      tagBg: '#e8f8ef',
+      tagFg: '#2d7a4f',
       title: 'AI Comment Moderation',
-      desc: 'AI removes spam, scams, and abuse 24/7 — keeping your comment section clean.',
+      desc: 'AI-powered moderation removes spam and abuse, keeping your section clean 24/7.',
       action: 'Enable moderation',
     },
     {
-      kind: 'story',
-      tag: 'Interaction',
-      tagColor:
-        'bg-blue-light-50 text-blue-light-600 dark:bg-blue-light-500/15 dark:text-blue-light-500',
-      title: 'Story Automation',
-      desc: 'Instantly respond to story replies and reactions to keep your brand active 24/7.',
-      action: 'Set up story bot',
+      id: 'dm',
+      headerBg: 'linear-gradient(160deg,#fbf4ec,#f6e6d4)',
+      tag: 'Sales Funnel',
+      tagBg: '#fbf3e6',
+      tagFg: '#a07a2c',
+      title: 'DM Automation',
+      desc: 'Scale sales by automatically qualifying leads and replying to direct messages.',
+      action: 'Automate DMs',
     },
     {
-      kind: 'live',
+      id: 'lead',
+      headerBg: 'linear-gradient(150deg,#a78bfa,#7c5cf0)',
+      tag: 'Lead Gen',
+      tagBg: '#f0ecfb',
+      tagFg: '#5b4a9e',
+      title: 'Lead Magnets',
+      desc: 'Capture emails and distribute digital products through high-converting opt-in forms.',
+      action: 'Launch magnet',
+    },
+    {
+      id: 'story',
+      headerBg: 'linear-gradient(160deg,#ede9fb,#ddd4f7)',
+      tag: 'Interaction',
+      tagBg: '#f0ecfb',
+      tagFg: '#5b4a9e',
+      title: 'Story Automation',
+      desc: 'Instantly respond to story mentions and reactions to keep your brand active 24/7.',
+      action: 'Setup story bot',
+    },
+    {
+      id: 'live',
+      headerBg: '#10131a',
       tag: 'Real-time',
-      tagColor: 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500',
+      tagBg: '#fdebef',
+      tagFg: '#d12b52',
       title: 'Live Automation',
-      desc: 'Send automated messages to your most active viewers during Instagram Live.',
+      desc: 'Send automated messages to your most active viewers during Instagram Live sessions.',
       action: 'Go live pro',
     },
     {
-      kind: 'dm',
-      tag: 'Sales funnel',
-      tagColor: 'bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400',
-      title: 'DM Automation',
-      desc: 'Scale sales by automatically qualifying leads and replying to direct messages.',
-      action: 'Build a funnel',
+      id: 'sell',
+      headerBg: 'linear-gradient(160deg,#eaf7f0,#d6f0e2)',
+      tag: 'Monetize',
+      tagBg: '#e8f8ef',
+      tagFg: '#2d7a4f',
+      title: 'Sell Digital Products',
+      desc: 'Sell ebooks, templates & courses in DMs with Razorpay links and instant delivery.',
+      action: 'Start selling',
     },
     {
-      kind: 'follow',
-      tag: 'Growth',
-      tagColor: 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500',
-      title: 'Follow Gate',
-      desc: 'Grow your audience by requiring a follow before sending exclusive links.',
-      action: 'Grow followers',
-    },
-    {
-      kind: 'lead',
-      tag: 'Lead gen',
-      tagColor: 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400',
-      title: 'Lead Magnets',
-      desc: 'Capture emails and deliver digital products through high-converting opt-in forms.',
-      action: 'Launch a magnet',
-    },
-    {
-      kind: 'ai',
-      tag: 'AI',
-      tagColor: 'bg-theme-purple-500/10 text-theme-purple-500',
-      title: 'AI Comment Replies',
-      desc: 'AI understands any language — Hindi, Urdu, Gujarati, English — and replies instantly.',
-      action: 'Enable AI replies',
+      id: 'analytics',
+      headerBg: 'linear-gradient(160deg,#eef4fc,#dce9fa)',
+      tag: 'Insights',
+      tagBg: '#e8f0fb',
+      tagFg: '#1a5dab',
+      title: 'Analytics & Insights',
+      desc: 'See replies, leads, spam removed and revenue — proof of ROI at a glance.',
+      action: 'View analytics',
     },
   ];
 }

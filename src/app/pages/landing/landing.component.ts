@@ -1,32 +1,33 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { LandingHeaderComponent } from './sections/landing-header/landing-header.component';
 import { HeroComponent } from './sections/hero/hero.component';
-import { StatsComponent } from './sections/stats/stats.component';
 import { TrustedComponent } from './sections/trusted/trusted.component';
 import { FeaturesComponent } from './sections/features/features.component';
 import { AiRepliesComponent } from './sections/ai-replies/ai-replies.component';
-import { ModerationComponent } from './sections/moderation/moderation.component';
 import { HowItWorksComponent } from './sections/how-it-works/how-it-works.component';
-import { TestimonialsComponent } from './sections/testimonials/testimonials.component';
-import { PricingComponent } from './sections/pricing/pricing.component';
-import { FaqComponent } from './sections/faq/faq.component';
+import { TimelineComponent } from './sections/timeline/timeline.component';
+import { DashboardPreviewComponent } from './sections/dashboard-preview/dashboard-preview.component';
+import { BeforeAfterComponent } from './sections/before-after/before-after.component';
+import { SecurityResultsComponent } from './sections/security-results/security-results.component';
 import { CtaComponent } from './sections/cta/cta.component';
 import { LandingFooterComponent } from './sections/landing-footer/landing-footer.component';
 
+// Section order follows the marketing "LP" reference. Pricing has its own
+// dedicated /pricing page, so it's intentionally not rendered on the home scroll
+// (nor are stats/moderation/testimonials/FAQ — their files are kept for reuse).
 @Component({
   selector: 'app-landing',
   imports: [
     LandingHeaderComponent,
     HeroComponent,
-    StatsComponent,
     TrustedComponent,
     FeaturesComponent,
     AiRepliesComponent,
-    ModerationComponent,
     HowItWorksComponent,
-    TestimonialsComponent,
-    PricingComponent,
-    FaqComponent,
+    TimelineComponent,
+    DashboardPreviewComponent,
+    BeforeAfterComponent,
+    SecurityResultsComponent,
     CtaComponent,
     LandingFooterComponent,
   ],

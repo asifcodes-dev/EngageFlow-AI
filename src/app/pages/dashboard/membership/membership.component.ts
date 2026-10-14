@@ -7,12 +7,24 @@ import { ButtonComponent } from '../../../shared/components/ui/button/button.com
 import { AuthService, PlanUsage } from '../../../shared/services/auth.service';
 import { PaymentService, PlanId } from '../../../shared/services/payment.service';
 
+interface Feature {
+  label: string;
+  ok: boolean;
+}
+
 interface Plan {
   id: 'pro' | 'business';
   name: string;
   tagline: string;
   monthly: number;
-  features: string[];
+  /** Base social-account allowance (highlighted box). */
+  accounts: string;
+  /** Per-extra-account add-on (display-only; omitted when unlimited). */
+  extraAccount?: string;
+  /** Core "what's included" checklist (✓ included / ✗ not). */
+  features: Feature[];
+  /** Flagship features — filled pills when included, grey ✗ otherwise. */
+  premium: Feature[];
   recommended?: boolean;
 }
 
@@ -44,6 +56,11 @@ export class MembershipComponent implements OnInit {
   trialDaysLeft = 0;
   startingTrial = false;
 
+  /** The plan the "Upgrade now" trial CTA points at (the recommended tier). */
+  get recommendedPlan(): Plan {
+    return this.plans.find((p) => p.recommended) ?? this.plans[0];
+  }
+
   readonly plans: Plan[] = [
     {
       id: 'pro',
@@ -51,13 +68,21 @@ export class MembershipComponent implements OnInit {
       tagline: 'For growing creators',
       monthly: 1499,
       recommended: true,
+      accounts: '3 Instagram accounts',
+      extraAccount: '+₹299 / extra account',
       features: [
-        '3 Instagram accounts',
-        '2,000 auto-replies / month',
-        '20 catalog items',
-        'Follow gate + lead magnets',
-        'Full analytics',
-        'Email support',
+        { label: 'Unlimited automations', ok: true },
+        { label: '2,000 auto-replies / month', ok: true },
+        { label: '20 catalog items', ok: true },
+        { label: 'Follow gate + lead magnets', ok: true },
+        { label: 'Full analytics', ok: true },
+        { label: 'Email support', ok: true },
+      ],
+      premium: [
+        { label: 'Digital product sales', ok: false },
+        { label: 'Story & Live automation', ok: false },
+        { label: 'Advanced analytics + CSV export', ok: false },
+        { label: 'Priority support', ok: false },
       ],
     },
     {
@@ -65,13 +90,19 @@ export class MembershipComponent implements OnInit {
       name: 'Max',
       tagline: 'For serious sellers',
       monthly: 3999,
+      accounts: 'Unlimited accounts',
       features: [
-        'Unlimited Instagram accounts',
-        'Unlimited auto-replies',
-        'Unlimited catalog items',
-        'Digital products + story & live automation',
-        'Full analytics + CSV export',
-        'Priority support',
+        { label: 'Unlimited automations', ok: true },
+        { label: 'Unlimited auto-replies', ok: true },
+        { label: 'Unlimited catalog items', ok: true },
+        { label: 'Follow gate + lead magnets', ok: true },
+        { label: 'Full analytics', ok: true },
+      ],
+      premium: [
+        { label: 'Digital product sales', ok: true },
+        { label: 'Story & Live automation', ok: true },
+        { label: 'Advanced analytics + CSV export', ok: true },
+        { label: 'Priority support', ok: true },
       ],
     },
   ];
@@ -117,19 +148,51 @@ export class MembershipComponent implements OnInit {
     return Math.min(100, Math.round((used / limit) * 100));
   }
 
-  /** Per-month display price (yearly applies a 28% discount). */
+  /**
+   * Per-month display price (yearly applies a ~28% discount, rounded to the
+   * nearest rupee). This is the single source of truth for the yearly
+   * cycle — `totalNow` derives from it, so the two labels always agree.
+   */
   perMonth(plan: Plan): number {
     return this.cycle === 'yearly' ? Math.round(plan.monthly * 0.72) : plan.monthly;
   }
 
-  /** Total charged now for the selected cycle. */
+  /**
+   * Total charged now for the selected cycle: exactly `perMonth * 12` for
+   * yearly, so "Billed ₹X/year" always equals the displayed monthly rate
+   * times 12 — this must also match the backend's PLAN_PRICES.yearly
+   * (payments.service.ts) exactly, since that's what Razorpay actually charges.
+   */
   totalNow(plan: Plan): number {
-    return this.cycle === 'yearly' ? Math.round(plan.monthly * 12 * 0.72) : plan.monthly;
+    return this.cycle === 'yearly' ? this.perMonth(plan) * 12 : plan.monthly;
   }
 
   ctaLabel(plan: Plan): string {
     if (plan.id === this.currentPlan) return 'Current plan';
-    return this.currentPlan === 'none' ? 'Choose plan' : 'Switch plan';
+    return this.currentPlan === 'none' ? `Choose ${plan.name}` : 'Switch plan';
+  }
+
+  /** "/month" or "/month · billed yearly" (reference perNote). */
+  get perNote(): string {
+    return this.cycle === 'yearly' ? '/month · billed yearly' : '/month';
+  }
+
+  /** Line under the billing toggle (reference billNote). */
+  get billNote(): string {
+    if (this.cycle === 'yearly') {
+      const totals = this.plans.map((p) => {
+        const t = Math.round(p.monthly * 0.72) * 12;
+        return `₹${t.toLocaleString('en-IN')} (${p.name})`;
+      });
+      return `Billed yearly: ${totals.join(' · ')} — you save 28%`;
+    }
+    return 'Switch to yearly billing and save 28%';
+  }
+
+  /** "Trial ends 9 July" style date from the remaining days. */
+  get trialEndLabel(): string {
+    const d = new Date(Date.now() + this.trialDaysLeft * 86_400_000);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
   }
 
   /** Display label for a plan id (the top tier is branded "Max"). */

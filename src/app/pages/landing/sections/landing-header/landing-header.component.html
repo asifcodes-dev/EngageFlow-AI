@@ -1,114 +1,113 @@
 <header
-  class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80"
+  class="sticky top-0 z-50 w-full border-b border-[#eef1f6] bg-white/85 backdrop-blur-[10px] dark:border-gray-800 dark:bg-gray-900/85"
 >
-  <div class="ef-container flex h-16 items-center justify-between lg:h-18">
+  <div class="ef-container flex h-13.5 items-center gap-3 md:h-14.5 md:gap-3.5 lg:h-15.5 lg:gap-5">
     <!-- Brand -->
-    <a routerLink="/" class="flex items-center gap-2.5" aria-label="EngageFlow AI home">
-      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-white">
-        <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
-          <path
-            fill-rule="evenodd"
-            d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.521 1.978.292 3.348 2.024 3.348 3.97v6.019c0 1.946-1.37 3.678-3.348 3.97a48.9 48.9 0 0 1-3.476.384.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.678 3.348-3.97Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </span>
-      <span class="text-lg font-bold text-gray-900 dark:text-white">
-        EngageFlow <span class="text-brand-500">AI</span>
-      </span>
+    <a routerLink="/" aria-label="EngageFlow AI home" class="shrink-0">
+      <app-logo variant="landing" />
     </a>
 
-    <!-- Desktop nav -->
-    <nav class="hidden items-center gap-8 lg:flex">
-      @for (link of navLinks; track link.fragment) {
-        <a href="#{{ link.fragment }}" class="ef-nav-link">{{ link.label }}</a>
+    <!-- Desktop / tablet center nav -->
+    <nav class="mx-auto hidden items-center gap-4.5 md:flex lg:gap-6" aria-label="Primary">
+      @for (link of navLinks; track link.label) {
+        <a
+          [routerLink]="link.route"
+          routerLinkActive="font-semibold! text-brand-500! dark:text-brand-400!"
+          [routerLinkActiveOptions]="{ exact: !!link.exact }"
+          class="font-medium text-[13px] text-gray-700 transition-colors hover:text-brand-500 lg:text-[13.5px] dark:text-gray-300 dark:hover:text-brand-400"
+        >
+          {{ link.label }}
+        </a>
       }
     </nav>
 
-    <!-- Right actions -->
-    <div class="flex items-center gap-2 sm:gap-3">
-      <button
-        type="button"
-        (click)="toggleTheme()"
-        aria-label="Toggle dark mode"
-        class="ef-icon-btn"
-      >
-        @if ((theme$ | async) === 'dark') {
-          <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
-            <path
-              d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.243a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z"
-            />
-          </svg>
-        } @else {
-          <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
-            <path
-              d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
-            />
-          </svg>
-        }
-      </button>
+    <!-- Sign In: desktop only (reference tablet nav has just Get Started) -->
+    <a
+      routerLink="/signin"
+      class="hidden font-semibold text-[13px] text-gray-700 transition-colors hover:text-brand-500 lg:inline-flex lg:text-[13.5px] dark:text-gray-300 dark:hover:text-brand-400"
+    >
+      Sign In
+    </a>
+    <a
+      routerLink="/signup"
+      class="grad-btn hidden text-[13px] md:inline-flex md:[padding:8px_16px] lg:text-[13.5px] lg:[padding:9px_18px]"
+      style="border-radius: 10px"
+    >
+      Get Started
+    </a>
 
-      <a routerLink="/signin" class="ef-btn ef-btn-ghost hidden sm:inline-flex">Sign In</a>
-      <a routerLink="/signup" class="ef-btn ef-btn-primary hidden sm:inline-flex">Get Started</a>
-
-      <button
-        type="button"
-        (click)="toggleMobileMenu()"
-        [attr.aria-expanded]="mobileMenuOpen()"
-        aria-label="Toggle navigation menu"
-        class="ef-icon-btn lg:hidden"
-      >
-        @if (mobileMenuOpen()) {
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            class="h-6 w-6"
-            aria-hidden="true"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-          </svg>
-        } @else {
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            class="h-6 w-6"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
-            />
-          </svg>
-        }
-      </button>
-    </div>
+    <!-- Mobile hamburger -->
+    <button
+      type="button"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      aria-controls="lp-mobile-menu"
+      aria-label="Toggle navigation menu"
+      class="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border border-[#e3e6eb] text-gray-700 md:hidden dark:border-gray-700 dark:text-gray-300"
+    >
+      @if (mobileMenuOpen()) {
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      } @else {
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M4 6h16M4 12h16M4 18h10" />
+        </svg>
+      }
+    </button>
   </div>
 
-  <!-- Mobile menu -->
+  <!-- Mobile dropdown -->
   @if (mobileMenuOpen()) {
     <div
-      class="border-t border-gray-200 bg-white px-4 py-4 lg:hidden dark:border-gray-800 dark:bg-gray-900"
+      id="lp-mobile-menu"
+      class="border-t border-[#eef1f6] bg-white px-4 py-4 md:hidden dark:border-gray-800 dark:bg-gray-900"
     >
       <nav class="flex flex-col gap-1">
-        @for (link of navLinks; track link.fragment) {
+        @for (link of navLinks; track link.label) {
           <a
-            href="#{{ link.fragment }}"
+            [routerLink]="link.route"
+            routerLinkActive="bg-brand-50 text-brand-600! dark:bg-brand-500/10 dark:text-brand-400!"
+            [routerLinkActiveOptions]="{ exact: !!link.exact }"
             (click)="closeMobileMenu()"
-            class="rounded-lg px-3 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
+            class="rounded-lg px-3 py-3 text-[14px] font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
           >
             {{ link.label }}
           </a>
         }
-        <div class="mt-2 flex flex-col gap-2 border-t border-gray-200 pt-3 dark:border-gray-800">
-          <a routerLink="/signin" (click)="closeMobileMenu()" class="ef-btn ef-btn-outline w-full">
+        <div class="mt-2 flex flex-col gap-2 border-t border-[#eef1f6] pt-3 dark:border-gray-800">
+          <a
+            routerLink="/signin"
+            (click)="closeMobileMenu()"
+            class="rounded-[10px] border border-[#ccdcf1] bg-white px-4 py-2.5 text-center text-[13.5px] font-semibold text-[#1a5dab] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+          >
             Sign In
           </a>
-          <a routerLink="/signup" (click)="closeMobileMenu()" class="ef-btn ef-btn-primary w-full">
+          <a
+            routerLink="/signup"
+            (click)="closeMobileMenu()"
+            class="grad-btn text-[13.5px]"
+            style="border-radius: 10px; padding: 10px 18px"
+          >
             Get Started
           </a>
         </div>

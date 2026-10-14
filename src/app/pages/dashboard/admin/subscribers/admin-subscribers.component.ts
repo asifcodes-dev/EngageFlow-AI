@@ -56,6 +56,7 @@ export class AdminSubscribersComponent implements OnInit {
   readonly pageSize = 20;
   total = 0;
   search = '';
+  planFilter: 'all' | 'Pro' | 'Max' | 'Trial' | 'Locked' = 'all';
   sort: SubscriberSort = 'createdAt';
   dir: 'asc' | 'desc' = 'desc';
 
@@ -90,6 +91,32 @@ export class AdminSubscribersComponent implements OnInit {
     this.searchInput$.next(value);
   }
 
+  onPlanFilter(value: 'all' | 'Pro' | 'Max' | 'Trial' | 'Locked'): void {
+    this.planFilter = value;
+  }
+
+  /** Rows visible after the client-side plan filter (backend paginates/searches; plan is local). */
+  get displayRows(): AdminSubscriberRow[] {
+    if (this.planFilter === 'all') return this.rows;
+    return this.rows.filter((row) => this.planCategory(row) === this.planFilter);
+  }
+
+  /** Initials chip source: first letters of the name, else the first two of the email. */
+  initials(row: AdminSubscriberRow): string {
+    const source = (row.name || row.email || '').trim();
+    if (!source) return '—';
+    const parts = source.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return source.slice(0, 2).toUpperCase();
+  }
+
+  private planCategory(row: AdminSubscriberRow): 'Pro' | 'Max' | 'Trial' | 'Locked' {
+    if (row.tier === 'PRO') return 'Pro';
+    if (row.tier) return 'Max';
+    if (row.isTrialing) return 'Trial';
+    return 'Locked';
+  }
+
   setSort(column: SubscriberSort): void {
     if (this.sort === column) {
       this.dir = this.dir === 'asc' ? 'desc' : 'asc';
@@ -106,9 +133,14 @@ export class AdminSubscribersComponent implements OnInit {
     this.load();
   }
 
-  tierBadge(row: AdminSubscriberRow): { label: string; color: 'success' | 'info' | 'warning' | 'light' } {
-    if (row.tier) return { label: row.tier, color: 'success' };
-    if (row.isTrialing) return { label: `Trial · ${row.trialDaysLeft}d`, color: 'info' };
+  tierBadge(row: AdminSubscriberRow): {
+    label: string;
+    color: 'success' | 'info' | 'warning' | 'light';
+  } {
+    // Handoff plan-pill palette: Pro green · Max blue · Trial amber · none grey.
+    if (row.tier === 'PRO') return { label: 'Pro', color: 'success' };
+    if (row.tier) return { label: 'Max', color: 'info' };
+    if (row.isTrialing) return { label: `Trial · ${row.trialDaysLeft}d`, color: 'warning' };
     return { label: 'Locked', color: 'light' };
   }
 

@@ -17,26 +17,24 @@ export class AlertComponent {
   @Input() linkHref: string = '#';
   @Input() linkText: string = 'Learn more';
 
+  /** Aurora status surfaces (handoff token pairs; constant across themes). */
   get variantClasses() {
     return {
       success: {
-        container:
-          'border-success-500 bg-success-50 dark:border-success-500/30 dark:bg-success-500/15',
-        icon: 'text-success-500',
+        container: 'border-[#bfe6cf] bg-[#e8f8ef]',
+        icon: 'text-[#2d7a4f]',
       },
       error: {
-        container: 'border-error-500 bg-error-50 dark:border-error-500/30 dark:bg-error-500/15',
-        icon: 'text-error-500',
+        container: 'border-[#f0cbc5] bg-[#fbebe8]',
+        icon: 'text-[#b3402f]',
       },
       warning: {
-        container:
-          'border-warning-500 bg-warning-50 dark:border-warning-500/30 dark:bg-warning-500/15',
-        icon: 'text-warning-500',
+        container: 'border-[#ecdcae] bg-[#fbf6e8]',
+        icon: 'text-[#a07a2c]',
       },
       info: {
-        container:
-          'border-blue-light-500 bg-blue-light-50 dark:border-blue-light-500/30 dark:bg-blue-light-500/15',
-        icon: 'text-blue-light-500',
+        container: 'border-[#c9dcf5] bg-[#e8f0fb]',
+        icon: 'text-[#1a5dab]',
       },
     }[this.variant];
   }

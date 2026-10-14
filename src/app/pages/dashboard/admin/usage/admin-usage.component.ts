@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageBreadcrumbComponent } from '../../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../../shared/components/common/page-header/page-header.component';
 import { ComponentCardComponent } from '../../../../shared/components/common/component-card/component-card.component';
+import { StatCardComponent } from '../../../../shared/components/common/stat-card/stat-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/common/empty-state/empty-state.component';
 import { LineChartOneComponent } from '../../../../shared/components/charts/line/line-chart-one/line-chart-one.component';
 import { TableComponent } from '../../../../shared/components/ui/table/table.component';
@@ -36,6 +37,7 @@ interface RangeOption {
     PageBreadcrumbComponent,
     PageHeaderComponent,
     ComponentCardComponent,
+    StatCardComponent,
     EmptyStateComponent,
     LineChartOneComponent,
     TableComponent,
@@ -73,6 +75,27 @@ export class AdminUsageComponent implements OnInit {
     { value: '30d', label: '30 days' },
     { value: '90d', label: '90 days' },
   ];
+
+  readonly icons = {
+    requests: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 16v-4m4 4V8m4 8v-6"/></svg>`,
+    error: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>`,
+    feature: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>`,
+    chartLine: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-7 w-7"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>`,
+  };
+
+  // ── Real-data KPIs (sums over the selected window; no fabrication) ──────
+  get totalRequests(): number {
+    return (this.usage?.series.total ?? []).reduce((a, b) => a + b, 0);
+  }
+  get totalErrors(): number {
+    return (this.usage?.series.errors ?? []).reduce((a, b) => a + b, 0);
+  }
+  get errorRatePct(): number {
+    return this.totalRequests ? (this.totalErrors / this.totalRequests) * 100 : 0;
+  }
+  get featuresUsed(): number {
+    return this.usage?.byFeature.length ?? 0;
+  }
 
   constructor() {
     this.pickerInput$
@@ -120,12 +143,10 @@ export class AdminUsageComponent implements OnInit {
       this.pickerResults = [];
       return;
     }
-    this.admin
-      .getSubscribers({ search: query, page: 1, pageSize: 8 })
-      .subscribe({
-        next: (res) => (this.pickerResults = res.items),
-        error: () => (this.pickerResults = []),
-      });
+    this.admin.getSubscribers({ search: query, page: 1, pageSize: 8 }).subscribe({
+      next: (res) => (this.pickerResults = res.items),
+      error: () => (this.pickerResults = []),
+    });
   }
 
   private selectUserById(userId: string): void {

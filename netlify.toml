@@ -5,9 +5,14 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# SPA fallback so deep links (/privacy-policy, /signin, /dashboard) don't 404 on refresh.
-# Kept consistent with public/_redirects.
+# SPA fallback for client-only routes (auth, dashboard, admin, the dynamic
+# /s/:slug public store, 404). Uses index.csr.html — the route-agnostic
+# client-rendering shell — NOT index.html, which is now the fully prerendered
+# "/" (landing) page. Netlify resolves an exact static file first (e.g.
+# /privacy-policy/index.html), so the prerendered marketing/legal pages are
+# served as-is and never hit this catch-all. Kept consistent with
+# public/_redirects.
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/index.csr.html"
   status = 200

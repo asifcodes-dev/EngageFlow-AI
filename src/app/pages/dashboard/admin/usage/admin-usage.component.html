@@ -1,21 +1,21 @@
-<app-page-breadcrumb pageTitle="Admin · Account Usage" />
+<app-page-breadcrumb pageTitle="Admin / Account Usage" tone="violet" />
 
 <app-page-header
   title="Account Usage"
   subtitle="Daily request/action volume for any subscriber or a single Instagram account."
 >
-  <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/[0.06]">
+  <div class="flex gap-2">
     @for (r of ranges; track r.value) {
       <button
         type="button"
         (click)="setRange(r.value)"
-        class="rounded-md px-3 py-1.5 text-sm font-medium transition"
-        [class.bg-white]="range === r.value"
-        [class.text-gray-800]="range === r.value"
-        [class.shadow-theme-xs]="range === r.value"
-        [class.dark:bg-gray-800]="range === r.value"
-        [class.dark:text-white]="range === r.value"
-        [class.text-gray-500]="range !== r.value"
+        class="rounded-[10px] border px-3.5 py-2 text-[13px] font-semibold transition"
+        [ngClass]="
+          range === r.value
+            ? 'bg-[#e8f0fb] text-[#1a5dab]'
+            : 'bg-(--au-surface) text-(--au-strong) hover:border-brand-500 hover:text-brand-500'
+        "
+        [style.border-color]="range === r.value ? '#1a5dab' : 'var(--au-line)'"
       >
         {{ r.label }}
       </button>
@@ -24,7 +24,7 @@
 </app-page-header>
 
 <!-- Pickers -->
-<div class="ef-card mb-6 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+<div class="au-card mb-6 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
   <div class="relative">
     <label
       for="admin-usage-subscriber"
@@ -84,14 +84,47 @@
 </div>
 
 @if (!selectedUser) {
-  <div class="ef-card">
+  <div class="au-panel">
     <app-empty-state
+      [icon]="icons.chartLine"
       title="Pick a subscriber"
       description="Search above to see a subscriber's daily usage time-series."
     />
   </div>
 } @else {
-  <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+  @if (usage) {
+    <div class="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <app-stat-card
+        label="Total requests"
+        [value]="(totalRequests | number) ?? '0'"
+        [highlight]="true"
+        [compact]="true"
+        tag="live"
+      />
+      <app-stat-card
+        [icon]="icons.error"
+        chipColor="red"
+        label="Errors"
+        [value]="(totalErrors | number) ?? '0'"
+        [compact]="true"
+      />
+      <app-stat-card
+        [icon]="icons.requests"
+        chipColor="amber"
+        label="Error rate"
+        [value]="(errorRatePct | number: '1.0-1') + '%'"
+        [compact]="true"
+      />
+      <app-stat-card
+        [icon]="icons.feature"
+        chipColor="purple"
+        label="Features used"
+        [value]="(featuresUsed | number) ?? '0'"
+        [compact]="true"
+      />
+    </div>
+  }
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
     <app-component-card
       title="Requests over time"
       desc="Daily, UTC — today is the last bucket (from live logs)."
@@ -134,14 +167,12 @@
                     className="px-5 py-4 font-mono text-sm text-gray-800 dark:text-white/90"
                     >{{ feature.feature }}</app-table-cell
                   >
-                  <app-table-cell
-                    className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
-                    >{{ feature.count | number }}</app-table-cell
-                  >
-                  <app-table-cell
-                    className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
-                    >{{ feature.errorCount | number }}</app-table-cell
-                  >
+                  <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                    feature.count | number
+                  }}</app-table-cell>
+                  <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
+                    feature.errorCount | number
+                  }}</app-table-cell>
                 </app-table-row>
               }
             </app-table-body>

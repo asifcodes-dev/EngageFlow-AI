@@ -12,7 +12,10 @@ import { ButtonComponent } from '../../ui/button/button.component';
   imports: [CommonModule, SafeHtmlPipe, ButtonComponent],
   template: `
     <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
-      <span class="ef-icon-box mb-4 h-14 w-14 text-brand-500" [innerHTML]="icon | safeHtml"></span>
+      <span
+        class="au-chip au-chip-blue mb-4 h-14! w-14! rounded-2xl!"
+        [innerHTML]="icon | safeHtml"
+      ></span>
       <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">{{ title }}</h3>
       @if (description) {
         <p class="mt-1 max-w-sm text-sm text-gray-500 dark:text-gray-400">{{ description }}</p>

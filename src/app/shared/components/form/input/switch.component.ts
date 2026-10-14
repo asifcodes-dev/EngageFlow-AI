@@ -7,21 +7,11 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
   template: `
     <label
       class="flex cursor-pointer select-none items-center gap-3 text-sm font-medium"
-      [ngClass]="disabled ? 'text-gray-400' : 'text-gray-700 dark:text-gray-400'"
+      [ngClass]="disabled ? 'pointer-events-none text-gray-400 opacity-60' : 'text-(--au-ink)'"
       (click)="handleToggle()"
     >
-      <div class="relative">
-        <div
-          class="block transition duration-150 ease-linear h-6 w-11 rounded-full"
-          [ngClass]="
-            disabled ? 'bg-gray-100 pointer-events-none dark:bg-gray-800' : switchColors.background
-          "
-        ></div>
-        <div
-          class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full shadow-theme-sm duration-150 ease-linear transform"
-          [ngClass]="switchColors.knob"
-        ></div>
-      </div>
+      <!-- Aurora 44×24 toggle (common au-toggle classes) -->
+      <span class="au-toggle" [ngClass]="{ 'au-toggle-on': isChecked }"></span>
       {{ label }}
     </label>
   `,

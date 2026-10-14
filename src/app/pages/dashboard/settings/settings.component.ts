@@ -5,8 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { PageHeaderComponent } from '../../../shared/components/common/page-header/page-header.component';
-import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
 import { LabelComponent } from '../../../shared/components/form/label/label.component';
 import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
 import { ConnectionStateService } from '../../../shared/services/connection-state.service';
@@ -14,12 +12,6 @@ import { InstagramService } from '../../../shared/services/instagram.service';
 import { AuthService } from '../../../shared/services/auth.service';
 
 type Tab = 'profile' | 'instagram' | 'security';
-
-interface SecurityForm {
-  current: string;
-  next: string;
-  confirm: string;
-}
 
 interface Profile {
   fullName: string;
@@ -35,8 +27,6 @@ interface Profile {
     FormsModule,
     PageBreadcrumbComponent,
     PageHeaderComponent,
-    ButtonComponent,
-    BadgeComponent,
     LabelComponent,
     InputFieldComponent,
   ],
@@ -49,11 +39,12 @@ export class SettingsComponent {
   private readonly auth = inject(AuthService);
 
   readonly connected$ = this.connection.connected$;
+  readonly username$ = this.connection.username$;
 
-  readonly tabs: { id: Tab; label: string }[] = [
-    { id: 'profile', label: 'My details' },
-    { id: 'instagram', label: 'Instagram' },
-    { id: 'security', label: 'Security' },
+  readonly tabs: { id: Tab; label: string; short: string }[] = [
+    { id: 'profile', label: 'My details', short: 'Details' },
+    { id: 'instagram', label: 'Instagram', short: 'Instagram' },
+    { id: 'security', label: 'Security', short: 'Security' },
   ];
   activeTab: Tab = 'profile';
 
@@ -63,15 +54,40 @@ export class SettingsComponent {
   profileSaving = false;
   profileSaved = false;
 
-  // ── Security form ─────────────────────────────────────────────
-  security: SecurityForm = { current: '', next: '', confirm: '' };
+  // ── Security (change-password stub + 2FA stub — backend wires later) ──
+  newPassword = '';
+  showNewPassword = false;
   securitySubmitted = false;
   securitySaved = false;
+  twoFAEnabled = false;
+
+  /** Live password-strength score (reference: 4 checks → 25% steps). */
+  get passwordStrength(): { pct: number; label: string; color: string } {
+    const p = this.newPassword;
+    if (!p)
+      return {
+        pct: 0,
+        label: 'At least 8 characters, mix cases & numbers.',
+        color: 'var(--au-track)',
+      };
+    let score = 0;
+    if (p.length >= 8) score++;
+    if (/[A-Z]/.test(p)) score++;
+    if (/[0-9]/.test(p)) score++;
+    if (/[^A-Za-z0-9]/.test(p)) score++;
+    const pct = Math.max(12, (score / 4) * 100);
+    if (score <= 1) return { pct, label: 'Weak password', color: '#9aa1ab' };
+    if (score <= 3) return { pct, label: 'Okay — add symbols to strengthen', color: '#1a5dab' };
+    return { pct, label: 'Strong password', color: '#2d7a4f' };
+  }
 
   // ── Instagram ─────────────────────────────────────────────────
   igLoading = false;
   igError = '';
+  igNote = '';
   justConnected = false;
+  igDisconnecting = false;
+  confirmDisconnect = false;
 
   constructor() {
     const tab = this.route.snapshot.queryParamMap.get('tab') as Tab | null;
@@ -150,30 +166,25 @@ export class SettingsComponent {
       });
   }
 
-  // Security validation
-  get nextError(): string {
+  // Security (stub — backend change-password endpoint wires in later)
+  get newPasswordError(): string {
     if (!this.securitySubmitted) return '';
-    return this.security.next.length >= 8 ? '' : 'Use at least 8 characters.';
-  }
-  get confirmError(): string {
-    if (!this.securitySubmitted) return '';
-    if (!this.security.confirm) return 'Please confirm your new password.';
-    return this.security.next === this.security.confirm ? '' : 'Passwords do not match.';
+    return this.newPassword.length >= 8 ? '' : 'Use at least 8 characters.';
   }
 
   saveSecurity(): void {
     this.securitySubmitted = true;
     this.securitySaved = false;
-    if (!this.security.current || this.nextError || this.confirmError) return;
-    // Backend change-password endpoint wires in later.
+    if (this.newPasswordError) return;
     this.securitySaved = true;
-    this.security = { current: '', next: '', confirm: '' };
+    this.newPassword = '';
     this.securitySubmitted = false;
   }
 
   async connectInstagram(): Promise<void> {
     this.igLoading = true;
     this.igError = '';
+    this.igNote = '';
     try {
       const { url } = await this.instagram.getConnectUrl();
       window.location.href = url;
@@ -184,5 +195,31 @@ export class SettingsComponent {
           ? 'Please sign in first, then connect your Instagram account.'
           : 'Could not start the Instagram connection. Please try again.';
     }
+  }
+
+  /** Two-step disconnect: first click asks to confirm, second click executes. */
+  disconnectInstagram(): void {
+    this.igError = '';
+    if (!this.confirmDisconnect) {
+      this.confirmDisconnect = true;
+      this.igNote =
+        'Disconnecting deletes the stored connection (including access tokens) and removes Instagram-derived data from your analytics. Click again to confirm.';
+      return;
+    }
+    this.confirmDisconnect = false;
+    this.igDisconnecting = true;
+    this.igNote = '';
+    this.instagram.disconnect().subscribe({
+      next: () => {
+        this.igDisconnecting = false;
+        this.justConnected = false;
+        this.igNote = 'Instagram disconnected — its data has been deleted.';
+        this.connection.refresh(); // server-truth: flips the feature lock
+      },
+      error: () => {
+        this.igDisconnecting = false;
+        this.igError = 'Could not disconnect right now. Please try again.';
+      },
+    });
   }
 }

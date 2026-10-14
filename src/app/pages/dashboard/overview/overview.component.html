@@ -1,10 +1,36 @@
-<app-page-breadcrumb pageTitle="Overview" />
-
 @let isConnected = (connected$ | async) ?? false;
+@let username = username$ | async;
+@let user = user$ | async;
+@let t = (summary$ | async)?.totals;
 
-<!-- Connect / trial banner -->
+<!-- Header -->
+<div
+  class="mb-5 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-end sm:justify-between"
+  style="border-color: var(--au-line)"
+>
+  <div>
+    <div class="au-eyebrow">Home / Overview</div>
+    <h1
+      class="mt-1.5 text-[22px] font-bold tracking-[-0.02em] text-gray-900 sm:text-[26px] dark:text-white"
+    >
+      Overview
+    </h1>
+  </div>
+  <div class="flex flex-wrap items-center gap-2.5">
+    <a
+      routerLink="/dashboard/insights"
+      class="inline-flex items-center gap-2 rounded-[14px] border bg-(--au-surface) px-4.5 py-2.5 text-sm font-semibold text-(--au-strong) transition hover:border-brand-500 hover:text-brand-500"
+      style="border-color: var(--au-line)"
+    >
+      View insights
+    </a>
+    <a routerLink="/dashboard/flows" class="grad-btn px-4.5 py-2.5 text-sm">Create a flow →</a>
+  </div>
+</div>
+
+<!-- Connect Instagram gate -->
 @if (!isConnected) {
-  <div class="ef-card mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+  <div class="au-card mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
     <div class="flex items-start gap-4">
       <span
         class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white"
@@ -20,7 +46,7 @@
         <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">
           Connect Instagram to go live
         </h3>
-        <p class="mt-1 max-w-xl text-sm text-gray-500 dark:text-gray-400">
+        <p class="mt-1 max-w-xl text-sm" style="color: var(--au-muted)">
           Link your Business/Creator account to unlock flows, AI replies, moderation, contacts, and
           leads. Selling digital products works without it.
         </p>
@@ -29,120 +55,145 @@
     <a
       routerLink="/dashboard/settings"
       [queryParams]="{ tab: 'instagram' }"
-      class="inline-flex shrink-0 items-center justify-center rounded-lg bg-brand-500 px-4 py-3 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600"
+      class="grad-btn shrink-0 px-4 py-3 text-sm"
     >
       Connect Instagram
     </a>
   </div>
 }
 
-<!-- Trial / plan strip (hidden for users on a paid plan) -->
-@let usage = usage$ | async;
-@if (usage && !(usage.effectiveTier && !usage.isTrialing)) {
-  <div
-    class="mb-6 flex flex-col gap-3 rounded-2xl border border-brand-100 bg-brand-50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10 sm:flex-row sm:items-center sm:justify-between"
-  >
-    <div class="flex items-center gap-3">
-      <span
-        class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-500 dark:bg-gray-900"
+<!-- Animated hero banner -->
+<div class="au-hero px-6 py-6 sm:px-7">
+  <span class="au-blob" style="width: 300px; height: 300px; top: -120px; right: -80px"></span>
+  <span class="au-blob" style="width: 240px; height: 240px; bottom: -140px; left: -60px"></span>
+  <div class="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <div
+        class="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          class="h-5 w-5"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-          />
-        </svg>
-      </span>
-      <div>
-        @if (usage.isTrialing) {
-          <p class="text-sm font-semibold text-gray-800 dark:text-white/90">Free trial active</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            {{ usage.trialDaysLeft }} day{{ usage.trialDaysLeft === 1 ? '' : 's' }} left — upgrade
-            to keep your tools after it ends.
-          </p>
+        <span class="inline-block h-px w-10 bg-white/40"></span>{{ todayLabel }}
+      </div>
+      <div class="mt-2.5 text-[24px] font-bold tracking-[-0.02em]">
+        {{ greeting }}, {{ firstName(user?.name) }}
+      </div>
+      <div class="mt-1.5 text-sm text-white/85">
+        @if (isConnected) {
+          Your automations are live and handling interactions for you.
         } @else {
-          <p class="text-sm font-semibold text-gray-800 dark:text-white/90">No active plan</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            Start your free trial or upgrade to unlock products, flows, and automation.
-          </p>
+          Connect Instagram to bring your automations live.
         }
       </div>
     </div>
-    <a
-      routerLink="/dashboard/membership"
-      class="inline-flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600"
-    >
-      {{ usage.isTrialing ? 'Upgrade plan' : 'See plans' }}
-    </a>
+    <div class="flex flex-wrap items-center gap-3.5">
+      @if (isConnected) {
+        <span
+          class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-3.5 py-[7px] text-[13px] font-semibold"
+        >
+          <span class="au-pulse-dot h-2 w-2 rounded-full bg-[#7fd1a2]"></span
+          >{{ username ? '@' + username : 'Instagram' }} · Connected
+        </span>
+      }
+      <a
+        routerLink="/dashboard/flows"
+        class="inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-2.75 text-sm font-semibold text-brand-500"
+      >
+        Create a flow →
+      </a>
+    </div>
   </div>
-}
+  <div class="relative mt-5.5 flex flex-wrap gap-8">
+    <div>
+      <div class="text-[22px] font-bold tracking-[-0.01em]">{{ (t?.dmsSent | number) ?? '0' }}</div>
+      <div class="text-[11px] uppercase tracking-[0.05em] text-white/70">DM replies</div>
+    </div>
+    <div class="border-l border-white/20 pl-8">
+      <div class="text-[22px] font-bold tracking-[-0.01em]">
+        {{ (t?.commentReplies | number) ?? '0' }}
+      </div>
+      <div class="text-[11px] uppercase tracking-[0.05em] text-white/70">Comments handled</div>
+    </div>
+    <div class="border-l border-white/20 pl-8">
+      <div class="text-[22px] font-bold tracking-[-0.01em]">
+        {{ (t?.leadsCaptured | number) ?? '0' }}
+      </div>
+      <div class="text-[11px] uppercase tracking-[0.05em] text-white/70">Leads captured</div>
+    </div>
+  </div>
+</div>
 
-<!-- KPI tiles (live from /analytics/summary; 0 until events accrue) -->
-@let t = (summary$ | async)?.totals;
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+<!-- KPI row -->
+<div class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
   <app-stat-card
     [icon]="icons.dm"
-    label="DM Replies"
+    chipColor="blue"
+    label="DM replies"
     [value]="(t?.dmsSent | number) ?? '0'"
+    hint="vs last 30 days"
     [locked]="!isConnected"
   />
   <app-stat-card
     [icon]="icons.comment"
-    label="Comments Handled"
+    chipColor="green"
+    label="Comments handled"
     [value]="(t?.commentReplies | number) ?? '0'"
+    hint="vs last 30 days"
     [locked]="!isConnected"
   />
   <app-stat-card
     [icon]="icons.contacts"
+    chipColor="purple"
     label="Contacts"
     [value]="(t?.contacts | number) ?? '0'"
+    hint="vs last 30 days"
     [locked]="!isConnected"
   />
   <app-stat-card
     [icon]="icons.leads"
-    label="Leads Captured"
+    chipColor="amber"
+    label="Leads captured"
     [value]="(t?.leadsCaptured | number) ?? '0'"
+    hint="vs last 30 days"
     [locked]="!isConnected"
   />
 </div>
 
-<!-- Tools grid -->
-<div class="mt-8">
-  <div class="mb-4 flex items-center justify-between">
-    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Your tools</h3>
-    @if (!isConnected) {
-      <span class="text-xs font-medium text-gray-400">Locked until you connect Instagram</span>
-    }
-  </div>
-
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-    @for (tool of tools; track tool.name) {
+<!-- Tools + activity -->
+<div class="mt-6 flex flex-col gap-6 xl:flex-row xl:items-start">
+  <div class="min-w-0 flex-[1.55]">
+    <div
+      class="mb-4 flex items-end justify-between border-b pb-3"
+      style="border-color: var(--au-line)"
+    >
+      <div>
+        <div class="au-eyebrow">Workspace</div>
+        <div class="mt-1 text-[19px] font-bold tracking-[-0.01em] text-gray-900 dark:text-white">
+          Your tools
+        </div>
+      </div>
       <a
-        [routerLink]="tool.path"
-        class="ef-card group flex items-start gap-4 p-5 transition hover:shadow-theme-md"
-        [class.opacity-70]="!isConnected"
+        routerLink="/dashboard/flows"
+        class="text-sm font-semibold text-brand-500 dark:text-brand-300"
+        >Manage flows →</a
       >
-        <span
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-500 dark:bg-brand-500/10"
-          [innerHTML]="tool.icon | safeHtml"
-        ></span>
-        <div class="min-w-0">
+    </div>
+    <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+      @for (tool of tools; track tool.name) {
+        <a
+          [routerLink]="tool.path"
+          class="au-panel au-panel-hover p-4.5"
+          [class.opacity-70]="!isConnected"
+        >
           <div class="flex items-center gap-2">
-            <h4 class="font-semibold text-gray-800 dark:text-white/90">{{ tool.name }}</h4>
-            @if (!isConnected) {
+            <h4 class="text-[15px] font-semibold text-gray-800 dark:text-white/90">
+              {{ tool.name }}
+            </h4>
+            @if (!isConnected && tool.path !== '/dashboard/product-catalog') {
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="1.6"
-                class="h-3.5 w-3.5 text-gray-400"
+                class="ml-auto h-3.5 w-3.5 text-gray-400"
               >
                 <path
                   stroke-linecap="round"
@@ -152,9 +203,61 @@
               </svg>
             }
           </div>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ tool.desc }}</p>
+          <p class="mt-1 text-[13px] leading-normal" style="color: var(--au-muted)">
+            {{ tool.desc }}
+          </p>
+          <div class="mt-3.5 flex items-center justify-between">
+            <span
+              class="rounded-[7px] px-2.25 py-0.75 text-[11px] font-semibold"
+              [ngClass]="
+                tool.statusTone === 'green'
+                  ? 'bg-[#e8f8ef] text-[#2d7a4f]'
+                  : 'bg-[#e8f0fb] text-[#1a5dab]'
+              "
+            >
+              {{ toolStatus(tool, t) }}
+            </span>
+            <span class="text-[13px] font-semibold text-brand-500 dark:text-brand-300">Open →</span>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+
+  <!-- Recent activity (demo feed — no activity endpoint yet) -->
+  <div class="au-panel min-w-0 flex-1">
+    <div
+      class="flex items-center justify-between border-b px-5 py-4"
+      style="border-color: var(--au-line)"
+    >
+      <span class="text-[15px] font-bold text-gray-800 dark:text-white/90">Recent activity</span>
+      <span class="au-pill au-pill-green">
+        <span class="au-pulse-dot h-1.5 w-1.5 rounded-full bg-[#2d7a4f]"></span>Live
+      </span>
+    </div>
+    <div class="px-5 pb-2.5 pt-1.5">
+      @for (row of demoActivity; track row.html) {
+        <div
+          class="flex gap-3 py-3.25"
+          [class.border-b]="!$last"
+          style="border-color: var(--au-row-line)"
+        >
+          <span class="mt-1.25 h-2 w-2 shrink-0 rounded-full" [ngClass]="dotClass(row.dot)"></span>
+          <div class="min-w-0">
+            <div
+              class="text-[13.5px] leading-[1.45] text-gray-800 dark:text-white/90"
+              [innerHTML]="row.html"
+            ></div>
+            <div class="mt-0.5 text-xs" style="color: var(--au-muted)">{{ row.meta }}</div>
+          </div>
         </div>
-      </a>
-    }
+      }
+      <div
+        class="border-t pb-2 pt-3 text-center text-[13px] font-semibold text-brand-500 dark:text-brand-300"
+        style="border-color: var(--au-line)"
+      >
+        View all activity →
+      </div>
+    </div>
   </div>
 </div>

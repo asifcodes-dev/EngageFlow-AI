@@ -1,9 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, of, tap } from 'rxjs';
-import {
-  AnalyticsService,
-  ContactEntry,
-} from '../../../shared/services/analytics.service';
+import { AnalyticsService, ContactEntry } from '../../../shared/services/analytics.service';
 
 /** A contact = a person who interacted (derived from automation events). */
 export type Contact = ContactEntry;

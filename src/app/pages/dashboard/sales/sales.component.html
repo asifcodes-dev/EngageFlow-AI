@@ -1,4 +1,4 @@
-<app-page-breadcrumb pageTitle="Sales" />
+<app-page-breadcrumb pageTitle="Sell / Sales" />
 
 @let orders = (orders$ | async) ?? [];
 @let rows = filtered(orders);
@@ -8,126 +8,304 @@
   subtitle="Every digital-product order, payment status, and delivery in one place."
 >
   <app-button variant="outline" size="sm" (btnClick)="export(rows)">Export CSV</app-button>
+  <a routerLink="/dashboard/store" class="grad-btn px-4.5 py-2.5 text-sm">View store ↗</a>
 </app-page-header>
 
-<!-- KPIs -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-  <app-stat-card [icon]="icons.cart" label="Total orders" [value]="orders.length" />
+<!-- KPIs (mobile artboard reorders Revenue next to Orders) -->
+<div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
   <app-stat-card
+    class="order-1"
+    [icon]="icons.cart"
+    chipColor="blue"
+    label="Total orders"
+    [value]="orders.length"
+    [trend]="weekDelta(orders) ? '+' + weekDelta(orders) + ' this week' : ''"
+    hint="Since store launch"
+  />
+  <app-stat-card
+    class="order-3 xl:order-2"
     [icon]="icons.clock"
+    chipColor="yellow"
     label="Pending"
     [value]="count(orders, 'pending')"
-    trendColor="warning"
+    trend="awaiting payment"
+    trendColor="info"
+    hint="Auto-expire in 24h"
   />
   <app-stat-card
+    class="order-4 xl:order-3"
     [icon]="icons.check"
+    chipColor="green"
     label="Completed"
     [value]="count(orders, 'paid')"
-    trendColor="success"
+    [trend]="completedPct(orders)"
+    hint="Delivered by email"
   />
   <app-stat-card
-    [icon]="icons.rupee"
+    class="order-2 xl:order-4"
     label="Revenue"
     [value]="revenue(orders)"
-    trend="paid only"
-    trendColor="success"
+    [highlight]="true"
+    tag="paid only"
+    hint="Before 7% platform fee"
   />
 </div>
 
-<!-- Filters -->
-<div class="ef-card mt-6 flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-  <div class="flex-1">
-    <app-input-field
+<!-- Filter toolbar -->
+<div class="au-panel mt-5 flex flex-col gap-3 p-3.5 sm:flex-row sm:items-center">
+  <div class="au-input-icon flex-1">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+    <input
       type="text"
-      name="search"
-      placeholder="Search order, customer, email…"
-      [(value)]="search"
+      class="au-input rounded-[14px]"
+      placeholder="Search order, customer, email or product…"
+      [ngModel]="search"
+      (ngModelChange)="onSearchChange($event)"
+      aria-label="Search orders"
     />
   </div>
-  <div class="w-full sm:w-48">
-    <app-select [options]="statusOptions" [(value)]="statusFilter" />
+  <div class="hidden w-48 sm:block">
+    <app-select
+      [options]="statusOptions"
+      [value]="statusFilter"
+      (valueChange)="onStatusChange($event)"
+      className="rounded-[14px]"
+    />
+  </div>
+  <span class="au-toolbar-chip hidden sm:inline-flex">Last 30 days ▾</span>
+  <span class="hidden whitespace-nowrap px-1 text-[13px] sm:block" style="color: var(--au-muted)"
+    >{{ rows.length }} results</span
+  >
+  <!-- Mobile: chip row replaces the select -->
+  <div class="flex gap-2 overflow-x-auto no-scrollbar sm:hidden">
+    @for (chip of statusChips; track chip.value) {
+      <button
+        type="button"
+        class="au-filter-chip"
+        [class.au-filter-chip-active]="statusFilter === chip.value"
+        (click)="onStatusChange(chip.value)"
+      >
+        {{ chip.label }}
+      </button>
+    }
   </div>
 </div>
 
-<div class="ef-card mt-6 overflow-hidden">
+<!-- Desktop / tablet table -->
+<div class="au-panel mt-5 hidden overflow-hidden sm:block">
   @if (rows.length === 0) {
-    <app-empty-state
-      title="No orders found"
-      description="Orders from your store appear here. Try clearing the filters."
-    />
+    <div class="px-5 py-14 text-center">
+      <div class="mx-auto grid h-12 w-12 place-items-center rounded-[14px] bg-[#e8f0fb]">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#1a5dab"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+      </div>
+      <div class="mt-3.5 text-[15px] font-bold text-gray-800 dark:text-white/90">
+        No orders match
+      </div>
+      <div class="mt-1 text-[13px]" style="color: var(--au-muted)">
+        Try a different name, order ID, or clear the status filter.
+      </div>
+    </div>
   } @else {
     <div class="custom-scrollbar overflow-x-auto">
-      <app-table>
-        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
-          <app-table-row>
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Order</app-table-cell
+      <div class="min-w-215">
+        <!-- Header row -->
+        <div
+          class="grid grid-cols-[110px_1.5fr_1.6fr_110px_120px_120px_40px] items-center gap-3 border-b px-5 py-3"
+          style="border-color: var(--au-line); background: var(--au-hover)"
+        >
+          <span
+            class="text-[11px] font-semibold uppercase tracking-[0.08em]"
+            style="color: var(--au-muted)"
+            >Order</span
+          >
+          <span
+            class="text-[11px] font-semibold uppercase tracking-[0.08em]"
+            style="color: var(--au-muted)"
+            >Customer</span
+          >
+          <span
+            class="text-[11px] font-semibold uppercase tracking-[0.08em]"
+            style="color: var(--au-muted)"
+            >Product</span
+          >
+          <span
+            class="text-[11px] font-semibold uppercase tracking-[0.08em]"
+            style="color: var(--au-muted)"
+            >Amount</span
+          >
+          <span
+            class="text-[11px] font-semibold uppercase tracking-[0.08em]"
+            style="color: var(--au-muted)"
+            >Status</span
+          >
+          <span
+            class="text-[11px] font-semibold uppercase tracking-[0.08em]"
+            style="color: var(--au-muted)"
+            >Date</span
+          >
+          <span></span>
+        </div>
+        <!-- Rows -->
+        @for (o of paged(rows); track o.id) {
+          <div
+            class="au-row-hover grid grid-cols-[110px_1.5fr_1.6fr_110px_120px_120px_40px] items-center gap-3 border-b px-5 py-3.25"
+            style="border-color: var(--au-row-line)"
+          >
+            <span class="text-[13px] font-semibold text-brand-500 dark:text-brand-300">{{
+              o.ref
+            }}</span>
+            <span class="min-w-0">
+              <span class="block text-sm font-semibold text-gray-800 dark:text-white/90">{{
+                o.customer
+              }}</span>
+              <span class="block truncate text-xs" style="color: var(--au-muted)">{{
+                o.email
+              }}</span>
+            </span>
+            <span class="truncate text-sm text-gray-800 dark:text-white/90">{{ o.product }}</span>
+            <span class="text-sm font-bold text-gray-800 dark:text-white/90">{{
+              money(o.amount, o.currency)
+            }}</span>
+            <span>
+              <app-badge [color]="statusColor(o.status)" variant="light" size="sm">{{
+                o.status | titlecase
+              }}</app-badge>
+            </span>
+            <span class="text-[13px]" style="color: var(--au-muted)">{{
+              o.createdAt | date: 'd MMM'
+            }}</span>
+            <button
+              type="button"
+              class="grid h-7 w-7 place-items-center rounded-[14px] font-bold transition hover:bg-(--au-hover)"
+              style="color: var(--au-muted)"
+              aria-label="Order actions"
             >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Customer</app-table-cell
+              ⋯
+            </button>
+          </div>
+        }
+        <!-- Pager -->
+        <div
+          class="flex items-center justify-between px-5 py-3.25"
+          style="background: var(--au-hover-row)"
+        >
+          <span class="text-[13px]" style="color: var(--au-muted)"
+            >Showing {{ paged(rows).length }} of {{ rows.length }} order{{
+              rows.length === 1 ? '' : 's'
+            }}</span
+          >
+          <div class="flex gap-1.5">
+            <button
+              type="button"
+              class="au-page-btn"
+              [disabled]="page === 1"
+              (click)="setPage(page - 1, rows)"
             >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Amount</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Status</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Delivery</app-table-cell
-            >
-            <app-table-cell
-              [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Created</app-table-cell
-            >
-          </app-table-row>
-        </app-table-header>
-        <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
-          @for (o of rows; track o.id) {
-            <app-table-row>
-              <app-table-cell className="px-5 py-4 align-top">
-                <p class="font-medium text-gray-800 dark:text-white/90">{{ o.ref }}</p>
-                <p class="text-xs text-gray-400">{{ o.product }}</p>
-              </app-table-cell>
-              <app-table-cell className="px-5 py-4 align-top">
-                <p class="text-sm text-gray-800 dark:text-white/90">{{ o.customer }}</p>
-                <p class="text-xs text-gray-400">{{ o.email }}</p>
-              </app-table-cell>
-              <app-table-cell
-                className="px-5 py-4 align-top text-sm text-gray-700 dark:text-gray-300"
-                >{{ money(o.amount, o.currency) }}</app-table-cell
+              Prev
+            </button>
+            @for (p of pages(rows); track p) {
+              <button
+                type="button"
+                class="au-page-btn"
+                [class.au-page-btn-active]="p === page"
+                (click)="setPage(p, rows)"
               >
-              <app-table-cell className="px-5 py-4 align-top">
-                <app-badge [color]="statusColor(o.status)" variant="light" size="sm">{{
-                  o.status | titlecase
-                }}</app-badge>
-              </app-table-cell>
-              <app-table-cell className="px-5 py-4 align-top">
-                <app-badge
-                  [color]="o.delivery === 'sent' ? 'success' : 'light'"
-                  variant="light"
-                  size="sm"
-                  >{{ o.delivery | titlecase }}</app-badge
-                >
-              </app-table-cell>
-              <app-table-cell
-                className="px-5 py-4 align-top text-sm text-gray-500 dark:text-gray-400"
-                >{{ o.createdAt }}</app-table-cell
-              >
-            </app-table-row>
-          }
-        </app-table-body>
-      </app-table>
+                {{ p }}
+              </button>
+            }
+            <button
+              type="button"
+              class="au-page-btn"
+              [disabled]="page === totalPages(rows)"
+              (click)="setPage(page + 1, rows)"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+  }
+</div>
+
+<!-- Mobile: stacked order cards -->
+<div class="mt-4 flex flex-col gap-3 sm:hidden">
+  @if (rows.length === 0) {
+    <div class="au-panel px-5 py-12 text-center">
+      <div class="text-[15px] font-bold text-gray-800 dark:text-white/90">No orders match</div>
+      <div class="mt-1 text-[13px]" style="color: var(--au-muted)">
+        Try a different name, order ID, or clear the status filter.
+      </div>
+    </div>
+  } @else {
+    @for (o of mobileRows(rows); track o.id) {
+      <div class="au-panel p-4">
+        <div class="flex items-center gap-3">
+          <span
+            class="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-[10px] text-xs font-bold text-[#1a5dab]"
+            style="background: linear-gradient(135deg, #e8f0fb, #d6e6fa)"
+          >
+            {{ initials(o.customer) }}
+          </span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-semibold text-gray-800 dark:text-white/90">{{
+                o.customer
+              }}</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-white/90">{{
+                money(o.amount, o.currency)
+              }}</span>
+            </div>
+            <div class="mt-0.5 truncate text-xs" style="color: var(--au-muted)">
+              {{ o.product }} · {{ o.ref }}
+            </div>
+          </div>
+        </div>
+        <div
+          class="mt-2.5 flex items-center justify-between border-t pt-2.5"
+          style="border-color: var(--au-row-line)"
+        >
+          <app-badge [color]="statusColor(o.status)" variant="light" size="sm">{{
+            o.status | titlecase
+          }}</app-badge>
+          <span class="text-[11px]" style="color: var(--au-muted)">{{
+            o.createdAt | date: 'd MMM yyyy'
+          }}</span>
+        </div>
+      </div>
+    }
+    @if (!mobileExpanded && rows.length > mobilePreview) {
+      <button
+        type="button"
+        class="py-1 text-center text-[13px] font-semibold text-brand-500 dark:text-brand-300"
+        (click)="mobileExpanded = true"
+      >
+        View all {{ rows.length }} orders →
+      </button>
+    }
   }
 </div>

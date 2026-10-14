@@ -1,48 +1,56 @@
-<section class="pb-14 sm:pb-20 lg:pb-28">
-  <div class="ef-container">
+<section id="cta" class="scroll-mt-20">
+  <div class="ef-container px-4 py-8 sm:p-12">
     <div
-      class="relative overflow-hidden rounded-3xl bg-linear-to-br from-brand-600 via-brand-500 to-theme-purple-500 px-6 py-14 text-center sm:px-12 sm:py-16 lg:py-20"
+      class="relative overflow-hidden rounded-[22px] px-6 py-12 text-center text-white sm:px-11 sm:py-13"
+      style="
+        background: linear-gradient(120deg, #2470c8, #1a5dab 45%, #0f2f5e);
+        background-size: 200% 100%;
+        animation: au-gradShift 9s ease infinite;
+      "
     >
-      <div aria-hidden="true" class="pointer-events-none absolute inset-0">
-        <div class="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div
-          class="absolute -right-16 -bottom-16 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-        ></div>
+      <span
+        aria-hidden="true"
+        class="pointer-events-none absolute -top-[140px] -left-[60px] h-[340px] w-[340px] rounded-full"
+        style="
+          background: rgba(77, 214, 232, 0.22);
+          filter: blur(80px);
+          animation: au-floatBlob 11s ease-in-out infinite;
+        "
+      ></span>
+      <span
+        aria-hidden="true"
+        class="pointer-events-none absolute -right-[40px] -bottom-[120px] h-[280px] w-[280px] rounded-full"
+        style="
+          background: rgba(142, 162, 255, 0.25);
+          filter: blur(70px);
+          animation: au-floatBlob 13s ease-in-out infinite;
+        "
+      ></span>
+
+      <h2 class="relative m-0 text-[26px] font-extrabold tracking-[-0.02em] sm:text-[32px]">
+        Grow, engage &amp; protect your Instagram — effortlessly
+      </h2>
+      <p class="relative mx-auto mt-3 max-w-[440px] text-[14.5px] text-white/85">
+        Start your free trial and automate your Instagram engagement in minutes.
+      </p>
+
+      <div class="relative mt-5.5 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
+        <a
+          routerLink="/signup"
+          class="lift rounded-xl bg-white px-6.5 py-3.25 text-[14.5px] font-bold text-[#1a5dab]"
+        >
+          Start free →
+        </a>
+        <a
+          routerLink="/pricing"
+          class="lift rounded-xl border border-white/35 px-6 py-3.25 text-[14.5px] font-semibold text-white"
+        >
+          See pricing
+        </a>
       </div>
 
-      <div class="relative mx-auto max-w-2xl">
-        <h2 class="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
-          Grow, engage &amp; protect your Instagram effortlessly
-        </h2>
-        <p class="mt-4 text-base text-white/90 sm:text-lg">
-          Sign up now and start automating your Instagram engagement in minutes.
-        </p>
-        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a routerLink="/signup" class="ef-btn ef-btn-white w-full sm:w-auto">
-            Get Started
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              class="h-4 w-4"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-              />
-            </svg>
-          </a>
-          <a
-            href="#pricing"
-            class="ef-btn w-full border border-white/30 text-white hover:bg-white/10 sm:w-auto"
-          >
-            View pricing
-          </a>
-        </div>
-        <p class="mt-4 text-sm text-white/80">Join thousands of Instagram-first businesses.</p>
+      <div class="relative mt-4 text-xs text-white/70">
+        No credit card required · Cancel anytime
       </div>
     </div>
   </div>

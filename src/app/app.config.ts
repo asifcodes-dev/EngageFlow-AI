@@ -6,6 +6,11 @@ import { routes } from './app.routes';
 import { authInterceptor } from './shared/interceptors/auth.interceptor';
 import { PreloadWhenAuthedStrategy } from './shared/strategies/preload-when-authed.strategy';
 
+// NOTE: client hydration is intentionally NOT enabled. The pages are still
+// prerendered (SEO / fast first paint), but a hydration mismatch on the
+// marketing pages was duplicating the DOM and leaving routerLinks/handlers
+// inert (clicks did nothing). Without hydration the client bootstraps and
+// renders fresh, so all navigation and interactivity work reliably.
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),

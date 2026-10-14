@@ -2,8 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
-import { ComponentCardComponent } from '../../../../shared/components/common/component-card/component-card.component';
-import { StatCardComponent } from '../../../../shared/components/common/stat-card/stat-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/common/empty-state/empty-state.component';
 import { BadgeComponent } from '../../../../shared/components/ui/badge/badge.component';
 import { TableComponent } from '../../../../shared/components/ui/table/table.component';
@@ -26,8 +24,6 @@ import { AdminPaginationComponent } from '../shared/admin-pagination.component';
     CommonModule,
     RouterModule,
     PageBreadcrumbComponent,
-    ComponentCardComponent,
-    StatCardComponent,
     EmptyStateComponent,
     BadgeComponent,
     TableComponent,
@@ -101,19 +97,71 @@ export class AdminSubscriberDetailComponent implements OnInit {
     return 'error';
   }
 
+  // ── Subscriber 360° hero helpers (derive from real data only) ──────────
+  /** Two-letter avatar initials from name, else the email. */
+  get initials(): string {
+    const d = this.detail;
+    if (!d) return '—';
+    const src = (d.name || d.email || '').trim();
+    const parts = src.split(/[\s@.]+/).filter(Boolean);
+    return (
+      ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || src[0]?.toUpperCase() || '?'
+    );
+  }
+
+  /** Server-truth account status pill (no fabricated "health score"). */
+  get statusPill(): { label: string; cls: string } {
+    const d = this.detail;
+    if (!d) return { label: '—', cls: 'border-white/30 bg-white/15 text-white' };
+    if (d.tier)
+      return { label: 'Active · paid', cls: 'border-[#7fd1a2]/50 bg-[#7fd1a2]/25 text-white' };
+    if (d.access.isTrialing)
+      return { label: 'On trial', cls: 'border-white/30 bg-[#f7c66b]/25 text-white' };
+    return { label: 'No plan', cls: 'border-white/30 bg-white/15 text-white/80' };
+  }
+
+  /** First connected Instagram handle, if any. */
+  get handle(): string | null {
+    return this.detail?.igAccounts[0]?.username ?? null;
+  }
+
+  /** MRR in paise, derived from the current paid tier (0 while on trial/none). */
+  get mrrPaise(): number {
+    switch (this.detail?.tier) {
+      case 'PRO':
+        return 149900;
+      case 'BUSINESS':
+        return 399900;
+      default:
+        return 0;
+    }
+  }
+
+  /** Whole months since signup (for the "Months active" stat). */
+  get monthsActive(): number {
+    if (!this.detail) return 0;
+    const start = new Date(this.detail.createdAt).getTime();
+    if (Number.isNaN(start)) return 0;
+    const months = (Date.now() - start) / (1000 * 60 * 60 * 24 * 30.44);
+    return Math.max(0, Math.floor(months));
+  }
+
+  /** 30-day request volume (real: AI actions used this cycle). */
+  get requests30d(): number {
+    return this.detail?.usage.ai.used ?? 0;
+  }
+
   private loadLogs(): void {
     if (!this.subscriberId) return;
-    this.admin
-      .getSubscriberLogs(this.subscriberId, this.logsPage, this.logsPageSize)
-      .subscribe({
-        next: (res) => {
-          this.logs = res.items;
-          this.logsTotal = res.total;
-        },
-        error: () => {
-          this.logs = [];
-          this.logsTotal = 0;
-        },
-      });
+    this.admin.getSubscriberLogs(this.subscriberId, this.logsPage, this.logsPageSize).subscribe({
+      next: (res) => {
+        this.logs = res.items;
+        this.logsTotal = res.total;
+      },
+      error: () => {
+        this.logs = [];
+        this.logsTotal = 0;
+      },
+    });
   }
 }

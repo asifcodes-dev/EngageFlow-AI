@@ -187,10 +187,7 @@ export class FlowsComponent implements OnInit {
         error: (err: unknown) => {
           this.saving = false;
           // Surface backend messages (e.g. plan flow-limit reached → 409).
-          this.saveError = extractHttpMessage(
-            err,
-            'Could not create the flow. Please try again.',
-          );
+          this.saveError = extractHttpMessage(err, 'Could not create the flow. Please try again.');
         },
       });
   }

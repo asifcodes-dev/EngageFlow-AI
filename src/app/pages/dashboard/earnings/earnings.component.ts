@@ -6,14 +6,6 @@ import { PageHeaderComponent } from '../../../shared/components/common/page-head
 import { StatCardComponent } from '../../../shared/components/common/stat-card/stat-card.component';
 import { EmptyStateComponent } from '../../../shared/components/common/empty-state/empty-state.component';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
-import { TableComponent } from '../../../shared/components/ui/table/table.component';
-import { TableHeaderComponent } from '../../../shared/components/ui/table/table-header.component';
-import { TableBodyComponent } from '../../../shared/components/ui/table/table-body.component';
-import { TableRowComponent } from '../../../shared/components/ui/table/table-row.component';
-import { TableCellComponent } from '../../../shared/components/ui/table/table-cell.component';
-import { LabelComponent } from '../../../shared/components/form/label/label.component';
-import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
 import { EarningsService, Payout, PayoutStatus } from './earnings.service';
 
 @Component({
@@ -26,14 +18,6 @@ import { EarningsService, Payout, PayoutStatus } from './earnings.service';
     StatCardComponent,
     EmptyStateComponent,
     ButtonComponent,
-    BadgeComponent,
-    TableComponent,
-    TableHeaderComponent,
-    TableBodyComponent,
-    TableRowComponent,
-    TableCellComponent,
-    LabelComponent,
-    InputFieldComponent,
   ],
   templateUrl: './earnings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +31,7 @@ export class EarningsComponent implements OnInit {
     this.earnings.load().subscribe({ error: () => undefined });
   }
 
-  // Shared payout (bank) account — persists to backend later.
+  // Payout (bank) account — persists to backend later (deliberate local stub).
   bankName = '';
   ifsc = '';
   accountNumber = '';
@@ -55,11 +39,10 @@ export class EarningsComponent implements OnInit {
   saved = false;
 
   readonly icons = {
-    rupee: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 4h12M6 8h12M9 4c4 0 5 8-3 8l6 8"/></svg>`,
-    fee: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 5 5 19M9 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm10 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/></svg>`,
-    wallet: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v0H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8m-4 4h.01"/></svg>`,
-    clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>`,
-    check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>`,
+    sales: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M3 3v18h18"/><path d="m7 14 3-3 3 3 5-5"/></svg>`,
+    fee: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`,
+    clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+    check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M20 6 9 17l-5-5"/></svg>`,
   };
 
   saveAccount(): void {
@@ -74,15 +57,42 @@ export class EarningsComponent implements OnInit {
     }).format(amount);
   }
 
-  statusColor(status: PayoutStatus): 'success' | 'warning' | 'info' {
+  /** Grey "−₹X" figure for the fee card. */
+  negMoney(amount: number, currency = 'INR'): string {
+    return amount > 0 ? `−${this.money(amount, currency)}` : this.money(0, currency);
+  }
+
+  /** "Next payout 7 July" — payouts run weekly on Mondays. */
+  get nextPayoutLabel(): string {
+    const d = new Date();
+    const days = (8 - d.getDay()) % 7 || 7; // next Monday
+    d.setDate(d.getDate() + days);
+    return `Next payout ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}`;
+  }
+
+  paidCount(payouts: Payout[]): number {
+    return payouts.filter((p) => p.status === 'paid').length;
+  }
+
+  /** Reference maps a scheduled payout to a blue "Upcoming" pill. */
+  statusLabel(status: PayoutStatus): string {
     switch (status) {
       case 'paid':
-        return 'success';
-      case 'pending':
-        return 'warning';
+        return 'Paid';
       case 'processing':
-        return 'info';
+        return 'Processing';
+      case 'pending':
+        return 'Upcoming';
     }
+  }
+
+  pillClass(status: PayoutStatus): string {
+    return status === 'paid' ? 'au-pill-green' : 'au-pill-blue';
+  }
+
+  /** IFSC format looks complete → show the green "Verified" chip (UI-only). */
+  get ifscLooksValid(): boolean {
+    return /^[A-Za-z]{4}0[A-Za-z0-9]{6}$/.test(this.ifsc.trim());
   }
 
   trackPayout(_index: number, payout: Payout): string {

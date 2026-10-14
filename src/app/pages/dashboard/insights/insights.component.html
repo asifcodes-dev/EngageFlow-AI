@@ -4,18 +4,19 @@
   title="Insights"
   subtitle="Proof of ROI — what your automations did across replies, leads, and products."
 >
-  <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/[0.06]">
+  <!-- Range chips (bordered, r14 — reference artboard) -->
+  <div class="flex gap-2">
     @for (r of ranges; track r.value) {
       <button
         type="button"
         (click)="setRange(r.value)"
-        class="rounded-md px-3 py-1.5 text-sm font-medium transition"
-        [class.bg-white]="range === r.value"
-        [class.text-gray-800]="range === r.value"
-        [class.shadow-theme-xs]="range === r.value"
-        [class.dark:bg-gray-800]="range === r.value"
-        [class.dark:text-white]="range === r.value"
-        [class.text-gray-500]="range !== r.value"
+        class="rounded-[14px] border px-4 py-2.25 text-[13px] font-semibold transition"
+        [ngClass]="
+          range === r.value
+            ? 'border-transparent bg-[#1a5dab] text-white'
+            : 'bg-(--au-surface) text-(--au-strong) hover:border-brand-500 hover:text-brand-500'
+        "
+        [style.border-color]="range === r.value ? 'transparent' : 'var(--au-line)'"
       >
         {{ r.label }}
       </button>
@@ -23,105 +24,129 @@
   </div>
 </app-page-header>
 
-<!-- Metric cards (only metrics we can compute today; DMs/sales/followers land with
-     their features in later phases) -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+<!-- KPI grid (6 cards, 3-col on desktop — reference artboard) -->
+<div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
   <app-stat-card
     [icon]="icons.reply"
+    chipColor="blue"
     label="Comment replies"
     [value]="(totals.commentReplies | number) ?? '0'"
+    hint="Sent by your AI in 6 languages"
   />
   <app-stat-card
     [icon]="icons.leads"
+    chipColor="amber"
     label="Leads captured"
     [value]="(totals.leadsCaptured | number) ?? '0'"
+    hint="Name + email via DM forms"
   />
   <app-stat-card
     [icon]="icons.spam"
+    chipColor="red"
     label="Spam removed"
-    [value]="(totals.spamDeleted | number) ?? '0'"
-    trendColor="warning"
+    [value]="(totals.spamDeleted + totals.abuseDeleted | number) ?? '0'"
+    hint="Hidden before followers saw them"
   />
   <app-stat-card
     [icon]="icons.flows"
+    chipColor="blue"
     label="Active flows"
     [value]="(totals.activeFlows | number) ?? '0'"
+    hint="Running 24/7"
   />
   <app-stat-card
     [icon]="icons.catalog"
+    chipColor="purple"
     label="Products in catalog"
     [value]="(totals.catalogSize | number) ?? '0'"
+    hint="Prices quoted automatically"
   />
   <app-stat-card
     [icon]="icons.actions"
+    chipColor="green"
     label="Automated actions"
     [value]="(automatedActions | number) ?? '0'"
+    hint="Replies, DMs, moderation, deliveries"
   />
 </div>
 
 <!-- Charts -->
-<div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
-  <app-component-card
-    title="Engagement over time"
-    desc="Replies and automated actions over this period."
-  >
-    <app-line-chart-one [series]="lineSeries" [categories]="categories" />
-  </app-component-card>
-  <app-component-card title="Activity by day" desc="Automated actions per bucket this period.">
-    <app-bar-chart-one [series]="barSeries" [categories]="categories" />
-  </app-component-card>
+<div class="mt-5 flex flex-col gap-5 xl:flex-row xl:items-stretch">
+  <div class="au-panel min-w-0 flex-[1.55] p-5 sm:p-5.5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <div class="text-base font-bold text-gray-800 dark:text-white/90">Engagement over time</div>
+        <div class="mt-0.5 text-[13px]" style="color: var(--au-muted)">
+          Replies and automated actions this period.
+        </div>
+      </div>
+      <div class="flex gap-3.5">
+        <span class="inline-flex items-center gap-1.5 text-xs text-(--au-strong)">
+          <span class="h-0.75 w-2.5 rounded-full bg-[#1a5dab]"></span>Replies
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-xs text-(--au-strong)">
+          <span class="h-0.75 w-2.5 rounded-full bg-[#a9c6e8]"></span>Actions
+        </span>
+      </div>
+    </div>
+    <div class="mt-3">
+      <app-line-chart-one [series]="lineSeries" [categories]="categories" />
+    </div>
+  </div>
+  <div class="au-panel flex min-w-0 flex-1 flex-col p-5 sm:p-5.5">
+    <div class="text-base font-bold text-gray-800 dark:text-white/90">Activity by day</div>
+    <div class="mt-0.5 text-[13px]" style="color: var(--au-muted)">
+      Automated actions per bucket this period.
+    </div>
+    <div class="mt-3 flex-1">
+      <app-bar-chart-one [series]="barSeries" [categories]="categories" />
+    </div>
+  </div>
 </div>
 
 <!-- Top products -->
-<div class="mt-6">
-  <app-component-card
-    title="Top products"
-    desc="Which products your audience asked about most this period."
-  >
-    @if (topProducts.length === 0) {
-      <app-empty-state
-        title="No product interest yet"
-        description="Once customers ask about your products, the most-mentioned ones show up here."
-      />
-    } @else {
-      <div class="custom-scrollbar overflow-x-auto">
-        <app-table>
-          <app-table-header className="border-b border-gray-100 dark:border-gray-800">
-            <app-table-row>
-              <app-table-cell
-                [isHeader]="true"
-                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                >Product</app-table-cell
-              >
-              <app-table-cell
-                [isHeader]="true"
-                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                >Leads</app-table-cell
-              >
-              <app-table-cell
-                [isHeader]="true"
-                className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                >Replies</app-table-cell
-              >
-            </app-table-row>
-          </app-table-header>
-          <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
-            @for (p of topProducts; track p.productName) {
-              <app-table-row>
-                <app-table-cell className="px-5 py-4 font-medium text-gray-800 dark:text-white/90">{{
-                  p.productName
-                }}</app-table-cell>
-                <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
-                  p.leads | number
-                }}</app-table-cell>
-                <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
-                  p.replies | number
-                }}</app-table-cell>
-              </app-table-row>
-            }
-          </app-table-body>
-        </app-table>
+<div class="au-panel mt-5 p-5 sm:p-5.5">
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <div class="text-base font-bold text-gray-800 dark:text-white/90">Top products</div>
+      <div class="mt-0.5 text-[13px]" style="color: var(--au-muted)">
+        Which products your audience asked about most this period.
       </div>
-    }
-  </app-component-card>
+    </div>
+    <a
+      routerLink="/dashboard/product-catalog"
+      class="whitespace-nowrap text-[13px] font-semibold text-brand-500 dark:text-brand-300"
+      >Open catalog →</a
+    >
+  </div>
+  @if (topProducts.length === 0) {
+    <app-empty-state
+      title="No product interest yet"
+      description="Once customers ask about your products, the most-mentioned ones show up here."
+    />
+  } @else {
+    <div class="mt-4.5 flex flex-col gap-3.5">
+      @for (p of topProducts; track p.productName) {
+        <div class="flex items-center gap-4">
+          <span class="w-6.5 text-base font-bold" [style.color]="'rgba(26, 93, 171, 0.28)'">{{
+            ($index + 1 < 10 ? '0' : '') + ($index + 1)
+          }}</span>
+          <span
+            class="w-40 truncate text-sm font-semibold text-gray-800 sm:w-57.5 dark:text-white/90"
+            >{{ p.productName }}</span
+          >
+          <div class="h-2 flex-1 overflow-hidden rounded-full" style="background: var(--au-track)">
+            <div
+              class="h-2 rounded-full"
+              [style.width.%]="barWidth(p)"
+              [style.background]="rankFill($index)"
+            ></div>
+          </div>
+          <span class="w-17.5 text-right text-[13px] font-bold text-gray-800 dark:text-white/90"
+            >{{ asks(p) }} asks</span
+          >
+        </div>
+      }
+    </div>
+  }
 </div>

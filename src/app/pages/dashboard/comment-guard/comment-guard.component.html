@@ -34,8 +34,7 @@
       [icon]="statIcons.auto"
       label="Auto-actions"
       [value]="
-        (((t?.spamDeleted ?? 0) + (t?.abuseDeleted ?? 0) + (t?.commentReplies ?? 0)) | number) ??
-          '0'
+        ((t?.spamDeleted ?? 0) + (t?.abuseDeleted ?? 0) + (t?.commentReplies ?? 0) | number) ?? '0'
       "
       trendColor="info"
     />

@@ -32,4 +32,12 @@ export class InstagramService {
   getStatus(): Observable<InstagramStatus> {
     return this.http.get<InstagramStatus>(`${environment.apiUrl}/instagram/status`);
   }
+
+  /**
+   * Disconnect the signed-in user's Instagram account(s). The backend deletes
+   * the stored tokens and purges Instagram-derived data from analytics.
+   */
+  disconnect(): Observable<{ disconnected: number }> {
+    return this.http.delete<{ disconnected: number }>(`${environment.apiUrl}/instagram/accounts`);
+  }
 }

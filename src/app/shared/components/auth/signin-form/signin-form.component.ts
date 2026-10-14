@@ -4,7 +4,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
-import { ButtonComponent } from '../../ui/button/button.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
 import { AuthService } from '../../../services/auth.service';
 import { GoogleIdentityService } from '../../../services/google-identity.service';
@@ -12,14 +11,7 @@ import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-signin-form',
-  imports: [
-    LabelComponent,
-    CheckboxComponent,
-    ButtonComponent,
-    InputFieldComponent,
-    RouterModule,
-    FormsModule,
-  ],
+  imports: [LabelComponent, CheckboxComponent, InputFieldComponent, RouterModule, FormsModule],
   templateUrl: './signin-form.component.html',
   styles: ``,
 })

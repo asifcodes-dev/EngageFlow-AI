@@ -6,62 +6,35 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   imports: [CommonModule],
   template: `
     <label
-      class="flex items-center space-x-3 group cursor-pointer"
+      class="group flex cursor-pointer items-center gap-3"
       [ngClass]="{ 'cursor-not-allowed opacity-60': disabled }"
     >
-      <div class="relative w-5 h-5">
-        <input
-          [id]="id"
-          type="checkbox"
-          class="w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-brand-500 disabled:opacity-60"
-          [ngClass]="className"
-          [checked]="checked"
-          (change)="onChange($event)"
-          [disabled]="disabled"
-        />
-        @if (checked) {
-          <ng-container>
-            <svg
-              class="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2"
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-            >
-              <path
-                d="M11.6666 3.5L5.24992 9.91667L2.33325 7"
-                stroke="white"
-                stroke-width="1.94437"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </ng-container>
-        }
-        @if (disabled) {
-          <ng-container>
-            <svg
-              class="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2"
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-            >
-              <path
-                d="M11.6666 3.5L5.24992 9.91667L2.33325 7"
-                stroke="#E4E7EC"
-                stroke-width="2.33333"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </ng-container>
-        }
-      </div>
+      <input
+        [id]="id"
+        type="checkbox"
+        class="sr-only"
+        [checked]="checked"
+        (change)="onChange($event)"
+        [disabled]="disabled"
+      />
+      <!-- Aurora 18px checkbox (common au-checkbox classes) -->
+      <span class="au-checkbox" [ngClass]="[checked ? 'au-checkbox-on' : '', className]">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#fff"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </span>
       @if (label) {
-        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
+        <span class="text-sm font-medium text-(--au-ink)">
           {{ label }}
         </span>
       }

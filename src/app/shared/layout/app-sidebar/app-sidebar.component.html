@@ -1,130 +1,80 @@
+<!-- Aurora rail: fixed under the 56px top bar. Desktop (xl+) always visible;
+     below xl it slides in as the hamburger drawer (translate). -->
 <aside
-  class="fixed flex flex-col top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200"
-  [ngClass]="{
-    'w-[290px]': (isExpanded$ | async) || (isMobileOpen$ | async) || (isHovered$ | async),
-    'w-[90px]': !((isExpanded$ | async) || (isMobileOpen$ | async) || (isHovered$ | async)),
-    'translate-x-0': isMobileOpen$ | async,
-    '-translate-x-full': !(isMobileOpen$ | async),
-    'xl:translate-x-0': true,
-  }"
-  (mouseenter)="onSidebarMouseEnter()"
-  (mouseleave)="sidebarService.setHovered(false)"
+  class="fixed left-0 top-14 bottom-0 z-40 flex w-56 flex-col overflow-y-auto no-scrollbar border-r px-3.5 pt-4 pb-4.5 transition-transform duration-300 ease-in-out -translate-x-full xl:translate-x-0"
+  style="background: var(--au-surface); border-color: var(--au-line)"
+  [class.!translate-x-0]="isMobileOpen$ | async"
 >
-  <div
-    class="py-8 flex"
-    [ngClass]="{
-      'xl:justify-center': !((isExpanded$ | async) || (isHovered$ | async)),
-      'justify-start': (isExpanded$ | async) || (isHovered$ | async),
-    }"
-  >
-    <a
-      routerLink="/dashboard"
-      class="flex items-center gap-2.5"
-      aria-label="EngageFlow AI home"
-    >
-      <span
-        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
-      >
-        <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
-          <path
-            fill-rule="evenodd"
-            d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.521 1.978.292 3.348 2.024 3.348 3.97v6.019c0 1.946-1.37 3.678-3.348 3.97a48.9 48.9 0 0 1-3.476.384.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.678 3.348-3.97Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </span>
-      @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {
-        <span class="whitespace-nowrap text-lg font-bold text-gray-900 dark:text-white">
-          EngageFlow <span class="text-brand-500">AI</span>
-        </span>
-      }
-    </a>
-  </div>
+  @let connected = (connected$ | async) ?? false;
+  @let isAdmin = (isAdmin$ | async) ?? false;
 
-  <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-    @let open = (isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async);
-    @let connected = (connected$ | async) ?? false;
-    @let isAdmin = (isAdmin$ | async) ?? false;
-
-    <nav class="mb-6">
-      <div class="flex flex-col gap-4">
-        @for (group of groups; track group.label) {
-          @if (!group.adminOnly || isAdmin) {
-          <div>
-            <h2
-              class="mb-3 text-xs uppercase flex leading-[20px] text-gray-400"
-              [ngClass]="{ 'xl:justify-center': !open, 'justify-start': open }"
-            >
-              @if (open) {
-                {{ group.label }}
-              } @else {
-                <svg
-                  width="1em"
-                  height="1em"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="size-6"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              }
-            </h2>
-
-            <ul class="flex flex-col gap-1">
-              @for (item of group.items; track item.path) {
-                @let locked = !!item.locked && !connected;
-                <li>
-                  <a
-                    [routerLink]="item.path"
-                    (click)="onLinkClick()"
-                    class="menu-item group"
-                    [ngClass]="{
-                      'menu-item-active': isActive(item.path),
-                      'menu-item-inactive': !isActive(item.path),
-                      'opacity-60': locked,
-                    }"
-                  >
-                    <span
-                      class="menu-item-icon-size"
-                      [ngClass]="{
-                        'menu-item-icon-active': isActive(item.path),
-                        'menu-item-icon-inactive': !isActive(item.path),
-                      }"
-                      [innerHTML]="item.icon | safeHtml"
-                    ></span>
-                    @if (open) {
-                      <span class="menu-item-text">{{ item.name }}</span>
-                      @if (locked) {
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.6"
-                          class="ml-auto h-3.5 w-3.5 text-gray-400"
-                          aria-hidden="true"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M16.5 10.5V7.5a4.5 4.5 0 1 0-9 0v3m-1 0h11a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19.5v-6A1.5 1.5 0 0 1 6.5 12Z"
-                          />
-                        </svg>
-                      }
-                    }
-                  </a>
-                </li>
-              }
-            </ul>
+  <nav class="flex flex-1 flex-col gap-0.5">
+    @for (group of groups; track group.label) {
+      @if (!group.adminOnly || isAdmin) {
+        <div [class.au-eyebrow-violet]="group.adminOnly" [class.au-nav-group]="!group.adminOnly">
+          <div class="px-3 pb-1.5" [class.pt-0.5]="$first" [class.pt-3.5]="!$first">
+            {{ group.label }}
           </div>
-          }
+        </div>
+        @for (item of group.items; track item.path) {
+          @let locked = !!item.locked && !connected;
+          <a
+            [routerLink]="item.path"
+            (click)="onLinkClick()"
+            class="au-nav-item justify-between"
+            [class.au-nav-item-active]="isActive(item.path)"
+            [class.opacity-60]="locked"
+          >
+            <span>{{ item.name }}</span>
+            <!-- Right slot: lock (gated + disconnected) > Trial pill > count badge -->
+            @if (locked) {
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                class="h-3.5 w-3.5 text-gray-400"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M16.5 10.5V7.5a4.5 4.5 0 1 0-9 0v3m-1 0h11a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19.5v-6A1.5 1.5 0 0 1 6.5 12Z"
+                />
+              </svg>
+            } @else if (trial && item.path === '/dashboard/membership') {
+              <span
+                class="rounded-[7px] bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em] text-brand-500 dark:bg-brand-500/15 dark:text-brand-300"
+              >
+                Trial
+              </span>
+            } @else if (counts[item.path]) {
+              <span class="text-[11px] font-semibold text-(--au-muted)">
+                {{ counts[item.path] }}
+              </span>
+            }
+          </a>
         }
+      }
+    }
+  </nav>
+
+  <!-- Trial upsell card (only while trialing) -->
+  @if (trial) {
+    <div class="mt-5 rounded-[14px] bg-brand-50 p-3.5 dark:bg-brand-500/10">
+      <div class="text-[13px] font-bold text-brand-500 dark:text-brand-300">
+        Pro trial — {{ trial.daysLeft }} {{ trial.daysLeft === 1 ? 'day' : 'days' }} left
       </div>
-    </nav>
-  </div>
+      <div class="mt-1 text-xs leading-[1.45] text-[#2d4f7a] dark:text-gray-400">
+        Keep your automations running after {{ trial.endsAt | date: 'd MMMM' }}.
+      </div>
+      <a
+        routerLink="/dashboard/membership"
+        (click)="onLinkClick()"
+        class="mt-2 inline-block text-[13px] font-semibold text-brand-500 dark:text-brand-300"
+      >
+        Upgrade →
+      </a>
+    </div>
+  }
 </aside>

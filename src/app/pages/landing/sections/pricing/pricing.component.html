@@ -1,98 +1,238 @@
-<section id="pricing" class="ef-section scroll-mt-20 bg-gray-50 dark:bg-white/[0.02]">
+<section
+  id="pricing"
+  class="ef-section scroll-mt-20 border-t border-gray-200 bg-[#fafbfd] dark:border-gray-800 dark:bg-white/[0.02]"
+>
   <div class="ef-container">
     <div class="ef-section-head">
       <span class="ef-eyebrow">Pricing</span>
       <h2 class="ef-heading">Simple, transparent pricing</h2>
-      <p class="ef-subheading">Plans that scale with you. Cancel anytime.</p>
+      <p class="ef-subheading">Pick the plan that fits your growth. Cancel anytime.</p>
     </div>
 
-    @if (notice) {
-      <div
-        class="mx-auto mt-6 max-w-md rounded-lg p-3 text-center text-sm"
-        [ngClass]="
-          noticeType === 'success'
-            ? 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400'
-            : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400'
-        "
-        role="status"
-      >
-        {{ notice }}
-      </div>
-    }
-
     <div
-      class="mt-10 grid grid-cols-1 gap-5 sm:mt-14 sm:max-w-md sm:mx-auto lg:max-w-3xl lg:grid-cols-2 lg:gap-6 lg:items-start"
+      class="mt-8.5 flex flex-col items-center justify-center gap-5 text-left sm:flex-row sm:items-stretch"
     >
-      @for (tier of tiers; track tier.id) {
+      @for (plan of plans; track plan.name) {
         <div
-          class="relative flex h-full flex-col rounded-2xl bg-white p-6 lg:p-8 dark:bg-gray-800"
-          [ngClass]="
-            tier.featured
-              ? 'border border-brand-500 ring-1 ring-brand-500 shadow-theme-lg lg:-mt-4 lg:mb-4'
-              : 'border border-gray-200 dark:border-gray-800'
-          "
+          appReveal
+          [style.--i]="$index"
+          class="lift relative flex w-full max-w-[380px] flex-col rounded-[18px] bg-white p-7 sm:w-[380px] dark:bg-gray-800"
+          [class.border-2]="plan.recommended"
+          [class.border-[#1a5dab]]="plan.recommended"
+          [class.shadow-[0_16px_40px_-20px_rgba(26,93,171,.4)]]="plan.recommended"
+          [class.border]="!plan.recommended"
+          [class.border-[#e3e6eb]]="!plan.recommended"
+          [class.shadow-[0_8px_22px_-14px_rgba(20,40,80,.3)]]="!plan.recommended"
+          [class.dark:border-gray-700]="!plan.recommended"
         >
-          @if (tier.featured) {
+          @if (plan.recommended) {
             <span
-              class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-3 py-1 text-xs font-semibold whitespace-nowrap text-white"
+              class="absolute -top-[11px] left-6 rounded-full px-3 py-1 text-[10px] font-bold tracking-[.06em] text-white uppercase"
+              style="background: linear-gradient(120deg, #2470c8, #16467f)"
+              >Most popular</span
             >
-              Most Popular
-            </span>
           }
 
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ tier.name }}
-          </h3>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {{ tier.description }}
+          <!-- tier badge -->
+          <span
+            class="w-fit rounded-md px-2.5 py-1 text-[11px] font-bold tracking-[0.04em] uppercase"
+            [ngClass]="
+              plan.badge === 'violet'
+                ? 'bg-[#ede9fb] text-[#5b4a9e] dark:bg-[#5b4a9e]/25 dark:text-[#c4b5fd]'
+                : 'bg-[#e8f0fb] text-[#1a5dab] dark:bg-brand-500/20 dark:text-brand-300'
+            "
+            >{{ plan.name }}</span
+          >
+
+          <!-- price -->
+          <div class="mt-3.5 flex items-baseline gap-[5px]">
+            <span
+              class="text-[36px] font-extrabold tracking-[-0.02em]"
+              [ngClass]="
+                plan.recommended
+                  ? 'text-[#1a5dab] dark:text-brand-400'
+                  : 'text-gray-900 dark:text-white'
+              "
+              >₹{{ plan.price | number }}</span
+            >
+            <span class="text-[13px] text-gray-500 dark:text-gray-400">/month</span>
+          </div>
+          <p class="mt-1.5 text-[13px] leading-snug text-gray-500 dark:text-gray-400">
+            {{ plan.tagline }}
           </p>
 
-          <div class="mt-5">
-            <span class="text-4xl font-bold text-gray-900 dark:text-white">
-              {{ tier.price }}
+          <!-- accounts included -->
+          <div
+            class="mt-4 flex items-center gap-3 rounded-xl border border-[#eef1f6] bg-[#fafbfd] p-3 dark:border-gray-700 dark:bg-white/[0.03]"
+          >
+            <span
+              class="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-[#e8f0fb] dark:bg-brand-500/15"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#1a5dab"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z" />
+              </svg>
             </span>
-            <span class="text-sm text-gray-500 dark:text-gray-400">
-              {{ tier.period }}
-            </span>
+            <div>
+              <div class="text-[13px] font-bold text-gray-900 dark:text-white">Social accounts</div>
+              <div class="text-[12px] text-gray-500 dark:text-gray-400">{{ plan.accounts }}</div>
+            </div>
           </div>
 
-          <button
-            type="button"
-            (click)="onCta(tier)"
-            [disabled]="processingTierId === tier.id"
-            class="mt-6 block w-full rounded-lg px-5 py-3 text-center text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-70"
-            [ngClass]="tier.featured ? 'ef-btn-primary' : 'ef-btn-outline'"
-          >
-            {{ processingTierId === tier.id ? 'Processing…' : tier.cta }}
-          </button>
-
-          <ul class="mt-8 space-y-3">
-            @for (feature of tier.features; track feature) {
-              <li class="flex items-start gap-3">
+          <!-- extra account add-on (Pro only) -->
+          @if (plan.extraAccount) {
+            <div
+              class="mt-2.5 flex items-center gap-3 rounded-xl border border-[#bfe6cf] bg-[#f0faf4] p-3 dark:border-[#2d7a4f]/40 dark:bg-[#2d7a4f]/10"
+            >
+              <span
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-white dark:bg-white/10"
+              >
                 <svg
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="mt-0.5 h-5 w-5 shrink-0 text-brand-500"
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#2d7a4f"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                   aria-hidden="true"
                 >
-                  <path
-                    fill-rule="evenodd"
-                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
-                    clip-rule="evenodd"
-                  />
+                  <path d="M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1" />
+                  <circle cx="9.5" cy="8" r="3.5" />
+                  <path d="M17 11h5m-2.5-2.5v5" />
                 </svg>
-                <span class="text-sm leading-normal text-gray-600 dark:text-gray-300">
-                  {{ feature }}
-                </span>
-              </li>
+              </span>
+              <div>
+                <div class="text-[13px] font-bold text-gray-900 dark:text-white">Extra account</div>
+                <div class="text-[12px] text-[#2d7a4f] dark:text-[#7fd1a2]">
+                  {{ plan.extraAccount }}
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- what's included -->
+          <div class="mt-5 text-[11px] font-bold tracking-[0.06em] text-gray-400 uppercase">
+            What's included
+          </div>
+          <div class="mt-2.5 flex flex-col gap-2.5">
+            @for (f of plan.features; track f.label) {
+              <div
+                class="flex items-center gap-2.5 text-sm"
+                [class.text-gray-700]="f.ok"
+                [class.dark:text-gray-200]="f.ok"
+                [class.text-gray-400]="!f.ok"
+              >
+                @if (f.ok) {
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#2d7a4f"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                } @else {
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#c7ccd4"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                }
+                {{ f.label }}
+              </div>
             }
-          </ul>
+          </div>
+
+          <!-- flagship / premium features -->
+          <div class="mt-3 flex flex-col gap-2">
+            @for (p of plan.premium; track p.label) {
+              @if (p.ok) {
+                <div
+                  class="flex items-center gap-2.5 rounded-lg bg-[#eef2fb] px-3 py-2.5 text-sm font-semibold text-gray-800 dark:bg-brand-500/10 dark:text-white/90"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#1a5dab"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                  {{ p.label }}
+                </div>
+              } @else {
+                <div class="flex items-center gap-2.5 px-3 py-1 text-sm text-gray-400">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#c7ccd4"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                  {{ p.label }}
+                </div>
+              }
+            }
+          </div>
+
+          <a
+            routerLink="/signup"
+            class="mt-6 flex w-full items-center justify-center rounded-xl p-[13px] text-[15px] font-semibold"
+            [class.grad-btn]="plan.recommended"
+            [class.lift]="!plan.recommended"
+            [class.border]="!plan.recommended"
+            [class.border-[#e3e6eb]]="!plan.recommended"
+            [class.text-[#374151]]="!plan.recommended"
+            [class.dark:border-gray-700]="!plan.recommended"
+            [class.dark:text-gray-200]="!plan.recommended"
+            >{{ plan.cta }}</a
+          >
         </div>
       }
     </div>
 
-    <p class="mt-8 text-center text-xs text-gray-500 sm:text-sm dark:text-gray-400">
-      Prices in INR, GST applicable. Every plan includes the core AI reply engine.
+    <p class="mt-5 text-center text-xs text-gray-500 dark:text-gray-400">
+      Secure payments via Razorpay · GST invoices · Cancel anytime
     </p>
   </div>
 </section>

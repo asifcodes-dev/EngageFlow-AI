@@ -5,8 +5,31 @@
     <title>EngageFlow AI</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="alternate icon" type="image/x-icon" href="favicon.ico" />
+    <!-- Marks JS as active before first paint so scroll-reveal hidden states
+         (.js .reveal) apply without a flash. Absent for crawlers / no-JS, which
+         then see all content immediately (nothing is hidden without this class). -->
+    <script>
+      document.documentElement.classList.add('js');
+    </script>
+    <!-- Favicon & app icons (Engageflow Favicon package — white mark on theme-blue chip).
+         ?v= is a cache-buster: Chrome caches favicons separately and won't refetch on a
+         plain reload. Bump ?v=6 whenever any of these icon files are replaced. -->
+    <link rel="icon" href="favicon.ico?v=6" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=6" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=6" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=6" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#1a5dab" />
+    <!-- Social / Open Graph -->
+    <meta property="og:title" content="EngageFlow AI" />
+    <meta
+      property="og:description"
+      content="AI-powered Instagram comment & DM automation for growing businesses."
+    />
+    <meta property="og:image" content="og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <app-root></app-root>

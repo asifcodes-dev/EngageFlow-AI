@@ -1,5 +1,14 @@
-# Netlify SPA fallback — let the Angular router handle all client-side routes.
-# Without this, refreshing or directly opening a deep link (e.g. /privacy-policy,
-# /signin, /dashboard) returns a 404 because no such file exists on the server.
+# Netlify SPA fallback — let the Angular router handle all client-side routes
+# (auth, dashboard, admin, the dynamic /s/:slug public store, 404).
+#
+# index.csr.html is the route-agnostic client-rendering shell Angular's build
+# generates alongside the prerendered pages — use it here, NOT index.html.
+# index.html is the fully prerendered "/" (landing) page; if it were used as
+# the catch-all fallback, deep-linking straight to e.g. /dashboard would
+# briefly hydrate against the wrong (landing) DOM before the router corrects
+# it. Netlify resolves an exact static file first (e.g. /privacy-policy/
+# index.html) before falling through to this catch-all, so the prerendered
+# marketing/legal pages are unaffected.
+#
 # Kept consistent with the [[redirects]] rule in netlify.toml.
-/*    /index.html   200
+/*    /index.csr.html   200

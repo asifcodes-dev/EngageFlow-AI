@@ -2,31 +2,43 @@
   <app-landing-header />
 
   <main>
-    <!-- Title hero -->
-    <section class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.02]">
-      <div class="ef-container-sm py-14 sm:py-20">
-        <p class="ef-eyebrow">{{ eyebrow() }}</p>
+    <!-- Title hero (light aurora band with dark text — marketing reference) -->
+    <section class="ef-legal-hero relative overflow-hidden">
+      <span
+        aria-hidden="true"
+        class="au-blob"
+        style="
+          width: 320px;
+          height: 320px;
+          background: rgba(26, 93, 171, 0.1);
+          top: -160px;
+          right: -60px;
+          filter: blur(70px);
+        "
+      ></span>
+      <div class="relative mx-auto w-full max-w-180 px-4 py-16 sm:px-6 sm:py-20">
+        <p class="text-xs font-bold tracking-[0.14em] text-brand-500 uppercase">{{ eyebrow() }}</p>
         <h1
-          class="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
+          class="mt-2 text-3xl font-extrabold tracking-[-0.02em] text-gray-900 sm:text-4xl dark:text-white"
         >
           {{ title() }}
         </h1>
         @if (intro()) {
-          <p class="mt-4 text-base leading-7 text-gray-600 sm:text-lg dark:text-gray-300">
+          <p class="mt-3 text-[14.5px] leading-relaxed text-[#4b5563] dark:text-gray-300">
             {{ intro() }}
           </p>
         }
         @if (lastUpdated()) {
-          <p class="mt-5 text-sm text-gray-500 dark:text-gray-400">
+          <p class="mt-3 text-xs text-[#8894a8]">
             Last updated:
-            <span class="font-medium text-gray-700 dark:text-gray-300">{{ lastUpdated() }}</span>
+            <span class="font-medium text-[#374151] dark:text-gray-300">{{ lastUpdated() }}</span>
           </p>
         }
       </div>
     </section>
 
-    <!-- Projected content -->
-    <article class="ef-container-sm py-12 sm:py-16">
+    <!-- Projected content (720px reading column) -->
+    <article class="mx-auto w-full max-w-180 px-4 py-12 sm:px-6 sm:py-16">
       <div class="ef-prose">
         <ng-content />
       </div>

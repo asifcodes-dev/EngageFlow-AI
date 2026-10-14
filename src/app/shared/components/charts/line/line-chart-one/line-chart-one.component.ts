@@ -14,6 +14,11 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 
+/**
+ * Aurora "Engagement over time" area chart (Insights reference): primary series
+ * drawn as a #1a5dab line over a soft 8% blue area; secondary series a light
+ * #a9c6e8 line. No gridlines or y-axis — only muted x labels, per the artboard.
+ */
 @Component({
   selector: 'app-line-chart-one',
   imports: [NgApexchartsModule],
@@ -24,11 +29,11 @@ export class LineChartOneComponent {
   // Defaults keep the standalone demo working; callers (Insights) pass real data.
   @Input() series: ApexAxisChartSeries = [
     {
-      name: 'Sales',
+      name: 'Replies',
       data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
     },
     {
-      name: 'Revenue',
+      name: 'Actions',
       data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
     },
   ];
@@ -41,60 +46,42 @@ export class LineChartOneComponent {
   }
 
   public chart: ApexChart = {
-    fontFamily: 'Outfit, sans-serif',
-    height: 310,
+    fontFamily: 'DM Sans, sans-serif',
+    height: 220,
     type: 'area',
-    toolbar: {
-      show: false,
-    },
+    toolbar: { show: false },
+    sparkline: { enabled: false },
   };
 
-  public colors: string[] = ['#465FFF', '#9CB9FF'];
+  public colors: string[] = ['#1a5dab', '#a9c6e8'];
 
   public stroke: ApexStroke = {
     curve: 'straight',
-    width: [2, 2],
+    width: [1.6, 1.2],
   };
 
   public fill: ApexFill = {
-    type: 'gradient',
-    gradient: {
-      opacityFrom: 0.55,
-      opacityTo: 0,
-    },
+    type: ['solid', 'solid'],
+    opacity: [0.08, 0],
   };
 
   public markers: ApexMarkers = {
     size: 0,
     strokeColors: '#fff',
     strokeWidth: 2,
-    hover: {
-      size: 6,
-    },
+    hover: { size: 5 },
   };
 
   public grid: ApexGrid = {
-    xaxis: {
-      lines: {
-        show: false,
-      },
-    },
-    yaxis: {
-      lines: {
-        show: true,
-      },
-    },
+    show: false,
+    padding: { left: 4, right: 4 },
   };
 
-  public dataLabels: ApexDataLabels = {
-    enabled: false,
-  };
+  public dataLabels: ApexDataLabels = { enabled: false };
 
   public tooltip: ApexTooltip = {
     enabled: true,
-    x: {
-      format: 'dd MMM yyyy',
-    },
+    x: { format: 'dd MMM yyyy' },
   };
 
   public xaxis: ApexXAxis = {
@@ -113,35 +100,22 @@ export class LineChartOneComponent {
       'Nov',
       'Dec',
     ],
-    axisBorder: {
-      show: false,
+    axisBorder: { show: false },
+    axisTicks: { show: false },
+    tooltip: { enabled: false },
+    labels: {
+      style: { fontSize: '11px', colors: '#8894a8' },
+      rotate: 0,
+      hideOverlappingLabels: true,
     },
-    axisTicks: {
-      show: false,
-    },
-    tooltip: {
-      enabled: false,
-    },
+    tickAmount: 5,
   };
 
   public yaxis: ApexYAxis = {
-    labels: {
-      style: {
-        fontSize: '12px',
-        colors: ['#6B7280'],
-      },
-    },
-    title: {
-      text: '',
-      style: {
-        fontSize: '0px',
-      },
-    },
+    show: false,
   };
 
   public legend: ApexLegend = {
     show: false,
-    position: 'top',
-    horizontalAlign: 'left',
   };
 }

@@ -63,10 +63,7 @@ export class GoogleIdentityService {
         },
       });
       id.prompt((notification) => {
-        if (
-          notification.isNotDisplayed?.() ||
-          notification.isSkippedMoment?.()
-        ) {
+        if (notification.isNotDisplayed?.() || notification.isSkippedMoment?.()) {
           reject(new Error('Google sign-in was dismissed.'));
         }
       });

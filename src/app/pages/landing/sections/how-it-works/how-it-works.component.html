@@ -1,60 +1,174 @@
-<section id="how-it-works" class="ef-section scroll-mt-20">
+<section
+  id="how-it-works"
+  class="scroll-mt-20 ef-section"
+  style="background: linear-gradient(180deg, #f4f8fd, #fff)"
+>
   <div class="ef-container">
     <div class="ef-section-head">
-      <span class="ef-eyebrow">Easy 3-step setup</span>
+      <span class="ef-eyebrow">How it works</span>
       <h2 class="ef-heading">Pick, create, and <span class="ef-gradient-text">scale</span></h2>
-      <p class="ef-subheading">
-        EngageFlow AI simplifies your growth workflow — zero technical hurdles, just automated
-        results.
-      </p>
+      <p class="ef-subheading">Launch your first automation in minutes — no code, just results.</p>
     </div>
 
-    <div class="relative mt-12 sm:mt-16">
-      <!-- connector line (lg) -->
-      <div
-        aria-hidden="true"
-        class="absolute top-1.5 right-[16.66%] left-[16.66%] hidden border-t-2 border-dashed border-gray-200 lg:block dark:border-gray-700"
-      ></div>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-        @for (step of steps; track step.number; let i = $index) {
-          <div>
-            <!-- dot on the connector (lg) -->
-            <div
-              class="mx-auto mb-5 hidden h-3 w-3 rounded-full lg:block"
-              [ngClass]="i === 1 ? 'bg-theme-purple-500' : 'bg-brand-500'"
-            ></div>
-
-            <div
-              class="h-full rounded-2xl border p-4 text-center sm:p-6"
-              [ngClass]="
-                i === 1
-                  ? 'border-brand-500 bg-brand-50/60 shadow-theme-md dark:border-brand-500 dark:bg-brand-500/10'
-                  : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-800'
-              "
-            >
+    <div class="mt-5.5 flex flex-col items-stretch gap-3.5 md:flex-row lg:mt-9">
+      @for (step of steps; track step.number; let last = $last) {
+        <!-- Card -->
+        <div
+          appReveal
+          [style.--i]="$index"
+          class="lift flex flex-1 flex-col overflow-hidden rounded-[18px] border border-[#eef1f6] bg-white shadow-[0_12px_30px_-18px_rgba(20,40,80,0.3)] lg:rounded-[20px] dark:border-gray-800 dark:bg-gray-900"
+        >
+          <div
+            class="h-1.25 lg:h-1.5"
+            [style.background]="step.bar"
+            [style.background-size]="'200% 100%'"
+            [style.animation]="'au-gradShift 6s ease infinite'"
+          ></div>
+          <div class="flex flex-1 flex-col p-4.5 lg:p-6">
+            <div class="flex items-center justify-between">
               <span
-                class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl sm:h-12 sm:w-12"
-                [ngClass]="
-                  i === 1
-                    ? 'bg-brand-500 text-white'
-                    : 'bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400'
-                "
+                class="grid h-11.5 w-11.5 place-items-center rounded-2xl text-[19px] font-extrabold text-white lg:h-13.5 lg:w-13.5 lg:text-[23px]"
+                [style.background]="step.chip"
+                [style.box-shadow]="step.chipShadow"
+                >{{ step.number }}</span
+              >
+              <span
+                class="grid h-9 w-9 place-items-center rounded-[13px] lg:h-10.5 lg:w-10.5"
+                [style.background]="step.iconBg"
                 [innerHTML]="step.icon | safeHtml"
               ></span>
-              <p class="mt-3 text-xs font-bold tracking-wide text-gray-400 uppercase">
-                Phase {{ step.number }}
-              </p>
-              <h3 class="mt-1 text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
-                {{ step.title }}
-              </h3>
-              <p class="mt-1.5 text-sm leading-6 text-gray-600 dark:text-gray-400">
-                {{ step.description }}
-              </p>
+            </div>
+            <div class="mt-4.5 text-[11px] font-bold tracking-[0.12em] text-[#9aa1ab] uppercase">
+              Step {{ step.number }}
+            </div>
+            <div
+              class="mt-1 text-[17px] font-extrabold tracking-[-0.01em] text-gray-900 lg:text-xl dark:text-white"
+            >
+              {{ step.title }}
+            </div>
+            <div
+              class="mt-1.5 text-[12.5px] leading-[1.55] text-gray-500 lg:text-[13.5px] dark:text-gray-400"
+            >
+              {{ step.description }}
+            </div>
+
+            <!-- mini-preview -->
+            <div class="mt-auto pt-4.5">
+              <div
+                class="rounded-[11px] border border-[#eef1f6] bg-[#f6f8fc] p-2.75 lg:rounded-xl lg:p-3 dark:border-gray-800 dark:bg-white/5"
+              >
+                @switch (step.number) {
+                  @case ('01') {
+                    <div class="text-[10px] font-bold tracking-[0.1em] text-[#9aa1ab] uppercase">
+                      Trigger
+                    </div>
+                    <span
+                      class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#e8f0fb] px-2.75 py-1.5 text-xs font-bold text-[#1a5dab]"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#1a5dab"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M21 11.5a8.4 8.4 0 0 1-9 8.4L3 21l1.1-4.4A8.4 8.4 0 1 1 21 11.5Z"
+                        />
+                      </svg>
+                      Comment "price"
+                    </span>
+                  }
+                  @case ('02') {
+                    <div class="text-[10px] font-bold tracking-[0.1em] text-[#9aa1ab] uppercase">
+                      Flow
+                    </div>
+                    <div class="mt-2 flex items-center gap-1.5">
+                      <span
+                        class="rounded-[7px] bg-[#e8f0fb] px-2.25 py-1.25 text-[11px] font-bold text-[#1a5dab]"
+                        >Reply</span
+                      >
+                      <span class="text-[#c7d3e6]">→</span>
+                      <span
+                        class="rounded-[7px] bg-[#f0ecfb] px-2.25 py-1.25 text-[11px] font-bold text-[#5b4a9e]"
+                        >DM</span
+                      >
+                      <span class="text-[#c7d3e6]">→</span>
+                      <span
+                        class="rounded-[7px] bg-[#e8f8ef] px-2.25 py-1.25 text-[11px] font-bold text-[#2d7a4f]"
+                        >Lead</span
+                      >
+                    </div>
+                  }
+                  @case ('03') {
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-bold tracking-[0.1em] text-[#9aa1ab] uppercase"
+                        >Status</span
+                      >
+                      <span
+                        class="inline-flex items-center gap-1.25 text-[10px] font-bold text-[#2d7a4f]"
+                      >
+                        <span class="au-pulse-dot h-1.5 w-1.5 rounded-full bg-[#2d7a4f]"></span>Live
+                      </span>
+                    </div>
+                    <div class="mt-1.75 text-xl font-extrabold text-gray-900 dark:text-white">
+                      ₹1,497
+                      <span class="text-[11px] font-semibold text-gray-500">earned today</span>
+                    </div>
+                  }
+                }
+              </div>
             </div>
           </div>
+        </div>
+
+        <!-- Arrow between cards (horizontal, md+) -->
+        @if (!last) {
+          <div class="hidden items-center justify-center md:flex">
+            <span
+              class="ef-slide-arrow grid h-8.5 w-8.5 place-items-center rounded-full border border-gray-200 bg-white shadow-[0_6px_14px_-8px_rgba(20,40,80,0.4)] dark:border-gray-700 dark:bg-gray-800"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                [attr.stroke]="step.arrow"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </span>
+          </div>
+
+          <!-- Down-arrow connector (stacked, below md) -->
+          <div class="flex items-center justify-center py-2 md:hidden">
+            <span
+              class="ef-slide-arrow grid h-7.5 w-7.5 place-items-center rounded-full border border-[#e3e6eb] bg-white shadow-[0_6px_14px_-8px_rgba(20,40,80,0.4)] dark:border-gray-700 dark:bg-gray-800"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                [attr.stroke]="step.arrow"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M6 13l6 6 6-6" />
+              </svg>
+            </span>
+          </div>
         }
-      </div>
+      }
     </div>
   </div>
 </section>

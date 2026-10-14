@@ -1,21 +1,21 @@
-<app-page-breadcrumb pageTitle="Admin · Feature Analytics" />
+<app-page-breadcrumb pageTitle="Admin / Feature Analytics" tone="violet" />
 
 <app-page-header
   title="Feature Analytics"
   subtitle="Which features and endpoints get used the most across the platform."
 >
-  <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/[0.06]">
+  <div class="flex gap-2">
     @for (r of ranges; track r.value) {
       <button
         type="button"
         (click)="setRange(r.value)"
-        class="rounded-md px-3 py-1.5 text-sm font-medium transition"
-        [class.bg-white]="range === r.value"
-        [class.text-gray-800]="range === r.value"
-        [class.shadow-theme-xs]="range === r.value"
-        [class.dark:bg-gray-800]="range === r.value"
-        [class.dark:text-white]="range === r.value"
-        [class.text-gray-500]="range !== r.value"
+        class="rounded-[10px] border px-4 py-2.25 text-[13px] font-semibold transition"
+        [ngClass]="
+          range === r.value
+            ? 'border-transparent bg-[#1a5dab] text-white'
+            : 'bg-(--au-surface) text-(--au-strong) hover:border-brand-500 hover:text-brand-500'
+        "
+        [style.border-color]="range === r.value ? 'transparent' : 'var(--au-line)'"
       >
         {{ r.label }}
       </button>
@@ -36,54 +36,86 @@
 }
 
 @if ((board?.items ?? []).length === 0 && !loading) {
-  <div class="ef-card">
+  <div class="au-panel">
     <app-empty-state
       title="No usage recorded yet"
       description="Feature analytics fill in as subscribers use the app and automations run."
     />
   </div>
 } @else {
-  <app-component-card title="Top features" desc="By total uses over the window (daily, UTC).">
-    <app-bar-chart-one [series]="series" [categories]="categories" />
+  <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <app-stat-card
+      [icon]="icons.uses"
+      chipColor="blue"
+      label="Total feature uses"
+      [value]="(totalUses | number) ?? '0'"
+      hint="Not tracked"
+    />
+    <app-stat-card
+      [icon]="icons.features"
+      chipColor="purple"
+      label="Active features"
+      [value]="(activeFeatures | number) + ' / —'"
+      hint="Not tracked"
+    />
+    <app-stat-card
+      [icon]="icons.error"
+      chipColor="red"
+      label="Platform error rate"
+      [value]="(platformErrorRatePct | number: '1.0-1') + '%'"
+      hint="Not tracked"
+    />
+    <app-stat-card
+      label="Avg latency"
+      [value]="(avgLatencyMs | number: '1.0-0') + ' ms'"
+      [highlight]="true"
+      hint="p95 —"
+    />
+  </div>
+
+  <app-component-card title="Top features" desc="By total uses over the window.">
+    <app-bar-chart-one [series]="series" [categories]="categories" [showValueLabels]="true" />
   </app-component-card>
 
-  <div class="ef-card mt-6 overflow-hidden">
+  <div class="au-panel mt-6 overflow-hidden">
     <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
       <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Full leaderboard</h3>
     </div>
     <div class="custom-scrollbar overflow-x-auto">
       <app-table>
-        <app-table-header className="border-b border-gray-100 dark:border-gray-800">
+        <app-table-header
+          className="border-b border-gray-100 bg-[#f9fafc] dark:border-gray-800 dark:bg-white/[0.02]"
+        >
           <app-table-row>
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Feature</app-table-cell
+              className="px-5 py-[11px] text-left text-[10px] font-bold uppercase tracking-[0.07em] text-[#8894a8]"
+              >Feature / endpoint</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+              className="px-5 py-[11px] text-left text-[10px] font-bold uppercase tracking-[0.07em] text-[#8894a8]"
               >Uses</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Errors</app-table-cell
+              className="px-5 py-[11px] text-left text-[10px] font-bold uppercase tracking-[0.07em] text-[#8894a8]"
+              >Unique subs</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Error rate</app-table-cell
+              className="px-5 py-[11px] text-left text-[10px] font-bold uppercase tracking-[0.07em] text-[#8894a8]"
+              >Error %</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Avg duration</app-table-cell
+              className="px-5 py-[11px] text-left text-[10px] font-bold uppercase tracking-[0.07em] text-[#8894a8]"
+              >Avg ms</app-table-cell
             >
             <app-table-cell
               [isHeader]="true"
-              className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-              >Unique users</app-table-cell
+              className="px-5 py-[11px] text-left text-[10px] font-bold uppercase tracking-[0.07em] text-[#8894a8]"
+              >p95 ms</app-table-cell
             >
           </app-table-row>
         </app-table-header>
@@ -94,21 +126,26 @@
                 className="px-5 py-4 font-mono text-sm text-gray-800 dark:text-white/90"
                 >{{ item.feature }}</app-table-cell
               >
-              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
-                item.count | number
-              }}</app-table-cell>
-              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
-                item.errorCount | number
-              }}</app-table-cell>
-              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
-                item.errorRate | percent: '1.0-1'
-              }}</app-table-cell>
-              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                {{ item.avgDurationMs !== null ? (item.avgDurationMs | number) + ' ms' : '—' }}
-              </app-table-cell>
+              <app-table-cell
+                className="px-5 py-4 text-sm font-bold text-gray-800 dark:text-white/90"
+                >{{ item.count | number }}</app-table-cell
+              >
               <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
                 item.uniqueUsers | number
               }}</app-table-cell>
+              <app-table-cell
+                [className]="
+                  'px-5 py-4 text-sm font-semibold ' +
+                  (item.errorRate < 0.01 ? 'text-[#2d7a4f]' : 'text-[#a07a2c]')
+                "
+                >{{ item.errorRate | percent: '1.0-1' }}</app-table-cell
+              >
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                {{ item.avgDurationMs !== null ? (item.avgDurationMs | number) : '—' }}
+              </app-table-cell>
+              <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300"
+                >—</app-table-cell
+              >
             </app-table-row>
           }
         </app-table-body>

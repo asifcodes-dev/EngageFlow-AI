@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -87,6 +88,7 @@ const TOKEN_KEY = 'ef_auth_token';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly authUrl = `${environment.apiUrl}/auth`;
 
@@ -171,12 +173,12 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    if (this.isBrowser) localStorage.removeItem(TOKEN_KEY);
     this.currentUserSubject.next(null);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
   }
 
   isAuthenticated(): boolean {
@@ -185,7 +187,7 @@ export class AuthService {
 
   private handleAuth(res: AuthResponse): void {
     const token = res.access_token ?? res.accessToken ?? res.token ?? null;
-    if (token) {
+    if (token && this.isBrowser) {
       localStorage.setItem(TOKEN_KEY, token);
     }
     if (res.user) {

@@ -79,22 +79,18 @@ export class FlowService {
   /** Flip active/paused via PATCH { isActive }. */
   toggle(flow: Flow): Observable<Flow> {
     const isActive = flow.status !== 'active';
-    return this.http
-      .patch<ApiRule>(`${this.baseUrl}/${flow.id}`, { isActive })
-      .pipe(
-        map(fromApi),
-        tap((updated) =>
-          this.subject.next(
-            this.subject.value.map((f) => (f.id === updated.id ? updated : f)),
-          ),
-        ),
-      );
+    return this.http.patch<ApiRule>(`${this.baseUrl}/${flow.id}`, { isActive }).pipe(
+      map(fromApi),
+      tap((updated) =>
+        this.subject.next(this.subject.value.map((f) => (f.id === updated.id ? updated : f))),
+      ),
+    );
   }
 
   remove(flow: Flow): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${flow.id}`).pipe(
-      tap(() => this.subject.next(this.subject.value.filter((f) => f.id !== flow.id))),
-    );
+    return this.http
+      .delete<void>(`${this.baseUrl}/${flow.id}`)
+      .pipe(tap(() => this.subject.next(this.subject.value.filter((f) => f.id !== flow.id))));
   }
 }
 

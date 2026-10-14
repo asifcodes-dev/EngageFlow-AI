@@ -1,8 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LabelComponent } from '../../form/label/label.component';
-import { CheckboxComponent } from '../../form/input/checkbox.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
 import { AuthService } from '../../../services/auth.service';
 import { GoogleIdentityService } from '../../../services/google-identity.service';
@@ -11,7 +11,7 @@ import { extractAuthError } from '../signin-form/signin-form.component';
 
 @Component({
   selector: 'app-signup-form',
-  imports: [LabelComponent, CheckboxComponent, InputFieldComponent, RouterModule, FormsModule],
+  imports: [CommonModule, LabelComponent, InputFieldComponent, RouterModule, FormsModule],
   templateUrl: './signup-form.component.html',
   styles: ``,
 })
@@ -60,6 +60,21 @@ export class SignupFormComponent {
   get termsError(): string {
     if (!this.submitted) return '';
     return this.isChecked ? '' : 'Please accept the Terms and Privacy Policy.';
+  }
+
+  /** Live password-strength score (length + variety) for the strength bar. */
+  get passwordStrength(): { pct: number; label: string; cls: string } {
+    const p = this.password;
+    if (!p) return { pct: 0, label: '', cls: '' };
+    let score = 0;
+    if (p.length >= 8) score++;
+    if (/[A-Z]/.test(p)) score++;
+    if (/[0-9]/.test(p)) score++;
+    if (/[^A-Za-z0-9]/.test(p)) score++;
+    const pct = Math.max(12, (score / 4) * 100);
+    if (score <= 1) return { pct, label: 'Weak', cls: 'bg-error-500' };
+    if (score <= 3) return { pct, label: 'Okay', cls: 'bg-warning-500' };
+    return { pct, label: 'Strong', cls: 'bg-success-500' };
   }
 
   togglePasswordVisibility() {

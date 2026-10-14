@@ -157,9 +157,9 @@ export const routes: Routes = [
           {
             path: 'subscribers/:id',
             loadComponent: () =>
-              import(
-                './pages/dashboard/admin/subscriber-detail/admin-subscriber-detail.component'
-              ).then((m) => m.AdminSubscriberDetailComponent),
+              import('./pages/dashboard/admin/subscriber-detail/admin-subscriber-detail.component').then(
+                (m) => m.AdminSubscriberDetailComponent,
+              ),
             title: 'Admin · Subscriber | EngageFlow AI',
           },
         ],
@@ -170,6 +170,27 @@ export const routes: Routes = [
       { path: 'profile', redirectTo: 'settings', pathMatch: 'full' },
       { path: 'instagram', redirectTo: 'settings', pathMatch: 'full' },
     ],
+  },
+  // public marketing pages (header + footer chrome; reached from the nav)
+  {
+    path: 'features',
+    loadComponent: () =>
+      import('./pages/marketing/features-page.component').then((m) => m.FeaturesPageComponent),
+    title: 'Features | EngageFlow AI',
+  },
+  {
+    path: 'how-it-works',
+    loadComponent: () =>
+      import('./pages/marketing/how-it-works-page.component').then(
+        (m) => m.HowItWorksPageComponent,
+      ),
+    title: 'How it works | EngageFlow AI',
+  },
+  {
+    path: 'pricing',
+    loadComponent: () =>
+      import('./pages/marketing/pricing-page.component').then((m) => m.PricingPageComponent),
+    title: 'Pricing | EngageFlow AI',
   },
   // public legal pages (no app chrome)
   {

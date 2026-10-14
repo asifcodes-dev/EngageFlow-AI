@@ -1,147 +1,281 @@
-<app-page-breadcrumb pageTitle="Earnings" />
+<app-page-breadcrumb pageTitle="Sell / Earnings" />
 
 <app-page-header
   title="Earnings"
   subtitle="Your product sales, payout balance, and bank account. A 7% platform fee applies to each sale."
-/>
+>
+  <app-button variant="outline" size="sm">Download statement</app-button>
+</app-page-header>
 
 <!-- KPIs (live from /earnings; 0 until real sales/payouts settle) -->
 @let e = summary$ | async;
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-  <app-stat-card [icon]="icons.rupee" label="Total sales" [value]="money(e?.totalSales ?? 0)" />
+@let payouts = (payouts$ | async) ?? [];
+<div class="grid grid-cols-2 gap-3 sm:gap-3.5 lg:grid-cols-3 xl:grid-cols-5">
   <app-stat-card
-    [icon]="icons.fee"
-    label="Platform fee (7%)"
-    [value]="money(e?.platformFee ?? 0)"
-    trendColor="warning"
+    [compact]="true"
+    [icon]="icons.sales"
+    chipColor="blue"
+    label="Total sales"
+    [value]="money(e?.totalSales ?? 0)"
+    hint="Gross, before fees"
   />
   <app-stat-card
-    [icon]="icons.wallet"
+    [compact]="true"
+    [icon]="icons.fee"
+    chipColor="grey"
+    [muted]="true"
+    label="Platform fee (7%)"
+    [value]="negMoney(e?.platformFee ?? 0)"
+    hint="Deducted per sale"
+  />
+  <app-stat-card
+    [compact]="true"
     label="Available"
     [value]="money(e?.available ?? 0)"
-    trendColor="success"
+    [highlight]="true"
+    tag="Auto payout · Mon"
+    [hint]="nextPayoutLabel"
   />
   <app-stat-card
+    [compact]="true"
     [icon]="icons.clock"
+    chipColor="yellow"
     label="Pending"
     [value]="money(e?.pending ?? 0)"
-    trendColor="warning"
+    hint="Settles in T+2 days"
   />
   <app-stat-card
+    [compact]="true"
     [icon]="icons.check"
+    chipColor="green"
     label="Paid out"
     [value]="money(e?.paidOut ?? 0)"
-    trendColor="success"
+    [hint]="'Lifetime · ' + paidCount(payouts) + ' payouts'"
   />
 </div>
 
-<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-  <!-- Payout account -->
-  <div class="ef-card p-5 lg:p-6">
-    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Payout account</h3>
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+<div class="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.15fr_1fr]">
+  <!-- Payout account (local-only stub — backend write ships later) -->
+  <div class="au-panel p-5 lg:p-6">
+    <h3 class="text-[17px] font-bold text-gray-800 dark:text-white/90">Payout account</h3>
+    <p class="mt-1 text-[13px]" style="color: var(--au-muted)">
       Where we send your weekly payouts (T+2 working days).
     </p>
 
-    <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
-        <app-label>Bank name</app-label>
-        <app-input-field
-          type="text"
-          name="bankName"
-          placeholder="e.g. HDFC Bank"
-          [(value)]="bankName"
-        />
+        <div class="mb-1.5 text-xs font-semibold text-(--au-strong)">
+          Bank name <span class="text-brand-500">*</span>
+        </div>
+        <div class="au-input-icon">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m3 9 9-6 9 6" />
+            <line x1="4" y1="21" x2="20" y2="21" />
+            <line x1="7" y1="10" x2="7" y2="21" />
+            <line x1="12" y1="10" x2="12" y2="21" />
+            <line x1="17" y1="10" x2="17" y2="21" />
+          </svg>
+          <input
+            type="text"
+            class="au-input rounded-[14px]"
+            placeholder="e.g. HDFC Bank"
+            [(ngModel)]="bankName"
+            name="bankName"
+            aria-label="Bank name"
+          />
+        </div>
       </div>
       <div>
-        <app-label>IFSC code</app-label>
-        <app-input-field type="text" name="ifsc" placeholder="e.g. HDFC0001234" [(value)]="ifsc" />
+        <div class="mb-1.5 flex items-center justify-between">
+          <span class="text-xs font-semibold text-(--au-strong)">
+            IFSC code <span class="text-brand-500">*</span>
+          </span>
+          @if (ifscLooksValid) {
+            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2d7a4f]">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Verified
+            </span>
+          }
+        </div>
+        <div class="au-input-icon">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="4" y1="9" x2="20" y2="9" />
+            <line x1="4" y1="15" x2="20" y2="15" />
+            <line x1="10" y1="3" x2="8" y2="21" />
+            <line x1="16" y1="3" x2="14" y2="21" />
+          </svg>
+          <input
+            type="text"
+            class="au-input rounded-[14px] uppercase tracking-[0.04em]"
+            placeholder="e.g. HDFC0001234"
+            [(ngModel)]="ifsc"
+            name="ifsc"
+            aria-label="IFSC code"
+          />
+        </div>
+        <div class="mt-1.5 text-xs" style="color: var(--au-muted)">
+          Bank &amp; branch are auto-detected from the IFSC.
+        </div>
       </div>
       <div>
-        <app-label>Account number</app-label>
-        <app-input-field
-          type="text"
-          name="accountNumber"
-          placeholder="000012345678"
-          [(value)]="accountNumber"
-        />
+        <div class="mb-1.5 text-xs font-semibold text-(--au-strong)">
+          Account number <span class="text-brand-500">*</span>
+        </div>
+        <div class="au-input-icon">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+          </svg>
+          <input
+            type="text"
+            inputmode="numeric"
+            class="au-input rounded-[14px] tracking-[0.06em]"
+            placeholder="000012345678"
+            [(ngModel)]="accountNumber"
+            name="accountNumber"
+            aria-label="Account number"
+          />
+        </div>
+        <div class="mt-1.5 text-xs" style="color: var(--au-muted)">
+          We never show this to customers.
+        </div>
       </div>
       <div>
-        <app-label>Account holder</app-label>
-        <app-input-field type="text" name="holder" placeholder="Full name" [(value)]="holder" />
+        <div class="mb-1.5 text-xs font-semibold text-(--au-strong)">
+          Account holder <span class="text-brand-500">*</span>
+        </div>
+        <div class="au-input-icon">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          <input
+            type="text"
+            class="au-input rounded-[14px]"
+            placeholder="Full name"
+            [(ngModel)]="holder"
+            name="holder"
+            aria-label="Account holder"
+          />
+        </div>
+        <div class="mt-1.5 text-xs" style="color: var(--au-muted)">
+          Must match the bank record exactly.
+        </div>
       </div>
     </div>
 
-    <div class="mt-5 flex items-center gap-3">
-      <app-button size="sm" (btnClick)="saveAccount()">Save account</app-button>
+    <div class="mt-5.5 flex flex-wrap items-center gap-3.5">
+      <button type="button" class="grad-btn px-5 py-2.75 text-sm" (click)="saveAccount()">
+        Save account
+      </button>
       @if (saved) {
         <span class="text-sm text-success-600 dark:text-success-400">Saved ✓</span>
       }
+      <span class="inline-flex items-center gap-1.5 text-xs" style="color: var(--au-muted)">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="h-3.25 w-3.25"
+        >
+          <rect x="4" y="11" width="16" height="10" rx="2" />
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        </svg>
+        256-bit encrypted · Verified by penny drop
+      </span>
     </div>
   </div>
 
-  <!-- History -->
-  <div class="ef-card overflow-hidden">
-    <div class="border-b border-gray-100 px-5 py-4 dark:border-gray-800">
-      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Payout history</h3>
+  <!-- Payout history -->
+  <div class="au-panel overflow-hidden">
+    <div
+      class="flex items-center justify-between border-b px-5 py-4"
+      style="border-color: var(--au-line)"
+    >
+      <h3 class="text-[17px] font-bold text-gray-800 dark:text-white/90">Payout history</h3>
+      <span class="cursor-pointer text-[13px] font-semibold text-brand-500 dark:text-brand-300"
+        >Statements →</span
+      >
     </div>
-    @if ((payouts$ | async) ?? []; as payouts) {
-      @if (payouts.length === 0) {
-        <app-empty-state
-          title="No payouts yet"
-          description="Payouts appear here as your sales are settled."
-        />
-      } @else {
-        <div class="custom-scrollbar overflow-x-auto">
-          <app-table>
-            <app-table-header className="border-b border-gray-100 dark:border-gray-800">
-              <app-table-row>
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Date</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Amount</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Status</app-table-cell
-                >
-                <app-table-cell
-                  [isHeader]="true"
-                  className="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
-                  >Reference</app-table-cell
-                >
-              </app-table-row>
-            </app-table-header>
-            <app-table-body className="divide-y divide-gray-100 dark:divide-gray-800">
-              @for (p of payouts; track trackPayout($index, p)) {
-                <app-table-row>
-                  <app-table-cell className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{
-                    p.date | date: 'mediumDate'
-                  }}</app-table-cell>
-                  <app-table-cell
-                    className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90"
-                    >{{ money(p.amount, p.currency) }}</app-table-cell
-                  >
-                  <app-table-cell className="px-5 py-4"
-                    ><app-badge [color]="statusColor(p.status)" variant="light" size="sm">{{
-                      p.status | titlecase
-                    }}</app-badge></app-table-cell
-                  >
-                  <app-table-cell className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{
-                    p.reference
-                  }}</app-table-cell>
-                </app-table-row>
-              }
-            </app-table-body>
-          </app-table>
-        </div>
-      }
+    @if (payouts.length === 0) {
+      <app-empty-state
+        title="No payouts yet"
+        description="Payouts appear here as your sales are settled."
+      />
+    } @else {
+      <div class="px-5 pb-2 pt-1">
+        @for (p of payouts; track trackPayout($index, p)) {
+          <div
+            class="flex items-center gap-3.5 py-3.75"
+            [class.border-b]="!$last"
+            style="border-color: var(--au-row-line)"
+          >
+            <div class="flex-1">
+              <div class="text-[15px] font-bold text-gray-800 dark:text-white/90">
+                {{ money(p.amount, p.currency) }}
+              </div>
+              <div class="mt-0.5 text-xs" style="color: var(--au-muted)">
+                @if (p.status === 'pending') {
+                  Scheduled · {{ p.date | date: 'EEE d MMMM' }}
+                } @else {
+                  {{ p.date | date: 'd MMM yyyy' }} · UTR {{ p.reference }}
+                }
+              </div>
+            </div>
+            <span class="au-pill" [ngClass]="pillClass(p.status)">{{ statusLabel(p.status) }}</span>
+          </div>
+        }
+      </div>
     }
   </div>
 </div>

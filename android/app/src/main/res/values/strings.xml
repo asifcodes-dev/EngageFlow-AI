@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EngageFlow AI</string>
+    <string name="title_activity_main">EngageFlow AI</string>
+    <string name="package_name">com.engageflow.app</string>
+    <string name="custom_url_scheme">com.engageflow.app</string>
+</resources>

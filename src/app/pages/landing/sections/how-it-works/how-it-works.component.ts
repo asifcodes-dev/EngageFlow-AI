@@ -1,21 +1,26 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafeHtmlPipe } from '../../../../shared/pipe/safe-html.pipe';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 interface Step {
   number: string;
   title: string;
   description: string;
-  icon: string;
+  icon: string; // inline SVG for the accent chip
+  bar: string; // top gradient bar
+  chip: string; // number chip gradient
+  chipShadow: string;
+  iconBg: string; // accent icon chip bg
+  arrow: string; // arrow stroke color (drawn after the card)
 }
 
-const I =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-6 w-6" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="';
-const E = '" /></svg>';
+const ICON =
+  '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="STROKE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
 
 @Component({
   selector: 'app-landing-how-it-works',
-  imports: [CommonModule, SafeHtmlPipe],
+  imports: [CommonModule, SafeHtmlPipe, RevealDirective],
   templateUrl: './how-it-works.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -23,28 +28,40 @@ export class HowItWorksComponent {
   readonly steps: Step[] = [
     {
       number: '01',
-      title: 'Pick a Trigger',
-      description:
-        'Choose what starts automation — a comment, a story reply, or a keyword in a DM.',
-      icon: I + 'm3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z' + E,
+      title: 'Pick a trigger',
+      description: 'Choose a comment keyword, story reply, or DM to kick things off.',
+      icon: ICON.replace('STROKE', '#1a5dab') + '<path d="M13 2 3 14h7l-1 8 10-12h-7z" /></svg>',
+      bar: 'linear-gradient(120deg,#2470c8,#5aa0e8,#2470c8)',
+      chip: 'linear-gradient(135deg,#2470c8,#16467f)',
+      chipShadow: '0 12px 24px -10px rgba(26,93,171,.65)',
+      iconBg: 'linear-gradient(135deg,#e8f0fb,#d6e6fa)',
+      arrow: '#2470c8',
     },
     {
       number: '02',
-      title: 'Design the Flow',
-      description: 'Add your AI reply, lead magnet, or sales link effortlessly — no code required.',
+      title: 'Design the flow',
+      description: 'Map the reply, DM, lead form and product — visually, no code.',
       icon:
-        I +
-        'm16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10' +
-        E,
+        ICON.replace('STROKE', '#5b4a9e') +
+        '<circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.6 13.5 15.4 17.5M15.4 6.5 8.6 10.5" /></svg>',
+      bar: 'linear-gradient(120deg,#7c5cf0,#a78bfa,#7c5cf0)',
+      chip: 'linear-gradient(135deg,#7c5cf0,#5b3bd0)',
+      chipShadow: '0 12px 24px -10px rgba(124,92,240,.65)',
+      iconBg: 'linear-gradient(135deg,#f0ecfb,#e5dcf7)',
+      arrow: '#7c5cf0',
     },
     {
       number: '03',
-      title: 'Launch Instantly',
-      description: 'Go live in 30 seconds and let EngageFlow AI reply, qualify, and sell 24/7.',
+      title: 'Launch instantly',
+      description: 'Go live and watch replies, leads and sales roll in 24/7.',
       icon:
-        I +
-        'M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z' +
-        E,
+        ICON.replace('STROKE', '#0b8a5b') +
+        '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z" /><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" /><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /></svg>',
+      bar: 'linear-gradient(120deg,#12b981,#5fd6a8,#12b981)',
+      chip: 'linear-gradient(135deg,#12b981,#0b8a5b)',
+      chipShadow: '0 12px 24px -10px rgba(11,138,91,.6)',
+      iconBg: 'linear-gradient(135deg,#e8f8ef,#d5f2e2)',
+      arrow: '#12b981',
     },
   ];
 }

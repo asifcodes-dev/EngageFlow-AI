@@ -1,9 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import {
-  AnalyticsService,
-  LeadEntry,
-} from '../../../shared/services/analytics.service';
+import { AnalyticsService, LeadEntry } from '../../../shared/services/analytics.service';
 
 /** A captured lead = a price-inquiry comment surfaced by the automation. */
 export type Lead = LeadEntry;
@@ -21,8 +18,6 @@ export class LeadsService {
 
   /** Fetch leads and push them into `leads$`. */
   load(): Observable<Lead[]> {
-    return this.analytics
-      .getLeads()
-      .pipe(tap((leads) => this.subject.next(leads)));
+    return this.analytics.getLeads().pipe(tap((leads) => this.subject.next(leads)));
   }
 }

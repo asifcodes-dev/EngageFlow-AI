@@ -22,9 +22,12 @@ export class ConnectionStateService {
   private readonly connectedSubject = new BehaviorSubject<boolean>(
     environment.previewUnlocked === true,
   );
+  private readonly usernameSubject = new BehaviorSubject<string | null>(null);
 
   /** Emits `true` once a connected Instagram account is confirmed by the backend. */
   readonly connected$: Observable<boolean> = this.connectedSubject.asObservable();
+  /** Connected IG handle (without @), or null — for "@handle · Connected" pills. */
+  readonly username$: Observable<string | null> = this.usernameSubject.asObservable();
 
   constructor() {
     this.refresh();
@@ -43,10 +46,13 @@ export class ConnectionStateService {
     this.instagram
       .getStatus()
       .pipe(
-        map((status) => status.connected),
+        map((status) => ({ connected: status.connected, username: status.username ?? null })),
         // No endpoint yet / not connected / auth issue → treat as locked.
-        catchError(() => of(false)),
+        catchError(() => of({ connected: false, username: null })),
       )
-      .subscribe((connected) => this.connectedSubject.next(connected));
+      .subscribe(({ connected, username }) => {
+        this.connectedSubject.next(connected);
+        this.usernameSubject.next(username);
+      });
   }
 }

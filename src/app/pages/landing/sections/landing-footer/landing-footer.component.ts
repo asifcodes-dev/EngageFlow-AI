@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { LogoComponent } from '../../../../shared/components/common/logo/logo.component';
 
 interface FooterLink {
   label: string;
@@ -11,7 +12,7 @@ interface FooterLink {
 
 @Component({
   selector: 'app-landing-footer',
-  imports: [RouterModule],
+  imports: [RouterModule, LogoComponent],
   templateUrl: './landing-footer.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -19,10 +20,9 @@ export class LandingFooterComponent {
   readonly year = new Date().getFullYear();
 
   readonly productLinks: FooterLink[] = [
-    { label: 'Features', href: '#features' },
-    { label: 'How it works', href: '#how-it-works' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '#faq' },
+    { label: 'Features', route: '/features' },
+    { label: 'How it works', route: '/how-it-works' },
+    { label: 'Pricing', route: '/pricing' },
   ];
 
   readonly companyLinks: FooterLink[] = [

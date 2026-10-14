@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RevealDirective } from '../../../../shared/directives/reveal.directive';
 
 interface Testimonial {
   quote: string;
@@ -9,6 +10,7 @@ interface Testimonial {
 
 @Component({
   selector: 'app-landing-testimonials',
+  imports: [RevealDirective],
   templateUrl: './testimonials.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
